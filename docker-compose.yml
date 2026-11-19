@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-vaya}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: ${POSTGRES_DB:-vaya}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vaya} -d ${POSTGRES_DB:-vaya}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-vaya}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-vaya}
+      USER_AGENT: ${USER_AGENT:-VayaJobIndexer/0.1}
+    # Uso: docker compose run --rm app <comando>, ex.: seed-platforms, fetch --source-id ...
+    entrypoint: ["sh", "-c", "alembic upgrade head && exec vaya \"$$@\"", "vaya"]
+    command: ["--help"]
+
+volumes:
+  pgdata:
