@@ -532,5 +532,246 @@
   "recommendation": "NEEDS_MORE_RESEARCH",
   "notes": "Fetch job_search.php with form params (POST/GET params) to find full listing; vendor is a PHP script resold per client, so each site is self-hosted (like WP). JSON-LD on detail verified for 2 clients.",
   "category": "JOB_BOARD"
+ },
+ {
+  "slug": "jobboardfire",
+  "name": "JobBoardFire",
+  "mechanism": "jsonld",
+  "endpoint_template": "https://{domain}/sitemap.xml (sitemapindex -> sitemap-jobs.xml) -> https://{domain}/jobs/{slug}-{id}; parse schema.org JobPosting JSON-LD on each detail page",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": {
+   "domain": "board custom domain, e.g. jobs.productmarketingalliance.com"
+  },
+  "pagination": "none; sitemap-jobs.xml lists all current jobs",
+  "fields_available": [
+   "title",
+   "description",
+   "datePosted",
+   "validThrough",
+   "employmentType",
+   "hiringOrganization",
+   "jobLocation",
+   "baseSalary (when present)"
+  ],
+  "platform_signature": "HTML contains JobBoardFireBranding and references to jobboardfire.com/api/ and e.jobboardfire.com; Nuxt SPA",
+  "docs_urls": [
+   "https://jobboardfire.com/customers"
+  ],
+  "instances": [
+   {
+    "company": "Product Marketing Alliance",
+    "config": {
+     "domain": "jobs.productmarketingalliance.com"
+    },
+    "url_tested": "https://jobs.productmarketingalliance.com/sitemap-jobs.xml",
+    "http_status": 200,
+    "jobs_observed": 11,
+    "checked_at": "2026-11-19"
+   },
+   {
+    "company": "GreenBiz",
+    "config": {
+     "domain": "jobs.greenbiz.com"
+    },
+    "url_tested": "https://jobs.greenbiz.com/",
+    "http_status": 200,
+    "jobs_observed": null,
+    "checked_at": "2026-11-19"
+   }
+  ],
+  "limitations": "Sitemap varies per board: greenbiz /sitemap.xml returned SPA HTML (not XML), so sitemap discovery is not universal. No RSS found. jobboardfire.com/api/ returned 404 (not a public endpoint). robots.txt disallows /admin, /employer, /post/ only.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "Only one board (productmarketingalliance) confirmed with sitemap + JSON-LD (1 job page tested has JobPosting). greenbiz signature present but listing mechanism not confirmed; may need Playwright.",
+  "category": "JOB_BOARD"
+ },
+ {
+  "slug": "jobkit",
+  "name": "JobKit",
+  "category": "JOB_BOARD",
+  "mechanism": "unknown",
+  "endpoint_template": null,
+  "method": null,
+  "request_body_example": null,
+  "config_params": {},
+  "pagination": null,
+  "fields_available": [],
+  "platform_signature": "",
+  "docs_urls": [],
+  "instances": [],
+  "limitations": "Domain parked; no evidence of the product at this domain.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "jobkit.com redirects via JS to /lander (parked domain, 114-byte page). No product, docs or customer boards found; no real instances."
+ },
+ {
+  "slug": "talenetic",
+  "name": "Talenetic",
+  "category": "JOB_BOARD",
+  "mechanism": "unknown",
+  "endpoint_template": null,
+  "method": null,
+  "request_body_example": null,
+  "config_params": {},
+  "pagination": null,
+  "fields_available": [],
+  "platform_signature": "",
+  "docs_urls": [
+   "https://talenetic.com/"
+  ],
+  "instances": [],
+  "limitations": "No public customer list found; listing mechanism unknown.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "talenetic.com (200) markets white-label job board software (Bootstrap 4 site). No customer board links, public feed or API documented on the home page; no real client instance identified, so no endpoint was probed."
+ },
+ {
+  "slug": "jobmount",
+  "name": "JobMount",
+  "category": "JOB_BOARD",
+  "mechanism": "unknown",
+  "endpoint_template": null,
+  "method": null,
+  "request_body_example": null,
+  "config_params": {},
+  "pagination": null,
+  "fields_available": [],
+  "platform_signature": "",
+  "docs_urls": [],
+  "instances": [],
+  "limitations": "Vendor domain unreachable.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "jobmount.com gave no HTTP response (000, connection failed/timeout). No evidence of product or clients."
+ },
+ {
+  "slug": "careersitecloud",
+  "name": "CareerSiteCloud",
+  "category": "JOB_BOARD",
+  "mechanism": "blocked",
+  "endpoint_template": null,
+  "method": null,
+  "request_body_example": null,
+  "config_params": {},
+  "pagination": null,
+  "fields_available": [],
+  "platform_signature": "",
+  "docs_urls": [],
+  "instances": [
+   {
+    "company": "vendor site",
+    "config": {},
+    "url_tested": "https://careersitecloud.com/",
+    "http_status": 403,
+    "jobs_observed": 0,
+    "checked_at": "2026-11-19"
+   }
+  ],
+  "limitations": "Vendor site returns 403 to our client; no instances reachable without circumventing protection.",
+  "recommendation": "BLOCKED",
+  "notes": "careersitecloud.com returns 403 Forbidden (118 bytes) to the research UA on the home page. Not bypassed. No customer boards identified elsewhere."
+ },
+ {
+  "slug": "jobboard-com",
+  "name": "JobBoard.com (HotLizard)",
+  "category": "JOB_BOARD",
+  "mechanism": "unknown",
+  "endpoint_template": null,
+  "method": null,
+  "request_body_example": null,
+  "config_params": {},
+  "pagination": null,
+  "fields_available": [],
+  "platform_signature": "HotLizard (hotlizard.net) footer; ASP.NET; /xml-sitemaps/N.xml",
+  "docs_urls": [
+   "https://www.jobboard.com/"
+  ],
+  "instances": [
+   {
+    "company": "jobboard.com",
+    "config": {
+     "domain": "www.jobboard.com"
+    },
+    "url_tested": "https://www.jobboard.com/jobs/",
+    "http_status": 200,
+    "jobs_observed": 0,
+    "checked_at": "2026-11-19"
+   }
+  ],
+  "limitations": "robots disallows /_feeds/; no job links in static HTML (likely JS-rendered); no customer boards confirmed.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "www.jobboard.com is a HotLizard-built site (ASP.NET; robots.txt references /_feeds/ disallowed, /_integrations/, Crawl-delay 0.2; sitemap index /xml-sitemaps/1.xml exists). It is a vendor/demo-style site (about, pricing, testimonials, /jobs/ search); no JobPosting JSON-LD found on /jobs/ and no job links in the static HTML. /jobs.rss and /rss return 404. /_feeds/ is disallowed so not used. HotLizard platform likely powers customer boards but no customer instance was confirmed."
+ },
+ {
+  "slug": "artha",
+  "name": "Artha",
+  "category": "JOB_BOARD",
+  "mechanism": "unknown",
+  "endpoint_template": null,
+  "method": null,
+  "request_body_example": null,
+  "config_params": {},
+  "pagination": null,
+  "fields_available": [],
+  "platform_signature": "",
+  "docs_urls": [],
+  "instances": [],
+  "limitations": "Domain parked.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "artha.co is a domain-for-sale parking page. No job board product evidence."
+ },
+ {
+  "slug": "jobboardsoftware-com",
+  "name": "jobboardsoftware.com (Exenzo)",
+  "category": "JOB_BOARD",
+  "mechanism": "unknown",
+  "endpoint_template": null,
+  "method": null,
+  "request_body_example": null,
+  "config_params": {},
+  "pagination": null,
+  "fields_available": [],
+  "platform_signature": "",
+  "docs_urls": [
+   "https://exenzo.com/en/jobboard",
+   "https://exenzo.com/en/features/jobboard"
+  ],
+  "instances": [],
+  "limitations": "No public customer instance identified.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "www.jobboardsoftware.com redirects to exenzo.com/en/jobboard (Exenzo job board SaaS, 200). Marketing page only; no customer boards, feed or API documented, so none probed."
+ },
+ {
+  "slug": "nodex",
+  "name": "Nodex",
+  "category": "JOB_BOARD",
+  "mechanism": "unknown",
+  "endpoint_template": null,
+  "method": null,
+  "request_body_example": null,
+  "config_params": {},
+  "pagination": null,
+  "fields_available": [],
+  "platform_signature": "",
+  "docs_urls": [],
+  "instances": [],
+  "limitations": "Vendor domain unreachable.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "nodex.com gave no HTTP response (000). No evidence of product or clients."
+ },
+ {
+  "slug": "ejobboard",
+  "name": "eJobBoard",
+  "category": "JOB_BOARD",
+  "mechanism": "unknown",
+  "endpoint_template": null,
+  "method": null,
+  "request_body_example": null,
+  "config_params": {},
+  "pagination": null,
+  "fields_available": [],
+  "platform_signature": "",
+  "docs_urls": [],
+  "instances": [],
+  "limitations": "Vendor domain unreachable.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "ejobboard.com gave no HTTP response (000). No evidence of product or clients."
  }
 ]
