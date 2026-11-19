@@ -1,0 +1,56 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato sitemap + JSON-LD + job_json do Niceboard. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "1001",
+      "payload": {
+        "id": "1001",
+        "url": "https://jobs.acme.example/job/1001-project-architect",
+        "apply_url": "https://careers.acme.example/open-positions/?jobid=abc",
+        "posting": {
+          "@type": "JobPosting",
+          "title": "Project Architect",
+          "description": "<p>Design buildings.</p>",
+          "datePosted": "2025-03-04",
+          "employmentType": "FULL_TIME",
+          "jobLocationType": "TELECOMMUTE",
+          "baseSalary": {
+            "@type": "MonetaryAmount",
+            "currency": "USD",
+            "value": {
+              "@type": "QuantitativeValue",
+              "value": "85000.00",
+              "unitText": "YEAR"
+            }
+          },
+          "hiringOrganization": {
+            "@type": "Organization",
+            "name": "Acme Studio"
+          },
+          "jobLocation": {
+            "@type": "Place",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Denver",
+              "addressRegion": "Colorado",
+              "addressCountry": "United States"
+            }
+          }
+        }
+      }
+    },
+    {
+      "external_id": "1002",
+      "payload": {
+        "id": "1002",
+        "url": "https://jobs.acme.example/job/1002-intern",
+        "posting": {
+          "@type": "JobPosting",
+          "title": "Intern",
+          "employmentType": "INTERN"
+        }
+      }
+    }
+  ]
+}

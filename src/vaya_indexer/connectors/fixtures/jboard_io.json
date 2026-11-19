@@ -1,0 +1,59 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de pagina de vaga JBoard.io (JSON-LD). Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "501",
+      "payload": {
+        "url": "https://jobs.example.com/jobs/501-welder",
+        "apply_url": "https://jobs.example.com/jobs/501/apply",
+        "posting": {
+          "@type": "JobPosting",
+          "title": "Welder",
+          "description": "<p>Full <b>description</b>.</p>",
+          "datePosted": "2026-11-12",
+          "hiringOrganization": {
+            "@type": "Organization",
+            "name": "Acme Co"
+          },
+          "jobLocation": {
+            "@type": "Place",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Calgary",
+              "addressRegion": "AB",
+              "addressCountry": "CA"
+            }
+          },
+          "employmentType": "FULL_TIME"
+        }
+      }
+    },
+    {
+      "external_id": "502",
+      "payload": {
+        "url": "https://jobs.example.com/jobs/502-driver",
+        "apply_url": "https://jobs.example.com/jobs/502/apply",
+        "posting": {
+          "@type": "JobPosting",
+          "title": "Driver",
+          "description": "<p>Full <b>description</b>.</p>",
+          "datePosted": "2026-11-12",
+          "hiringOrganization": {
+            "@type": "Organization",
+            "name": "Globex"
+          },
+          "jobLocation": {
+            "@type": "Place",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Toronto",
+              "addressRegion": "ON",
+              "addressCountry": "CA"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

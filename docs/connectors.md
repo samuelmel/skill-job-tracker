@@ -153,6 +153,32 @@ consegue provar integridade, entao teto de vagas ou item descartado resulta em `
 `feeds.parse_xml`/`FeedEntry.element` e o fallback `strict=False` de `jsonld.py` foram
 estendidos de forma aditiva para estes conectores.
 
+## Conectores do lote 3A (job boards: sitemap + JSON-LD e feed WP Job Manager)
+
+Sem autenticacao e com o `HttpClient`. Helpers em `connectors/_boards3a.py`. O RSS de
+SmartJobBoard e JobBoard.io e truncado pela plataforma: a lista completa vem do sitemap + JSON-LD
+de cada vaga, e o RSS so e fallback (sempre `complete=False`).
+
+| Conector (`connector_type`) | Config | Fonte | Limitacoes |
+|---|---|---|---|
+| `niceboard` | `board_domain` | `/sitemap-jobs.xml` + JSON-LD em `/job/{id}-{slug}`; `apply_url` de `var job_json` | Crawl-delay 1s; ate 200 vagas |
+| `wp-job-manager` | `base_url` (https, pode ter subcaminho) | RSS `{base}/?feed=job_feed&posts_per_page=100&paged=N` | ate 20 paginas; sites que ignoram `paged` (jobicy) = `complete=False`; sem link externo de candidatura |
+| `smartjobboard` | `board_domain` | `/sitemap.xml` + JSON-LD em `/job/{id}/{slug}/`; RSS `/rss` so fallback | ate 300 vagas; `/application-redirect/` proibido no robots |
+| `jobboard-io` | `board_domain` | indice `/sitemap.xml` -> `/sitemaps/jobs/*` + JSON-LD em `/jobs/{id}-{slug}`; RSS `/jobs.rss` so fallback | ate 300 vagas; distinto de jboard.io |
+
+## Conectores do lote 3b (quadros de vagas: RSS, sitemap + JSON-LD e postback ASP.NET)
+
+Todos usam `board_domain` (host do quadro) e o `HttpClient` do projeto. Os que leem uma pagina por
+vaga respeitam o `Crawl-delay` do robots.txt com uma pausa entre paginas e um teto de vagas
+(`complete=False` quando o teto corta a listagem ou um detalhe falha).
+
+| Conector (`connector_type`) | Config | Fonte | Limitacoes |
+|---|---|---|---|
+| `jobboardly` | `board_domain` | RSS `/jobs.rss` (um request; `job:city/state/country`; titulo 'cargo - empresa - local') | sem salario nem tipo de contrato |
+| `jobiqo` | `board_domain` | `/sitemap.xml` (filtra `/job/{slug}-{id}`) + JSON-LD (descricao com HTML escapado) | Crawl-delay 10s; ate 200 vagas (lastmod mais recente); candidatura = URL da vaga |
+| `jboard-io` | `board_domain` | indice `/sitemap.xml` -> `sitemap-jobs-N.xml` + JSON-LD em `/jobs/{id}-{slug}`; candidatura `/jobs/{id}/apply` | `/rss/` proibido; Crawl-delay 1s; ate 1000 vagas; distinto de `jobboard-io` |
+| `jobboardhq` | `board_domain` | `/search` paginado por postback ASP.NET (`__VIEWSTATE`, `__EVENTTARGET=Page`) + JSON-LD | `?page=N` nao pagina; busca limitada a 500/1000 pelo quadro (`complete=False`); ate 600 vagas |
+
 ## Conectores do lote 2A (APIs JSON publicas e HTML de portais de ATS)
 
 Sem autenticacao e com o `HttpClient` do projeto. Quando a fonte declara o total, `complete` so

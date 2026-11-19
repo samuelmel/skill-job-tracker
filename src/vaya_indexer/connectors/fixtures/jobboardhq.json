@@ -1,0 +1,50 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato do quadro jobBoardHQ (cartao + JSON-LD; o 2o sem detalhe). Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "AB12CD",
+      "payload": {
+        "id": "AB12CD",
+        "href": "/job/AB12CD/teacher/Newark/NJ",
+        "title": "Teacher",
+        "company": "Newark Schools",
+        "location": "Newark, NJ",
+        "date": "11/18/2026",
+        "url": "https://jobs.example.com/job/AB12CD/teacher/Newark/NJ",
+        "posting": {
+          "@type": "JobPosting",
+          "title": "Teacher",
+          "description": "<p>Full <b>description</b>.</p>",
+          "datePosted": "2026-11-12",
+          "hiringOrganization": {
+            "@type": "Organization",
+            "name": "Confidential Employer"
+          },
+          "jobLocation": {
+            "@type": "Place",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Newark",
+              "addressRegion": "NJ",
+              "addressCountry": "US"
+            }
+          }
+        }
+      }
+    },
+    {
+      "external_id": "EF34GH",
+      "payload": {
+        "id": "EF34GH",
+        "href": "/job/EF34GH/aide/Camden/NJ",
+        "title": "Aide",
+        "company": "Camden Schools",
+        "location": "Camden, NJ",
+        "date": "11/17/2026",
+        "url": "https://jobs.example.com/job/EF34GH/aide/Camden/NJ",
+        "posting": null
+      }
+    }
+  ]
+}

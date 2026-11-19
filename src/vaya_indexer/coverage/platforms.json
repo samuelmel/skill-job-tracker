@@ -1161,19 +1161,63 @@
       "research_status": "NOT_STARTED"
     },
     "niceboard": {
-      "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "docs_urls": [
+        "https://niceboard.co/features"
+      ],
+      "extraction_strategy": "Sitemap /sitemap-jobs.xml + JSON-LD JobPosting em /job/{id}-{slug}; apply_url externo lido de `var job_json`.",
+      "connector_type": "niceboard",
+      "example_instances": [
+        {
+          "company": "AIA Colorado",
+          "config": {
+            "board_domain": "jobs.aiacolorado.org"
+          }
+        },
+        {
+          "company": "AICAD",
+          "config": {
+            "board_domain": "jobs.aicad.org"
+          }
+        }
+      ],
+      "limitations": [
+        "Crawl-delay de 1s respeitado (uma requisicao por vaga por segundo); maximo de 200 vagas por coleta (excedente -> complete=False).",
+        "Sem API publica documentada; /api/ bloqueado no robots.txt (exceto /api/jobs, nao usado).",
+        "Vaga sem JSON-LD ou com detalhe falho -> complete=False."
+      ],
       "research_status": "NOT_STARTED"
     },
     "wp-job-manager": {
-      "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "docs_urls": [
+        "https://wordpress.org/plugins/wp-job-manager/"
+      ],
+      "extraction_strategy": "Feed RSS `{base}/?feed=job_feed&posts_per_page=100&paged=N` (extensoes job_listing:*).",
+      "connector_type": "wp-job-manager",
+      "example_instances": [
+        {
+          "company": "A.CRE Job Board",
+          "config": {
+            "base_url": "https://www.adventuresincre.com/acrejobs"
+          }
+        },
+        {
+          "company": "jobs.blog (Automattic)",
+          "config": {
+            "base_url": "https://jobs.blog"
+          }
+        },
+        {
+          "company": "Jobicy",
+          "config": {
+            "base_url": "https://jobicy.com"
+          }
+        }
+      ],
+      "limitations": [
+        "Site WordPress auto-hospedado: base_url e a identidade do board; o feed so inclui vagas com tipo definido.",
+        "Maximo de 20 paginas de 100 vagas (excedente -> complete=False); sites que ignoram `paged` (ex.: jobicy.com) saem com complete=False.",
+        "Sem URL externa de candidatura no feed: application_url e a pagina da vaga."
+      ],
       "research_status": "NOT_STARTED"
     },
     "jobkit": {
@@ -1186,26 +1230,71 @@
     },
     "jobboardly": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "Feed RSS publico `https://{board_domain}/jobs.rss` (um unico request, sem paginacao) com descricao HTML completa e extensao `job:city|state|country`; titulo no formato 'cargo - empresa - local'.",
+      "connector_type": "jobboardly",
+      "example_instances": [
+        {
+          "company": "ETCareers",
+          "config": {
+            "board_domain": "etcareers.com"
+          }
+        },
+        {
+          "company": "Medical Courier Jobs",
+          "config": {
+            "board_domain": "medicalcourierjobs.com"
+          }
+        },
+        {
+          "company": "Jobs in Devon",
+          "config": {
+            "board_domain": "jobsindevon.uk"
+          }
+        }
+      ],
+      "limitations": [
+        "Feed sem salario nem tipo de contrato (so no JSON-LD da pagina da vaga, nao lido).",
+        "Empresa e local sao extraidos do titulo ('cargo - empresa - local'); cargos com ' - ' sao preservados.",
+        "O feed e a lista completa; nao ha como paginar."
+      ],
       "research_status": "NOT_STARTED"
     },
     "jobiqo": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "Sitemap Drupal `/sitemap.xml` (urlset plano; vagas em `/job/{slug}-{id}` com lastmod) + JSON-LD JobPosting da pagina de cada vaga (descricao com HTML escapado, desfeito antes de converter).",
+      "connector_type": "jobiqo",
+      "example_instances": [
+        {
+          "company": "Miami Jobs",
+          "config": {
+            "board_domain": "www.miamijobs.com"
+          }
+        }
+      ],
+      "limitations": [
+        "robots.txt pede Crawl-delay: 10; o conector le as paginas em sequencia a cada 10 s e so as 200 vagas com lastmod mais recente (complete=False se houver mais; miamijobs.com tem ~195 e conclui, ruhr24jobs.de tem ~390).",
+        "JSON-LD sem `url`: o URL da vaga (sitemap) tambem e o de candidatura (a pagina so expoe link externo em alguns quadros).",
+        "Duas instancias confirmadas com execucao real (www.miamijobs.com e www.ruhr24jobs.de); so a primeira esta em example_instances porque a segunda excede o teto e levaria ~30 min por rodada de verify; beck-stellenmarkt.de tem marcadores Jobiqo mas sitemap de outra estrutura (nao suportado); outros clientes do logo nao responderam."
+      ],
       "research_status": "NOT_STARTED"
     },
     "jboard-io": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "`/sitemap.xml` (sitemapindex com shards `sitemap-jobs-N.xml`, vagas em `/jobs/{id}-{slug}`) + JSON-LD JobPosting da pagina de cada vaga. RSS nao e usado.",
+      "connector_type": "jboard-io",
+      "example_instances": [
+        {
+          "company": "Nuclear Jobs Canada",
+          "config": {
+            "board_domain": "nuclearjobscanada.ca"
+          }
+        }
+      ],
+      "limitations": [
+        "robots.txt bloqueia /rss/ (feed nao usado) e pede Crawl-delay: 1; paginas lidas em sequencia a cada 1 s.",
+        "So as 1000 vagas de maior id entram (~20 min por quadro grande); complete=False quando o sitemap tem mais. nuclearjobscanada.ca (~960) conclui; www.mystaffhq.com (~1270) e couriergigs.com (3000+) foram testados com execucao real mas excedem o teto (PARTIAL), por isso nao estao em example_instances.",
+        "JSON-LD sem `url`: original_url = pagina da vaga, application_url = `/jobs/{id}/apply`."
+      ],
       "research_status": "NOT_STARTED"
     },
     "jobboardfire": {
@@ -1217,19 +1306,75 @@
       "research_status": "NOT_STARTED"
     },
     "smartjobboard": {
-      "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "docs_urls": [
+        "https://www.smartjobboard.com/features/"
+      ],
+      "extraction_strategy": "Sitemap /sitemap.xml + JSON-LD JobPosting em /job/{id}/{slug}/; RSS /rss (truncado em 29-50 itens) so como fallback incompleto.",
+      "connector_type": "smartjobboard",
+      "example_instances": [
+        {
+          "company": "ACEM Jobs",
+          "config": {
+            "board_domain": "jobs.acem.org.au"
+          }
+        },
+        {
+          "company": "DataCareer.de",
+          "config": {
+            "board_domain": "www.datacareer.de"
+          }
+        },
+        {
+          "company": "EnvironmentalCareer.com",
+          "config": {
+            "board_domain": "environmentalcareer.com"
+          }
+        },
+        {
+          "company": "Jobs in Childcare",
+          "config": {
+            "board_domain": "www.jobsinchildcare.com"
+          }
+        }
+      ],
+      "limitations": [
+        "Uma requisicao por vaga; maximo de 300 vagas por coleta (excedente -> complete=False).",
+        "/application-redirect/ e bloqueado no robots.txt: application_url e a pagina da vaga.",
+        "Alguns boards ficam atras de desafio do Cloudflare (nao contornado) e contam como bloqueados."
+      ],
       "research_status": "NOT_STARTED"
     },
     "jobboard-io": {
-      "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "docs_urls": [
+        "https://support.jobboard.io/docs/syndication-xmlrssatom-jobs-feed"
+      ],
+      "extraction_strategy": "Indice /sitemap.xml -> /sitemaps/jobs/* + JSON-LD JobPosting em /jobs/{id}-{slug}; RSS /jobs.rss (truncado) so como fallback incompleto.",
+      "connector_type": "jobboard-io",
+      "example_instances": [
+        {
+          "company": "AACC Jobs",
+          "config": {
+            "board_domain": "jobs.aacc.nche.edu"
+          }
+        },
+        {
+          "company": "City & State New York Jobs",
+          "config": {
+            "board_domain": "jobs.cityandstateny.com"
+          }
+        },
+        {
+          "company": "RMetS Jobs",
+          "config": {
+            "board_domain": "jobs.rmets.org"
+          }
+        }
+      ],
+      "limitations": [
+        "Uma requisicao por vaga; maximo de 300 vagas por coleta (excedente -> complete=False).",
+        "Candidatura pelo proprio board: application_url e a pagina da vaga.",
+        "Distinto de jboard.io."
+      ],
       "research_status": "NOT_STARTED"
     },
     "wiley-madgex": {
@@ -1290,10 +1435,35 @@
     },
     "jobboardhq": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "HTML ASP.NET `/search` paginado por postback (`__VIEWSTATE` + `__EVENTTARGET=Page`/`__EVENTARGUMENT=N`, postando no URL final) + JSON-LD JobPosting na pagina de cada vaga.",
+      "connector_type": "jobboardhq",
+      "example_instances": [
+        {
+          "company": "MACS List",
+          "config": {
+            "board_domain": "jobs.macslist.org"
+          }
+        },
+        {
+          "company": "NJ School Jobs",
+          "config": {
+            "board_domain": "njschooljobs.com"
+          }
+        },
+        {
+          "company": "Estate Jobs",
+          "config": {
+            "board_domain": "www.estatejobs.com"
+          }
+        }
+      ],
+      "limitations": [
+        "`/search?page=N` NAO pagina (sempre a pagina 1); a pesquisa de r4 estava errada neste ponto.",
+        "O primeiro POST de uma sessao pode devolver a pagina 1; o conector confere pagerCurrentPage e repete ate 3 vezes.",
+        "Quadros limitam a busca a 500/1000 resultados: contagem declarada == coletada e multipla de 500 => complete=False.",
+        "Teto de 600 vagas (complete=False se houver mais; MACS List ~366 conclui, NJ School Jobs e Estate Jobs batem o teto de 1000/500 do quadro); uma pagina de detalhe por vaga.",
+        "JSON-LD pode trazer 'Confidential Employer'; vale a empresa do cartao."
+      ],
       "research_status": "NOT_STARTED"
     },
     "nodex": {

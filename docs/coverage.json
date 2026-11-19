@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-11-19T19:45:16.237757Z",
+  "generated_at": "2026-11-19T22:24:00.720245Z",
   "total": 78,
   "totals_by_status": {
-    "NOT_STARTED": 41,
+    "NOT_STARTED": 33,
     "RESEARCHING": 0,
     "IMPLEMENTED": 0,
     "TESTED": 1,
-    "VERIFIED": 35,
+    "VERIFIED": 43,
     "BLOCKED": 1
   },
   "platforms": [
@@ -39,22 +39,22 @@
       "instances_verified": 2,
       "last_verified_at": "2026-11-19T19:41:25.744372Z",
       "last_attempt_at": "2026-11-19T19:41:25.744372Z",
-      "last_attempt_ok": false,
-      "last_error": "listagem incompleta",
+      "last_attempt_ok": true,
+      "last_error": null,
       "jobs": 219,
       "sample_titles": [
-        "API Inspector (510/570/653) - Beaumont, TX",
         "Active Adult Facilitator- All Locations",
-        "API Inspector (650 / 653) - Westlake, LA",
+        "API Inspector (510/570/653) - Beaumont, TX",
         "Aquatics Coordinator - Midlothian",
-        "Boilermaker - Lake Charles, LA"
+        "API Inspector (650 / 653) - Westlake, LA",
+        "Assistant Teacher - Power Scholars Academic Enrichment Program - Summer 2026 ( Dumbarton Elementary)"
       ],
       "sample_urls": [
-        "https://turnerindustries.applicantpro.com/jobs/4281371",
         "https://ymcarichmond.applicantpro.com/jobs/4258725",
-        "https://turnerindustries.applicantpro.com/jobs/4272487",
+        "https://turnerindustries.applicantpro.com/jobs/4281371",
         "https://ymcarichmond.applicantpro.com/jobs/4275714",
-        "https://turnerindustries.applicantpro.com/jobs/4234689"
+        "https://turnerindustries.applicantpro.com/jobs/4272487",
+        "https://ymcarichmond.applicantpro.com/jobs/4029457"
       ],
       "limitations": "Endpoint limitado a 300 vagas: quando `jobCount` excede o devolvido, complete=False (VetCo Clinics tem ~877).; Sem descricao nem moeda de salario na listagem."
     },
@@ -73,18 +73,18 @@
       "last_error": null,
       "jobs": 351,
       "sample_titles": [
-        "Account Executive",
         "[Contract] Language Training Specialist - Japanese",
-        "Account Executive | Commercial",
+        "Account Executive",
         "AI Product Manager, Growth Marketing",
-        "Account Executive | Enterprise"
+        "Account Executive | Commercial",
+        "Brand Designer, Creative Studio"
       ],
       "sample_urls": [
-        "https://jobs.ashbyhq.com/ramp/1515fe6d-1d8e-475b-a5ee-cefe43e78cb7",
         "https://jobs.ashbyhq.com/notion/f1f9e19d-cbf3-49eb-9824-d04adf2e3d75",
-        "https://jobs.ashbyhq.com/ramp/8c004352-f162-4d89-858f-75a649e77ec4",
+        "https://jobs.ashbyhq.com/ramp/1515fe6d-1d8e-475b-a5ee-cefe43e78cb7",
         "https://jobs.ashbyhq.com/notion/11e56782-ee28-4025-ba0e-76222b0bfcea",
-        "https://jobs.ashbyhq.com/ramp/8f3c27f0-50fb-47ba-a3dd-597428380843"
+        "https://jobs.ashbyhq.com/ramp/8c004352-f162-4d89-858f-75a649e77ec4",
+        "https://jobs.ashbyhq.com/notion/59f2246d-9cb5-4e97-879e-46c902dc276a"
       ],
       "limitations": "Respostas grandes (descricao inline; ate ~14MB em quadros como o da OpenAI). Vagas com isListed=false sao omitidas."
     },
@@ -99,8 +99,8 @@
       "instances_verified": 1,
       "last_verified_at": "2026-11-19T19:41:34.678010Z",
       "last_attempt_at": "2026-11-19T19:41:34.678010Z",
-      "last_attempt_ok": true,
-      "last_error": null,
+      "last_attempt_ok": false,
+      "last_error": "listagem incompleta",
       "jobs": 14,
       "sample_titles": [
         "Backend Software Engineer (Argentina)",
@@ -241,17 +241,17 @@
       "last_error": null,
       "jobs": 269,
       "sample_titles": [
-        "Account Executive - Austin, TX",
         "Enterprise Account Executive (EMEA & DACH Region)",
-        "Account Executive - Federal",
+        "Account Executive - Austin, TX",
         "Technical Account Manager",
+        "Account Executive - Federal",
         "Account Executive - Federal"
       ],
       "sample_urls": [
-        "https://www.comeet.com/jobs/vastdata/43.001/account-executive---austin-tx/6D.76F",
         "https://evinced.com/careers/enterprise-account-executive-(emea-&-dach-region)",
-        "https://www.comeet.com/jobs/vastdata/43.001/account-executive---federal/7F.076-0D.50B",
+        "https://www.comeet.com/jobs/vastdata/43.001/account-executive---austin-tx/6D.76F",
         "https://evinced.com/careers/technical-account-manager",
+        "https://www.comeet.com/jobs/vastdata/43.001/account-executive---federal/7F.076-0D.50B",
         "https://www.comeet.com/jobs/vastdata/43.001/account-executive---federal/7F.076"
       ],
       "limitations": "Exige a URL da pagina de carreiras da empresa (de onde vem o token publico); sem token na pagina e ParseError.; original_posted_at nao informado (time_updated e data de atualizacao)."
@@ -523,18 +523,18 @@
       "last_error": null,
       "jobs": 78,
       "sample_titles": [
+        "Account Executive",
         "(Senior) Pre Sales Consultant – EHS & ESG (m/f/d) - Dutch speaking",
-        "Account Executive",
         "Applications Functional Support Analyst - MS Dynamics 365 F&O (f/m/d)",
-        "Account Executive",
-        "Accounts Payable Administrator"
+        "Accounts Payable Administrator",
+        "Account Executive"
       ],
       "sample_urls": [
-        "https://amcsgroup.hirehive.com/senior-pre-sales-consultant-ehs-esg-mfd-dutch-speaking-netherlands-remote-or-amsterdam-hybrid-hngC6K",
         "https://hirehive-testing-account.hirehive.com/account-executive-new-york-PEy2oO",
+        "https://amcsgroup.hirehive.com/senior-pre-sales-consultant-ehs-esg-mfd-dutch-speaking-netherlands-remote-or-amsterdam-hybrid-hngC6K",
         "https://patagonia.hirehive.com/applications-functional-support-analyst-ms-dynamics-365-fo-fmd-amsterdam-jloyka",
-        "https://amcsgroup.hirehive.com/account-executive-austin-qikANI",
-        "https://hirehive-testing-account.hirehive.com/accounts-payable-administrator-dublin-irPHFh"
+        "https://hirehive-testing-account.hirehive.com/accounts-payable-administrator-dublin-irPHFh",
+        "https://amcsgroup.hirehive.com/account-executive-austin-qikANI"
       ],
       "limitations": "Termos de uso do HireHive nao revisados. Salario so quando preenchido pelo anunciante."
     },
@@ -583,17 +583,17 @@
       "last_error": null,
       "jobs": 76,
       "sample_titles": [
-        "Builder/Carpenter | Exhibits, Events | Clinton, CT",
-        "Assistant Community Manager",
         "Chief Operating Officer / Integrator [HT-1051010]",
-        "Builder/Carpenter | Exhibits, Events | Raleigh Durham, NC",
+        "Assistant Community Manager",
+        "Builder/Carpenter | Exhibits, Events | Clinton, CT",
+        "Chief Operating Officer / Integrator [HT-1060998]",
         "Assistant Service Manager"
       ],
       "sample_urls": [
-        "https://pinnacle.hiringthing.com/job/1076835/builder-carpenter-exhibits-events-clinton-ct",
-        "https://franklin-companies.hiringthing.com/job/1041205/assistant-community-manager",
         "https://visionspark1.hiringthing.com/job/1051010/chief-operating-officer-integrator-ht-1051010",
-        "https://pinnacle.hiringthing.com/job/1063235/builder-carpenter-exhibits-events-raleigh-durham-nc",
+        "https://franklin-companies.hiringthing.com/job/1041205/assistant-community-manager",
+        "https://pinnacle.hiringthing.com/job/1076835/builder-carpenter-exhibits-events-clinton-ct",
+        "https://visionspark1.hiringthing.com/job/1060998/chief-operating-officer-integrator-ht-1060998",
         "https://franklin-companies.hiringthing.com/job/1056489/assistant-service-manager"
       ],
       "limitations": "Feed sem data de publicacao nem salario.; Se o feed limitar itens, complete pode ser otimista: nao ha total declarado."
@@ -643,18 +643,18 @@
       "last_error": null,
       "jobs": 111,
       "sample_titles": [
-        "AI/ML Engineer (Senior)",
         "(Offshore) Principal AI Engineer",
+        "AI/ML Engineer (Senior)",
         "1st Shift Production Positions- Kingston, PA",
-        "Azure Engineer",
-        "Accounts Receivable Analyst"
+        "Accounts Receivable Analyst",
+        "Azure Engineer"
       ],
       "sample_urls": [
-        "https://halvik.isolvedhire.com/jobs/1888709.html",
         "https://isolved.isolvedhire.com/jobs/1902333.html",
+        "https://halvik.isolvedhire.com/jobs/1888709.html",
         "https://hcsc.isolvedhire.com/jobs/1895420.html",
-        "https://halvik.isolvedhire.com/jobs/1850122.html",
-        "https://isolved.isolvedhire.com/jobs/1901643.html"
+        "https://isolved.isolvedhire.com/jobs/1901643.html",
+        "https://halvik.isolvedhire.com/jobs/1850122.html"
       ],
       "limitations": "Uma requisicao por vaga; maximo de 200 vagas por coleta (excedente -> complete=False).; baseSalary do JSON-LD descartado por inconsistencia observada; detalhe que falhar -> complete=False."
     },
@@ -779,17 +779,17 @@
       "last_error": null,
       "jobs": 405,
       "sample_titles": [
-        "Administrative Business Partner",
-        "API Engineer",
         "Account Executive - Commercial, Spotify Technology",
+        "API Engineer",
         "Administrative Business Partner",
+        "Account Executive - Commercial, Spotify Technology",
         "BI Developer"
       ],
       "sample_urls": [
-        "https://jobs.lever.co/palantir/ac978161-6f46-4f6b-ad9e-a258e642751c",
-        "https://jobs.eu.lever.co/lever/065f4538-7347-4207-909f-4ea68f63b4af",
         "https://jobs.lever.co/spotify/2a55d6c9-c564-443a-be3e-a3851db5a93b",
-        "https://jobs.lever.co/palantir/6ed76ce8-4156-4b60-b120-403538bd66cd",
+        "https://jobs.eu.lever.co/lever/065f4538-7347-4207-909f-4ea68f63b4af",
+        "https://jobs.lever.co/palantir/ac978161-6f46-4f6b-ad9e-a258e642751c",
+        "https://jobs.lever.co/spotify/f263a2af-0a4e-4540-a0f6-adb3655e027b",
         "https://jobs.eu.lever.co/lever/1e2d50d7-e502-47b7-99b9-a184cfb5816d"
       ],
       "limitations": "A regiao (global|eu) de cada tenant precisa ser conhecida; slug inexistente responde 404. Salario so se a vaga publicar salaryRange."
@@ -983,17 +983,17 @@
       "last_error": null,
       "jobs": 9,
       "sample_titles": [
-        "Electronics Repair Specialist",
         "Business Development Representative (d/f/m)",
-        "Future Talent — Apply Here!",
+        "Electronics Repair Specialist",
         "Test Job",
+        "Future Talent — Apply Here!",
         "Group Accounting Manager (all genders)"
       ],
       "sample_urls": [
-        "https://stark.jobs.personio.com/job/2807520",
         "https://personio.jobs.personio.de/job/2885178",
-        "https://stark.jobs.personio.com/job/2560061",
+        "https://stark.jobs.personio.com/job/2807520",
         "https://personio.jobs.personio.de/job/2884392",
+        "https://stark.jobs.personio.com/job/2560061",
         "https://stark.jobs.personio.com/job/2736500"
       ],
       "limitations": "Endpoint de feed XML nao documentado como API; o dominio (.com/.de) precisa ser informado.; Sem salario estruturado."
@@ -1283,18 +1283,18 @@
       "last_error": null,
       "jobs": 51,
       "sample_titles": [
-        "Circularity Operations Specialist (gn)",
         "Account Executive - Bogota",
+        "Circularity Operations Specialist (gn)",
         "Advanced Full Stack Software Engineer",
-        "Join our Talent Community - Circularity Department",
-        "Account Executive - UK Enterprise"
+        "Account Executive - UK Enterprise",
+        "Join our Talent Community - Circularity Department"
       ],
       "sample_urls": [
-        "https://resourcify.teamtailor.com/jobs/8366282-circularity-operations-specialist-gn",
         "https://career.teamtailor.com/jobs/8626868-account-executive-bogota",
+        "https://resourcify.teamtailor.com/jobs/8366282-circularity-operations-specialist-gn",
         "https://iqm.teamtailor.com/jobs/8672718-advanced-full-stack-software-engineer",
-        "https://resourcify.teamtailor.com/jobs/6602364-join-our-talent-community-circularity-department",
-        "https://career.teamtailor.com/jobs/8021334-account-executive-uk-enterprise"
+        "https://career.teamtailor.com/jobs/8021334-account-executive-uk-enterprise",
+        "https://resourcify.teamtailor.com/jobs/6602364-join-our-talent-community-circularity-department"
       ],
       "limitations": "Robots/Content-Signal do host declara ai-train=no: usar so para indexacao de busca, nunca treino de modelos.; Sem salario estruturado."
     },
@@ -1313,18 +1313,18 @@
       "last_error": null,
       "jobs": 483,
       "sample_titles": [
-        "Administrative Assistant",
         "​​Electrical Design Engineer ( MEP) - Deerfield Beach, FL",
-        "Assistant Project Manager",
+        "Administrative Assistant",
         "1:1 Nurse (SY 24-25) - Nashua, NH",
-        "Assistant Project Manager"
+        "Assistant Project Manager",
+        "2nd Grade Lead Teacher - Paterson, NJ"
       ],
       "sample_urls": [
-        "https://eciusa.hire.trakstar.com/jobs/fk0zcu6",
         "https://futurerecruit.hire.trakstar.com/jobs/fk0vdh3",
-        "https://eciusa.hire.trakstar.com/jobs/fk0zni7",
+        "https://eciusa.hire.trakstar.com/jobs/fk0zcu6",
         "https://futurerecruit.hire.trakstar.com/jobs/fk0v48q",
-        "https://eciusa.hire.trakstar.com/jobs/fk0zam7"
+        "https://eciusa.hire.trakstar.com/jobs/fk0zni7",
+        "https://futurerecruit.hire.trakstar.com/jobs/fk0v5ne"
       ],
       "limitations": "Uma requisicao por vaga; maximo de 500 vagas por coleta (excedente -> complete=False).; JSON-LD sem url (usa a do sitemap) e sem salario.; JSON-LD de alguns tenants tem barras invertidas soltas; o parse tolera isso (jsonld.py)."
     },
@@ -1548,19 +1548,31 @@
       "name": "JBoard.io",
       "slug": "jboard-io",
       "category": "JOB_BOARD",
-      "status": "NOT_STARTED",
-      "strategy": null,
-      "connector_type": null,
-      "instances_configured": 0,
-      "instances_verified": 0,
-      "last_verified_at": null,
-      "last_attempt_at": null,
-      "last_attempt_ok": null,
+      "status": "VERIFIED",
+      "strategy": "`/sitemap.xml` (sitemapindex com shards `sitemap-jobs-N.xml`, vagas em `/jobs/{id}-{slug}`) + JSON-LD JobPosting da pagina de cada vaga. RSS nao e usado.",
+      "connector_type": "jboard-io",
+      "instances_configured": 1,
+      "instances_verified": 1,
+      "last_verified_at": "2026-11-19T21:46:12.138735Z",
+      "last_attempt_at": "2026-11-19T21:46:12.138735Z",
+      "last_attempt_ok": true,
       "last_error": null,
-      "jobs": null,
-      "sample_titles": [],
-      "sample_urls": [],
-      "limitations": null
+      "jobs": 960,
+      "sample_titles": [
+        "*Future Opportunities* - Planning Manager",
+        "*Future Opportunities* - Weld Trainer",
+        "[New to Nuclear] Senior Project Coordinator",
+        "Accountant, Material Control",
+        "Accountant, Tax"
+      ],
+      "sample_urls": [
+        "https://nuclearjobscanada.ca/jobs/784413130-*future-opportunities*-planning-manager",
+        "https://nuclearjobscanada.ca/jobs/802661283-*future-opportunities*-weld-trainer",
+        "https://nuclearjobscanada.ca/jobs/789953637-new-to-nuclear-senior-project-coordinator",
+        "https://nuclearjobscanada.ca/jobs/781283204-accountant-material-control",
+        "https://nuclearjobscanada.ca/jobs/774884956-accountant-tax"
+      ],
+      "limitations": "robots.txt bloqueia /rss/ (feed nao usado) e pede Crawl-delay: 1; paginas lidas em sequencia a cada 1 s.; So as 1000 vagas de maior id entram (~20 min por quadro grande); complete=False quando o sitemap tem mais. nuclearjobscanada.ca (~960) conclui; www.mystaffhq.com (~1270) e couriergigs.com (3000+) foram testados com execucao real mas excedem o teto (PARTIAL), por isso nao estao em example_instances.; JSON-LD sem `url`: original_url = pagina da vaga, application_url = `/jobs/{id}/apply`."
     },
     {
       "name": "JobBoard.com",
@@ -1584,19 +1596,31 @@
       "name": "JobBoard.io",
       "slug": "jobboard-io",
       "category": "JOB_BOARD",
-      "status": "NOT_STARTED",
-      "strategy": null,
-      "connector_type": null,
-      "instances_configured": 0,
-      "instances_verified": 0,
-      "last_verified_at": null,
-      "last_attempt_at": null,
-      "last_attempt_ok": null,
-      "last_error": null,
-      "jobs": null,
-      "sample_titles": [],
-      "sample_urls": [],
-      "limitations": null
+      "status": "VERIFIED",
+      "strategy": "Indice /sitemap.xml -> /sitemaps/jobs/* + JSON-LD JobPosting em /jobs/{id}-{slug}; RSS /jobs.rss (truncado) so como fallback incompleto.",
+      "connector_type": "jobboard-io",
+      "instances_configured": 3,
+      "instances_verified": 1,
+      "last_verified_at": "2026-11-19T21:18:44.873795Z",
+      "last_attempt_at": "2026-11-19T21:18:44.873795Z",
+      "last_attempt_ok": false,
+      "last_error": "listagem incompleta",
+      "jobs": 35,
+      "sample_titles": [
+        "Associate Dean, Corporate Training and Economic Development",
+        "Associate Vice President for Liberal Arts",
+        "Associate VP of Academic Affairs",
+        "Chancellor",
+        "Chief Academic Officer/Provost"
+      ],
+      "sample_urls": [
+        "https://jobs.aacc.nche.edu/jobs/628618696-associate-dean-corporate-training-and-economic-development-at-northeast-wisconsin-technical-college",
+        "https://jobs.aacc.nche.edu/jobs/619629709-associate-vice-president-for-liberal-arts-at-suny-orange-county-community-college",
+        "https://jobs.aacc.nche.edu/jobs/635324101-associate-vp-of-academic-affairs-at-illinois-central-college",
+        "https://jobs.aacc.nche.edu/jobs/623284069-chancellor-at-ivy-tech-community-college",
+        "https://jobs.aacc.nche.edu/jobs/603903052-chief-academic-officer-provost-at-community-college-of-philadelphia"
+      ],
+      "limitations": "Uma requisicao por vaga; maximo de 300 vagas por coleta (excedente -> complete=False).; Candidatura pelo proprio board: application_url e a pagina da vaga.; Distinto de jboard.io."
     },
     {
       "name": "JobBoardFire",
@@ -1620,37 +1644,61 @@
       "name": "jobBoardHQ",
       "slug": "jobboardhq",
       "category": "JOB_BOARD",
-      "status": "NOT_STARTED",
-      "strategy": null,
-      "connector_type": null,
-      "instances_configured": 0,
-      "instances_verified": 0,
-      "last_verified_at": null,
-      "last_attempt_at": null,
-      "last_attempt_ok": null,
+      "status": "VERIFIED",
+      "strategy": "HTML ASP.NET `/search` paginado por postback (`__VIEWSTATE` + `__EVENTTARGET=Page`/`__EVENTARGUMENT=N`, postando no URL final) + JSON-LD JobPosting na pagina de cada vaga.",
+      "connector_type": "jobboardhq",
+      "instances_configured": 3,
+      "instances_verified": 1,
+      "last_verified_at": "2026-11-19T22:23:58.234261Z",
+      "last_attempt_at": "2026-11-19T22:23:58.234261Z",
+      "last_attempt_ok": true,
       "last_error": null,
-      "jobs": null,
-      "sample_titles": [],
-      "sample_urls": [],
-      "limitations": null
+      "jobs": 367,
+      "sample_titles": [
+        "(PSS) Peer Support Specialist- Part Time",
+        "Account Development Manager",
+        "Accountant",
+        "Accounting Manager",
+        "Accounting Manager"
+      ],
+      "sample_urls": [
+        "https://jobs.macslist.org/job/nygmdy/(pss)-peer-support-specialist-part-time/salem/or",
+        "https://jobs.macslist.org/job/evxta5/account-development-manager/spokane/wa",
+        "https://jobs.macslist.org/job/k5qtzw/accountant/tacoma/wa",
+        "https://jobs.macslist.org/job/lczn66/accounting-manager/corvallis/or",
+        "https://jobs.macslist.org/job/q55zhx/accounting-manager/portland/or"
+      ],
+      "limitations": "`/search?page=N` NAO pagina (sempre a pagina 1); a pesquisa de r4 estava errada neste ponto.; O primeiro POST de uma sessao pode devolver a pagina 1; o conector confere pagerCurrentPage e repete ate 3 vezes.; Quadros limitam a busca a 500/1000 resultados: contagem declarada == coletada e multipla de 500 => complete=False.; Teto de 600 vagas (complete=False se houver mais; MACS List ~366 conclui, NJ School Jobs e Estate Jobs batem o teto de 1000/500 do quadro); uma pagina de detalhe por vaga.; JSON-LD pode trazer 'Confidential Employer'; vale a empresa do cartao."
     },
     {
       "name": "Jobboardly",
       "slug": "jobboardly",
       "category": "JOB_BOARD",
-      "status": "NOT_STARTED",
-      "strategy": null,
-      "connector_type": null,
-      "instances_configured": 0,
-      "instances_verified": 0,
-      "last_verified_at": null,
-      "last_attempt_at": null,
-      "last_attempt_ok": null,
+      "status": "VERIFIED",
+      "strategy": "Feed RSS publico `https://{board_domain}/jobs.rss` (um unico request, sem paginacao) com descricao HTML completa e extensao `job:city|state|country`; titulo no formato 'cargo - empresa - local'.",
+      "connector_type": "jobboardly",
+      "instances_configured": 3,
+      "instances_verified": 3,
+      "last_verified_at": "2026-11-19T22:21:40.099312Z",
+      "last_attempt_at": "2026-11-19T22:21:40.099312Z",
+      "last_attempt_ok": true,
       "last_error": null,
-      "jobs": null,
-      "sample_titles": [],
-      "sample_urls": [],
-      "limitations": null
+      "jobs": 749,
+      "sample_titles": [
+        "Box Truck Medical Delivery Driver - Milwaukee | M-F 6am-2pm | $19/hr",
+        "Account Executive/Handler - Delegated Authority",
+        "124 Job Vacancies at Chaka Skylight Hotel – November 2026",
+        "Box Truck Medical Delivery Driver Part-Time Weekends (Saturday&Sunday)",
+        "Assistant Manager"
+      ],
+      "sample_urls": [
+        "https://medicalcourierjobs.com/jobs/box-truck-medical-delivery-driver-milwaukee-m-f-6am-2pm-19-hr-832afef5",
+        "https://www.jobsindevon.uk/jobs/account-executive-handler-delegated-authority-771abe40",
+        "https://etcareers.com/jobs/124-job-vacancies-at-chaka-skylight-hotel-november-2026-b6164766",
+        "https://medicalcourierjobs.com/jobs/box-truck-medical-delivery-driver-part-time-weekends-saturday-sunday-5f76da7e",
+        "https://www.jobsindevon.uk/jobs/assistant-manager-46676d8c"
+      ],
+      "limitations": "Feed sem salario nem tipo de contrato (so no JSON-LD da pagina da vaga, nao lido).; Empresa e local sao extraidos do titulo ('cargo - empresa - local'); cargos com ' - ' sao preservados.; O feed e a lista completa; nao ha como paginar."
     },
     {
       "name": "jobboardsoftware.com",
@@ -1674,19 +1722,31 @@
       "name": "Jobiqo",
       "slug": "jobiqo",
       "category": "JOB_BOARD",
-      "status": "NOT_STARTED",
-      "strategy": null,
-      "connector_type": null,
-      "instances_configured": 0,
-      "instances_verified": 0,
-      "last_verified_at": null,
-      "last_attempt_at": null,
-      "last_attempt_ok": null,
+      "status": "VERIFIED",
+      "strategy": "Sitemap Drupal `/sitemap.xml` (urlset plano; vagas em `/job/{slug}-{id}` com lastmod) + JSON-LD JobPosting da pagina de cada vaga (descricao com HTML escapado, desfeito antes de converter).",
+      "connector_type": "jobiqo",
+      "instances_configured": 1,
+      "instances_verified": 1,
+      "last_verified_at": "2026-11-19T22:21:20.918593Z",
+      "last_attempt_at": "2026-11-19T22:21:20.918593Z",
+      "last_attempt_ok": true,
       "last_error": null,
-      "jobs": null,
-      "sample_titles": [],
-      "sample_urls": [],
-      "limitations": null
+      "jobs": 195,
+      "sample_titles": [
+        "Account Executive - Assistant Vice President - Private Equity",
+        "Account Manager II, Private Equity - Hybrid/Miami, FL",
+        "Agentic AI Engineer, Senior - Anthropic/Claude",
+        "AI and Data Science Engineer III",
+        "AI Conversation Design Senior Consultant"
+      ],
+      "sample_urls": [
+        "https://www.miamijobs.com/job/account-executive-assistant-vice-president-private-equity-877325",
+        "https://www.miamijobs.com/job/account-manager-ii-private-equity-hybridmiami-fl-877319",
+        "https://www.miamijobs.com/job/agentic-ai-engineer-senior-anthropicclaude-874562",
+        "https://www.miamijobs.com/job/ai-and-data-science-engineer-iii-874381",
+        "https://www.miamijobs.com/job/ai-conversation-design-senior-consultant-874178"
+      ],
+      "limitations": "robots.txt pede Crawl-delay: 10; o conector le as paginas em sequencia a cada 10 s e so as 200 vagas com lastmod mais recente (complete=False se houver mais; miamijobs.com tem ~195 e conclui, ruhr24jobs.de tem ~390).; JSON-LD sem `url`: o URL da vaga (sitemap) tambem e o de candidatura (a pagina so expoe link externo em alguns quadros).; Duas instancias confirmadas com execucao real (www.miamijobs.com e www.ruhr24jobs.de); so a primeira esta em example_instances porque a segunda excede o teto e levaria ~30 min por rodada de verify; beck-stellenmarkt.de tem marcadores Jobiqo mas sitemap de outra estrutura (nao suportado); outros clientes do logo nao responderam."
     },
     {
       "name": "JobKit",
@@ -1728,19 +1788,31 @@
       "name": "Niceboard",
       "slug": "niceboard",
       "category": "JOB_BOARD",
-      "status": "NOT_STARTED",
-      "strategy": null,
-      "connector_type": null,
-      "instances_configured": 0,
-      "instances_verified": 0,
-      "last_verified_at": null,
-      "last_attempt_at": null,
-      "last_attempt_ok": null,
+      "status": "VERIFIED",
+      "strategy": "Sitemap /sitemap-jobs.xml + JSON-LD JobPosting em /job/{id}-{slug}; apply_url externo lido de `var job_json`.",
+      "connector_type": "niceboard",
+      "instances_configured": 2,
+      "instances_verified": 2,
+      "last_verified_at": "2026-11-19T21:17:07.103469Z",
+      "last_attempt_at": "2026-11-19T21:17:07.103469Z",
+      "last_attempt_ok": true,
       "last_error": null,
-      "jobs": null,
-      "sample_titles": [],
-      "sample_urls": [],
-      "limitations": null
+      "jobs": 26,
+      "sample_titles": [
+        "Architect / Architectural Designer",
+        "Accounts Receivable Coordinator",
+        "Architect / Architectural Designer",
+        "Artist-in-Residence and Department Head, Metals",
+        "Architectural Designer"
+      ],
+      "sample_urls": [
+        "https://jobs.aiacolorado.org/job/1550423-architect-architectural-designer-ma-studios-aia",
+        "https://jobs.aicad.org/job/2583614-accounts-receivable-coordinator-moore-college-of-art-and-design",
+        "https://jobs.aiacolorado.org/job/2582191-architect-architectural-designer-surround-architecture",
+        "https://jobs.aicad.org/job/2589421-artist-in-residence-and-department-head-metals-cranbrook-academy-of-art",
+        "https://jobs.aiacolorado.org/job/2586057-architectural-designer-180-degrees-design-build"
+      ],
+      "limitations": "Crawl-delay de 1s respeitado (uma requisicao por vaga por segundo); maximo de 200 vagas por coleta (excedente -> complete=False).; Sem API publica documentada; /api/ bloqueado no robots.txt (exceto /api/jobs, nao usado).; Vaga sem JSON-LD ou com detalhe falho -> complete=False."
     },
     {
       "name": "Nodex",
@@ -1764,19 +1836,31 @@
       "name": "SmartJobBoard",
       "slug": "smartjobboard",
       "category": "JOB_BOARD",
-      "status": "NOT_STARTED",
-      "strategy": null,
-      "connector_type": null,
-      "instances_configured": 0,
-      "instances_verified": 0,
-      "last_verified_at": null,
-      "last_attempt_at": null,
-      "last_attempt_ok": null,
+      "status": "VERIFIED",
+      "strategy": "Sitemap /sitemap.xml + JSON-LD JobPosting em /job/{id}/{slug}/; RSS /rss (truncado em 29-50 itens) so como fallback incompleto.",
+      "connector_type": "smartjobboard",
+      "instances_configured": 4,
+      "instances_verified": 3,
+      "last_verified_at": "2026-11-19T21:18:34.154971Z",
+      "last_attempt_at": "2026-11-19T21:18:34.154971Z",
+      "last_attempt_ok": true,
       "last_error": null,
-      "jobs": null,
-      "sample_titles": [],
-      "sample_urls": [],
-      "limitations": null
+      "jobs": 388,
+      "sample_titles": [
+        "After-school and Holiday Nanny for Two Pre-teens in Watford, Hertfordshire, UK",
+        "\"Service Operations Coordinator (Mandarin Speaking) \"",
+        "2027 TS2/3 Emergency Registrars – 6 months ED, 6 months ICU",
+        "After-school Daily Nanny for a Girl of Eight (Six-month Contract) in Knightsbridge, London, UK",
+        "(Associate) Consultant Business Intelligence & Data Analytics (m/f/d)"
+      ],
+      "sample_urls": [
+        "https://www.jobsinchildcare.com/job/10269704/after-school-and-holiday-nanny-for-two-pre-teens-in-watford-hertfordshire-uk/",
+        "https://www.datacareer.de/job/19740/service-operations-coordinator-mandarin-speaking/",
+        "https://jobs.acem.org.au/job/3160/2027-ts2-3-emergency-registrars-6-months-ed-6-months-icu/",
+        "https://www.jobsinchildcare.com/job/10269801/after-school-daily-nanny-for-a-girl-of-eight-six-month-contract-in-knightsbridge-london-uk/",
+        "https://www.datacareer.de/job/19730/associate-consultant-business-intelligence-data-analytics-m-f-d/"
+      ],
+      "limitations": "Uma requisicao por vaga; maximo de 300 vagas por coleta (excedente -> complete=False).; /application-redirect/ e bloqueado no robots.txt: application_url e a pagina da vaga.; Alguns boards ficam atras de desafio do Cloudflare (nao contornado) e contam como bloqueados."
     },
     {
       "name": "Talenetic",
@@ -1818,19 +1902,31 @@
       "name": "WP Job Manager",
       "slug": "wp-job-manager",
       "category": "JOB_BOARD",
-      "status": "NOT_STARTED",
-      "strategy": null,
-      "connector_type": null,
-      "instances_configured": 0,
-      "instances_verified": 0,
-      "last_verified_at": null,
-      "last_attempt_at": null,
-      "last_attempt_ok": null,
-      "last_error": null,
-      "jobs": null,
-      "sample_titles": [],
-      "sample_urls": [],
-      "limitations": null
+      "status": "VERIFIED",
+      "strategy": "Feed RSS `{base}/?feed=job_feed&posts_per_page=100&paged=N` (extensoes job_listing:*).",
+      "connector_type": "wp-job-manager",
+      "instances_configured": 3,
+      "instances_verified": 1,
+      "last_verified_at": "2026-11-19T21:17:28.575927Z",
+      "last_attempt_at": "2026-11-19T21:17:28.575927Z",
+      "last_attempt_ok": false,
+      "last_error": "listagem incompleta",
+      "jobs": 348,
+      "sample_titles": [
+        "’27 Summer Analyst (Undergrad) – Asset Management",
+        "’27 Summer Analyst (Undergrad) – Real Estate Investments",
+        "’27 Summer Associate (Masters/MBA) – Real Estate Development",
+        "’27 Summer Associate (MBA) – Asset Management",
+        "2-Year Analyst, Asset-Backed Finance Capital Markets"
+      ],
+      "sample_urls": [
+        "https://www.adventuresincre.com/acrejobs/job/27-summer-analyst-undergrad-asset-management/",
+        "https://www.adventuresincre.com/acrejobs/job/27-summer-analyst-undergrad-real-estate-investments/",
+        "https://www.adventuresincre.com/acrejobs/job/summer-27-intern-capital-markets-2/",
+        "https://www.adventuresincre.com/acrejobs/job/27-summer-associate-mba-asset-management/",
+        "https://www.adventuresincre.com/acrejobs/job/2-year-analyst-asset-backed-finance-capital-markets-2/"
+      ],
+      "limitations": "Site WordPress auto-hospedado: base_url e a identidade do board; o feed so inclui vagas com tipo definido.; Maximo de 20 paginas de 100 vagas (excedente -> complete=False); sites que ignoram `paged` (ex.: jobicy.com) saem com complete=False.; Sem URL externa de candidatura no feed: application_url e a pagina da vaga."
     }
   ]
 }

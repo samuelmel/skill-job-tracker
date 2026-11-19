@@ -1,0 +1,58 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato sitemap + JSON-LD (e fallback RSS) do SmartJobBoard. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "3285",
+      "payload": {
+        "id": "3285",
+        "url": "https://jobs.acme.example/job/3285/registrar-emergency/",
+        "posting": {
+          "@type": "JobPosting",
+          "title": "Registrar - Emergency",
+          "description": "<p>Emergency care.</p>",
+          "datePosted": "2026-05-13T11:57:53+10:00",
+          "employmentType": [
+            "FULL_TIME"
+          ],
+          "hiringOrganization": {
+            "@type": "Organization",
+            "name": "Grampians Health"
+          },
+          "jobLocation": {
+            "@type": "Place",
+            "address": {
+              "addressLocality": "Ballarat",
+              "addressRegion": "Victoria",
+              "addressCountry": "Australia",
+              "postalCode": "",
+              "streetAddress": ""
+            }
+          },
+          "baseSalary": {
+            "@type": "MonetaryAmount",
+            "currency": "USD",
+            "value": {
+              "@type": "QuantitativeValue",
+              "minValue": "",
+              "maxValue": "",
+              "unitText": "YEAR"
+            }
+          }
+        }
+      }
+    },
+    {
+      "external_id": "3489",
+      "payload": {
+        "id": "3489",
+        "url": "https://jobs.acme.example/job/3489/smo-remote-reliever/",
+        "rss": {
+          "title": "SMO Remote Reliever",
+          "description": "Queensland, Australia\n<p>Rural medicine.</p>",
+          "published": "2026-11-01T10:00:00+00:00"
+        }
+      }
+    }
+  ]
+}

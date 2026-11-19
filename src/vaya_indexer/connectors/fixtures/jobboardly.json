@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato do feed RSS /jobs.rss do Jobboardly. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "1001-sales-advisor-abc12345",
+      "payload": {
+        "title": "Sales Advisor - Acme Ltd - Exeter, Devon, United Kingdom",
+        "link": "https://jobs.example.com/jobs/1001-sales-advisor-abc12345",
+        "description": "<p>Sell things.</p>",
+        "published": "2026-11-10T09:00:00+00:00",
+        "city": "Exeter",
+        "state": "Devon",
+        "country": "United Kingdom"
+      }
+    },
+    {
+      "external_id": "1002-remote-support-def67890",
+      "payload": {
+        "title": "Support - Tier 2 - Globex - Remote",
+        "link": "https://jobs.example.com/jobs/1002-remote-support-def67890",
+        "description": "<p>Help customers.</p>",
+        "published": null,
+        "city": null,
+        "state": null,
+        "country": null
+      }
+    }
+  ]
+}

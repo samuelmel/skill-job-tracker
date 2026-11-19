@@ -1,0 +1,36 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato do feed job_feed do WP Job Manager. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "https://jobs.acme.example/job/ops-manager/",
+      "payload": {
+        "guid": "https://jobs.acme.example/job/ops-manager/",
+        "title": "Operations Manager",
+        "link": "https://jobs.acme.example/job/ops-manager/",
+        "description": "<p>Run operations.</p>",
+        "pubDate": "2026-11-19T13:56:47+00:00",
+        "location": "Remote, Anywhere",
+        "company": "Acme",
+        "job_type": "Full Time",
+        "job_category": "Operations",
+        "salary": null
+      }
+    },
+    {
+      "external_id": "https://jobs.acme.example/?post_type=job_listing&p=2",
+      "payload": {
+        "guid": "https://jobs.acme.example/?post_type=job_listing&p=2",
+        "title": "Analyst",
+        "link": "https://jobs.acme.example/job/analyst/",
+        "description": null,
+        "pubDate": null,
+        "location": null,
+        "company": null,
+        "job_type": "Part Time",
+        "job_category": null,
+        "salary": "85000 to 110000"
+      }
+    }
+  ]
+}

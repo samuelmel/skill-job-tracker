@@ -1,0 +1,59 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de pagina de vaga Jobiqo (JSON-LD com descricao escapada). Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "9001",
+      "payload": {
+        "url": "https://jobs.example.com/job/nurse-9001",
+        "lastmod": "2026-11-15",
+        "posting": {
+          "@type": "JobPosting",
+          "title": "Nurse",
+          "description": "&lt;h3&gt;Role&lt;/h3&gt;&lt;p&gt;Care for patients.&lt;/p&gt;",
+          "datePosted": "2026-11-12",
+          "hiringOrganization": {
+            "@type": "Organization",
+            "name": "Clinic"
+          },
+          "jobLocation": {
+            "@type": "Place",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Miami",
+              "addressRegion": "FL",
+              "addressCountry": "US"
+            }
+          },
+          "employmentType": "FULL_TIME"
+        }
+      }
+    },
+    {
+      "external_id": "9002",
+      "payload": {
+        "url": "https://jobs.example.com/job/cook-9002",
+        "lastmod": "2026-11-14",
+        "posting": {
+          "@type": "JobPosting",
+          "title": "Cook",
+          "description": "<p>Full <b>description</b>.</p>",
+          "datePosted": "2026-11-12",
+          "hiringOrganization": {
+            "@type": "Organization",
+            "name": "Cafe"
+          },
+          "jobLocation": {
+            "@type": "Place",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Essen",
+              "addressRegion": "NRW",
+              "addressCountry": "DE"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

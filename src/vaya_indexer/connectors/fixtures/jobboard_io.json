@@ -1,0 +1,54 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato sitemap + JSON-LD do JobBoard.io. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "647196972",
+      "payload": {
+        "id": "647196972",
+        "url": "https://jobs.acme.example/jobs/647196972-vp-finance-at-college-of-dupage",
+        "posting": {
+          "@type": "JobPosting",
+          "title": "Vice President of Finance",
+          "datePosted": "2026-11-17",
+          "description": "<p>Lead finance.</p>",
+          "employmentType": "Full Time",
+          "hiringOrganization": {
+            "@type": "Organization",
+            "name": "College of DuPage"
+          },
+          "jobLocation": {
+            "@type": "Place",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Glen Ellyn",
+              "addressRegion": "Illinois",
+              "addressCountry": "United States"
+            }
+          },
+          "baseSalary": {
+            "@type": "MonetaryAmount",
+            "currency": "USD",
+            "value": {
+              "@type": "QuantitativeValue",
+              "minValue": "195000.0",
+              "maxValue": "240000.0",
+              "unitText": "YEAR"
+            }
+          }
+        }
+      }
+    },
+    {
+      "external_id": "640777564",
+      "payload": {
+        "id": "640777564",
+        "url": "https://jobs.acme.example/jobs/640777564-superintendent",
+        "posting": {
+          "@type": "JobPosting",
+          "title": "Superintendent"
+        }
+      }
+    }
+  ]
+}
