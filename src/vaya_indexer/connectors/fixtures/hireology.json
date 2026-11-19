@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de listagem HTML do Hireology. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "2938032",
+      "payload": {
+        "id": "2938032",
+        "title": "Certified Medication Assistant",
+        "url": "https://careers.hireology.com/acme/2938032/description",
+        "company": "Acme Nursing Home",
+        "location": "419 E Main St, Guthrie, OK",
+        "type": "Full Time",
+        "pay": "$22 an hour"
+      }
+    },
+    {
+      "external_id": "2938033",
+      "payload": {
+        "id": "2938033",
+        "title": "Front Desk (Remote)",
+        "url": "https://careers.hireology.com/acme/2938033/description",
+        "company": null,
+        "location": null,
+        "type": null,
+        "pay": null
+      }
+    }
+  ]
+}

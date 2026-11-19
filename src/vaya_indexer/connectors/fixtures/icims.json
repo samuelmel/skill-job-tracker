@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de li.iCIMS_JobCardItem do iCIMS. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "4001",
+      "payload": {
+        "id": "4001",
+        "title": "RN Navigator",
+        "url": "https://careers-exemplo.icims.com/jobs/4001/rn-navigator/job",
+        "location": "US-CA-Fresno",
+        "employment_type": "Full-Time"
+      }
+    },
+    {
+      "external_id": "4002",
+      "payload": {
+        "id": "4002",
+        "title": "Remote Coder",
+        "url": "https://careers-exemplo.icims.com/jobs/4002/coder/job",
+        "location": null,
+        "employment_type": null
+      }
+    }
+  ]
+}

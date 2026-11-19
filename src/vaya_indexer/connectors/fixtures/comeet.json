@@ -1,0 +1,47 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de Comeet careers-api 2.0 positions. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "A1.001",
+      "payload": {
+        "uid": "A1.001",
+        "name": "  Backend  Engineer ",
+        "company_name": "Exemplo",
+        "employment_type": "Full-time",
+        "workplace_type": "Remote",
+        "location": {
+          "name": "Tel Aviv, Israel",
+          "city": "Tel Aviv",
+          "country": "IL"
+        },
+        "details": [
+          {
+            "name": "Description",
+            "value": "<p>Texto sintetico.</p>"
+          },
+          {
+            "name": "Requirements",
+            "value": "<p>Python.</p>"
+          }
+        ],
+        "url_active_page": "https://www.comeet.com/jobs/exemplo/00.000/backend-engineer/A1.001"
+      }
+    },
+    {
+      "external_id": "A1.002",
+      "payload": {
+        "uid": "A1.002",
+        "name": "Office Manager",
+        "company_name": "Exemplo",
+        "employment_type": "Part-time",
+        "location": {
+          "city": "Haifa",
+          "country": "IL"
+        },
+        "details": [],
+        "url_comeet_hosted_page": "https://www.comeet.com/jobs/exemplo/00.000/office-manager/A1.002"
+      }
+    }
+  ]
+}

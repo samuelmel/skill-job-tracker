@@ -1,0 +1,43 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de JSON-LD JobPosting do CareerPlug. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "501",
+      "payload": {
+        "@type": "JobPosting",
+        "title": "Assistant Manager",
+        "identifier": {
+          "@type": "PropertyValue",
+          "value": "501"
+        },
+        "url": "https://exemplo.careerplug.com/jobs/501",
+        "datePosted": "2025-03-01",
+        "employmentType": "FULL_TIME",
+        "description": "<p>Texto sintetico.</p>",
+        "jobLocation": {
+          "@type": "Place",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Dallas",
+            "addressRegion": "TX",
+            "addressCountry": "US"
+          }
+        }
+      }
+    },
+    {
+      "external_id": "502",
+      "payload": {
+        "@type": "JobPosting",
+        "title": "Stylist",
+        "identifier": {
+          "@type": "PropertyValue",
+          "value": "502"
+        },
+        "url": "https://exemplo.careerplug.com/jobs/502",
+        "employmentType": "PART_TIME"
+      }
+    }
+  ]
+}

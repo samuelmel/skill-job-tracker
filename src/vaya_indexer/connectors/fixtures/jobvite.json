@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de linhas de table.jv-job-list do Jobvite. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "oAbC1234",
+      "payload": {
+        "id": "oAbC1234",
+        "title": "Field Technician",
+        "href": "/exemplo/job/oAbC1234",
+        "location": "Camas, Washington"
+      }
+    },
+    {
+      "external_id": "oXyZ5678",
+      "payload": {
+        "id": "oXyZ5678",
+        "title": "Remote Analyst",
+        "href": "https://jobs.jobvite.com/exemplo/job/oXyZ5678",
+        "location": "Remote"
+      }
+    }
+  ]
+}

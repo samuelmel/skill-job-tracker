@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de feed RSS publico do HiringThing. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "https://acme.hiringthing.com/job/100/builder",
+      "payload": {
+        "title": "Builder | Raleigh, NC",
+        "link": "https://acme.hiringthing.com/job/100/builder",
+        "summary": "Trecho truncado...",
+        "location": "Durham, NC",
+        "description": "<p><strong>The Role</strong> full text.</p>"
+      }
+    },
+    {
+      "external_id": "https://acme.hiringthing.com/job/101/remote-support",
+      "payload": {
+        "title": "Support (Remote)",
+        "link": "https://acme.hiringthing.com/job/101/remote-support",
+        "summary": null,
+        "location": null,
+        "description": null
+      }
+    }
+  ]
+}

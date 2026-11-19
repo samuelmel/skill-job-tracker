@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de li.list-group-item do JazzHR. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "AbCdE12345",
+      "payload": {
+        "id": "AbCdE12345",
+        "title": "Customer Success Manager",
+        "url": "https://exemplo.applytojob.com/apply/AbCdE12345/Customer-Success-Manager",
+        "location": "Remote"
+      }
+    },
+    {
+      "external_id": "ZyXwV98765",
+      "payload": {
+        "id": "ZyXwV98765",
+        "title": "Analyst",
+        "url": "https://exemplo.applytojob.com/apply/ZyXwV98765/Analyst",
+        "location": null
+      }
+    }
+  ]
+}

@@ -26,6 +26,8 @@ class FeedEntry:
     updated: datetime | None = None
     author: str | None = None
     categories: list[str] = field(default_factory=list)
+    # Elemento lxml de origem, para campos de extensao (job:*, tt:*...) fora do RSS/Atom basico.
+    element: Any = field(default=None, repr=False, compare=False)
 
 
 def _text(element: Any, tag: str) -> str | None:
@@ -68,6 +70,7 @@ def _rss_entry(item: Any) -> FeedEntry | None:
         published=_rfc822(_text(item, "pubDate")),
         author=_text(item, "author") or _text(item, f"{DC}creator"),
         categories=[c for c in (_text_of(e) for e in item.findall("category")) if c],
+        element=item,
     )
 
 
@@ -92,19 +95,25 @@ def _atom_entry(entry: Any) -> FeedEntry | None:
         updated=parse_iso_datetime(_text(entry, f"{ATOM}updated")),
         author=_text(author, f"{ATOM}name") if author is not None else None,
         categories=[str(c.get("term")) for c in entry.findall(f"{ATOM}category") if c.get("term")],
+        element=entry,
     )
 
 
-def parse_feed(xml: str | bytes) -> list[FeedEntry]:
-    """Entradas de um feed RSS 2.0 ou Atom 1.0. Itens sem titulo ou id sao descartados."""
+def parse_xml(xml: str | bytes) -> Any:
+    """Raiz de um XML qualquer (entidades/DTD/rede desligados); XML invalido -> ParseError."""
     data = xml.encode("utf-8") if isinstance(xml, str) else xml
     parser = etree.XMLParser(
         resolve_entities=False, no_network=True, load_dtd=False, huge_tree=False, recover=False
     )
     try:
-        root = etree.fromstring(data, parser)
+        return etree.fromstring(data, parser)
     except etree.XMLSyntaxError as exc:
         raise ParseError(f"Feed invalido: {exc}") from exc
+
+
+def parse_feed(xml: str | bytes) -> list[FeedEntry]:
+    """Entradas de um feed RSS 2.0 ou Atom 1.0. Itens sem titulo ou id sao descartados."""
+    root = parse_xml(xml)
     if root.tag == f"{ATOM}feed":
         entries = (_atom_entry(e) for e in root.findall(f"{ATOM}entry"))
     elif root.tag == "rss" or root.tag.endswith("}RDF"):

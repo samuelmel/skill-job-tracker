@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de listagem HTML do TriNet Hire. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "126451",
+      "payload": {
+        "id": "126451",
+        "title": "Senior Director, E-Commerce",
+        "url": "https://app.trinethire.com/companies/1-acme/jobs/126451-senior-director-e-commerce",
+        "type": "Full-time",
+        "location": "Remote NY",
+        "description": "<p>Own growth.</p>"
+      }
+    },
+    {
+      "external_id": "126439",
+      "payload": {
+        "id": "126439",
+        "title": "Store Lead",
+        "url": "https://app.trinethire.com/companies/1-acme/jobs/126439-store-lead",
+        "type": "Part-time",
+        "location": "Acme Chicago",
+        "description": null
+      }
+    }
+  ]
+}

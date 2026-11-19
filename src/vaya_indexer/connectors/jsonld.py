@@ -1,6 +1,7 @@
 """JSON-LD schema.org `JobPosting` a partir de HTML, convertido em NormalizedJob."""
 
 import json
+import re
 from collections.abc import Iterator
 from decimal import Decimal, InvalidOperation
 from typing import Any
@@ -13,6 +14,7 @@ from vaya_indexer.processing.attributes import infer_workplace_type, normalize_e
 from vaya_indexer.processing.normalization import normalize_whitespace, parse_iso_datetime
 from vaya_indexer.processing.text import html_to_text
 
+_BAD_ESCAPE = re.compile(r'\\(?!["\\/bfnrtu])')
 _PERIODS = frozenset({"HOUR", "DAY", "WEEK", "MONTH", "YEAR"})
 
 
@@ -39,10 +41,17 @@ def extract_job_postings(html: str) -> list[dict[str, Any]]:
     soup = BeautifulSoup(html, "lxml")
     found: list[dict[str, Any]] = []
     for script in soup.find_all("script", attrs={"type": "application/ld+json"}):
+        text = script.get_text() or ""
         try:
-            data = json.loads(script.get_text() or "")
+            data = json.loads(text)
         except ValueError:
-            continue
+            try:  # sites reais emitem quebras de linha cruas dentro de strings
+                data = json.loads(text, strict=False)
+            except ValueError:
+                try:  # e barras invertidas soltas ("a\b" sem escape valido)
+                    data = json.loads(_BAD_ESCAPE.sub(r"\\\\", text), strict=False)
+                except ValueError:
+                    continue
         found.extend(node for node in _walk(data) if _is_job_posting(node))
     return found
 

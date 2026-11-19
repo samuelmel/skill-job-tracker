@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de input#jobs do Zoho Recruit. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "793183000001298001",
+      "payload": {
+        "id": "793183000001298001",
+        "Posting_Title": "Sr AI Engineer",
+        "Job_Opening_Name": "Sr AI Engineer",
+        "City": "Chesterfield",
+        "State": "Missouri",
+        "Country": "United States",
+        "Job_Type": "Full time",
+        "Remote_Job": true,
+        "Date_Opened": "2025-03-04",
+        "Job_Description": "<p>Build models.</p>",
+        "Publish": true,
+        "Is_Locked": false,
+        "Currency": "USD",
+        "Industry": "Technology"
+      }
+    },
+    {
+      "external_id": "793183000001298002",
+      "payload": {
+        "id": "793183000001298002",
+        "Posting_Title": "Analyst",
+        "Job_Opening_Name": "Analyst",
+        "Work_Location": "Noida",
+        "City": "Noida",
+        "State": "N/A",
+        "Country": "India",
+        "Job_Type": "Contract",
+        "Publish": true,
+        "Is_Locked": false
+      }
+    }
+  ]
+}

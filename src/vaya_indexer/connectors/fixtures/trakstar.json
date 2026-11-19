@@ -1,0 +1,42 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de sitemap + JSON-LD do Trakstar Hire. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "fk0abc1",
+      "payload": {
+        "url": "https://acme.hire.trakstar.com/jobs/fk0abc1",
+        "posting": {
+          "@type": "JobPosting",
+          "title": " CADD Drafter ",
+          "description": "&lt;p&gt;Draft &amp;amp; design.&lt;/p&gt;",
+          "datePosted": "2025-03-04",
+          "employmentType": "FULL_TIME",
+          "hiringOrganization": {
+            "@type": "Organization",
+            "name": "Acme Engineering"
+          },
+          "jobLocation": {
+            "@type": "Place",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Portland",
+              "addressRegion": "Oregon",
+              "addressCountry": "United States"
+            }
+          }
+        }
+      }
+    },
+    {
+      "external_id": "fk0abc2",
+      "payload": {
+        "url": "https://acme.hire.trakstar.com/jobs/fk0abc2",
+        "posting": {
+          "@type": "JobPosting",
+          "title": "Intern"
+        }
+      }
+    }
+  ]
+}

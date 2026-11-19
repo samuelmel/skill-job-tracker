@@ -1,0 +1,51 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de feed XML publico do Personio. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "1001",
+      "payload": {
+        "id": "1001",
+        "subcompany": "Acme GmbH",
+        "office": "Berlin",
+        "department": "Engineering",
+        "recruitingCategory": "Tech",
+        "name": "  Backend   Engineer ",
+        "employmentType": "permanent",
+        "seniority": "experienced",
+        "schedule": "full-time",
+        "createdAt": "2025-03-04T09:30:00+00:00",
+        "additionalOffices": [
+          "Munich"
+        ],
+        "jobDescriptions": [
+          {
+            "name": "Your tasks",
+            "value": "<p>Build APIs.</p>"
+          },
+          {
+            "name": "Your profile",
+            "value": "<ul><li>Python</li></ul>"
+          }
+        ]
+      }
+    },
+    {
+      "external_id": "1002",
+      "payload": {
+        "id": "1002",
+        "subcompany": null,
+        "office": "Lisbon",
+        "department": null,
+        "recruitingCategory": null,
+        "name": "Summer Intern",
+        "employmentType": "intern",
+        "seniority": null,
+        "schedule": null,
+        "createdAt": null,
+        "additionalOffices": [],
+        "jobDescriptions": []
+      }
+    }
+  ]
+}

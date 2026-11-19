@@ -1,0 +1,53 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de sitemap + JSON-LD do iSolvedHire. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "1800001",
+      "payload": {
+        "url": "https://acme.isolvedhire.com/jobs/1800001.html",
+        "posting": {
+          "@type": "JobPosting",
+          "title": "Support Engineer",
+          "description": "<p>Help customers.</p>",
+          "datePosted": "2025-03-04 00:00:00",
+          "employmentType": "FULL_TIME",
+          "baseSalary": {
+            "@type": "MonetaryAmount",
+            "currency": "USD",
+            "value": {
+              "@type": "QuantitativeValue",
+              "unitText": "",
+              "minValue": "70,000",
+              "maxValue": "80,000"
+            }
+          },
+          "hiringOrganization": {
+            "@type": "Organization",
+            "name": "Acme"
+          },
+          "jobLocation": {
+            "@type": "Place",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Austin",
+              "addressRegion": "TX",
+              "addressCountry": "US"
+            }
+          }
+        }
+      }
+    },
+    {
+      "external_id": "1800002",
+      "payload": {
+        "url": "https://acme.isolvedhire.com/jobs/1800002.html",
+        "posting": {
+          "@type": "JobPosting",
+          "title": "Part-time Cashier",
+          "employmentType": "PART_TIME"
+        }
+      }
+    }
+  ]
+}

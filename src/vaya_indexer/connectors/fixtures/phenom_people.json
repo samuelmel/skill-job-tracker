@@ -1,0 +1,45 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de widget refineSearch do Phenom People. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "FMJFMVUSJR100001EXTERNALENUS",
+      "payload": {
+        "jobSeqNo": "FMJFMVUSJR100001EXTERNALENUS",
+        "jobId": "JR100001",
+        "title": "Risk Analyst",
+        "descriptionTeaser": "Summary. Analyse risk ...",
+        "type": "Full time",
+        "remote": "Remote",
+        "postedDate": "2025-03-04T00:00:00.000+0000",
+        "cityStateCountry": "Remote",
+        "city": "Marlton",
+        "state": "New Jersey",
+        "country": "United States of America",
+        "multi_location_array": [
+          {
+            "location": "Remote"
+          }
+        ],
+        "applyUrl": "https://careers.acme.example/us/en/job/JR100001/risk-analyst/apply"
+      }
+    },
+    {
+      "external_id": "FMJFMVUSJR100002EXTERNALENUS",
+      "payload": {
+        "jobSeqNo": "FMJFMVUSJR100002EXTERNALENUS",
+        "jobId": "JR100002",
+        "title": "Teller",
+        "descriptionTeaser": null,
+        "type": "Part time",
+        "remote": "Onsite",
+        "postedDate": null,
+        "city": "Columbus",
+        "state": "Georgia",
+        "country": "United States",
+        "multi_location_array": [],
+        "applyUrl": null
+      }
+    }
+  ]
+}

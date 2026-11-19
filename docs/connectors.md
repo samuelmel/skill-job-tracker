@@ -130,3 +130,45 @@ slug altere o host da requisicao.
 Nao implementado. O `robots.txt` de `api.smartrecruiters.com` tem `User-agent: *` /
 `Disallow: /` e libera apenas o LinkedInBot em `/v1/companies/`. Como o projeto respeita
 robots.txt, a plataforma esta `BLOCKED` em `platforms.json` ate haver acordo/parceria.
+
+## Conectores do lote 2B (feeds, sitemap + JSON-LD e HTML publico)
+
+Sem autenticacao e com o `HttpClient` do projeto. Onde nao ha total declarado a coleta nao
+consegue provar integridade, entao teto de vagas ou item descartado resulta em `complete=False`.
+
+| Conector (`connector_type`) | Config | Fonte | Limitacoes |
+|---|---|---|---|
+| `personio` | `account`, `tld` (`com`/`de`) | feed XML `{account}.jobs.personio.{tld}/xml` | sem salario |
+| `pageup` | `client_id`, `lang` | RSS `careers.pageuppeople.com/{id}/cw/{lang}/rss` (ext. `job:*`) | id numerico do cliente |
+| `hiringthing` | `subdomain` | RSS `{sub}.hiringthing.com/api/rss.xml` | sem data nem salario |
+| `teamtailor` | `company` | RSS `{company}.teamtailor.com/jobs.rss` | Content-Signal `ai-train=no`: so indexacao |
+| `isolvedhire` | `subdomain` | `/job_site_map.xml` + JSON-LD em `/jobs/{id}.html` | ate 200 vagas; salario descartado |
+| `trakstar` | `company` | `{co}.hire.trakstar.com/sitemap.xml` + JSON-LD | ate 500 vagas |
+| `hireology` | `slug` | HTML `careers.hireology.com/{slug}?page=N` | seletores `data-qa-id`; sem descricao |
+| `recooty` | `company` | HTML `jobs.recooty.com/{co}?page=N` + JSON-LD no detalhe | seletores frageis; ate 200 vagas |
+| `trinet` | `company` (`{id}-{slug}`) | HTML `app.trinethire.com/companies/{id}-{slug}/jobs` + detalhe | `ai-train=no` no robots: so indexacao; ate 100 vagas |
+| `zoho-recruit` | `company` | `{co}.zohorecruit.com/jobs/Careers` (`input#jobs`) | so dominio `.com`; alguns tenants sem descricao |
+| `phenom-people` | `domain`, `lang`, `country`, `page_id` | POST `{domain}/widgets` (`refineSearch`) | so `descriptionTeaser`; endpoint nao documentado |
+
+`feeds.parse_xml`/`FeedEntry.element` e o fallback `strict=False` de `jsonld.py` foram
+estendidos de forma aditiva para estes conectores.
+
+## Conectores do lote 2A (APIs JSON publicas e HTML de portais de ATS)
+
+Sem autenticacao e com o `HttpClient` do projeto. Quando a fonte declara o total, `complete` so
+e `True` se o numero de vagas unicas coletadas o iguala; pagina desconhecida (login, redirect,
+layout via JS) e `ParseError`, nunca lista vazia "completa".
+
+| Conector (`connector_type`) | Config | Fonte | Limitacoes |
+|---|---|---|---|
+| `comeet` | `company_uid`, `careers_url` | `careers-api/2.0/company/{uid}/positions`; token publico lido em runtime da pagina de carreiras | token nunca guardado; sem `original_posted_at` |
+| `applicantpro` | `subdomain`, `domain_id` | `{sub}.applicantpro.com/core/jobs/{id}` | teto de 300 vagas (`complete=False` se `jobCount` maior); sem descricao/salario |
+| `careerplug` | `subdomain` | HTML `/jobs` com JSON-LD `ItemList` | `/jobs.js` e `/j/` proibidos no robots; quadro vazio vira "sem vagas" |
+| `eightfold_ai` | `tenant`, `domain` | `api/apply/v2/jobs?domain=` (10 por pagina) | sem descricao na listagem |
+| `join_com` | `company` | `__NEXT_DATA__` de `join.com/companies/{company}` | `?page=N` nao verificado; total divergente = `complete=False` |
+| `jobvite` | `company` | HTML `jobs.jobvite.com/{co}/jobs` (`table.jv-job-list`) | portais com lista via JS (ex.: innio) nao suportados |
+| `icims` | `host` | HTML `{host}/jobs/search?ss=1&in_iframe=1&pr=N` | layout `iCIMS_JobCardItem`; sem descricao |
+| `oracle_recruiting` | `host`, `site_number` | REST `recruitingCEJobRequisitions` (finder `findReqs`) | WAF (ex.: jpmc) bloqueia; paginas curtas intermediarias; descricao so resumo |
+| `jazzhr` | `subdomain` | HTML `{sub}.applytojob.com/apply` | subdominio inexistente redireciona e vira `ParseError` |
+| `paylocity` | `guid` | `window.pageData.Jobs` de `recruiting.paylocity.com/recruiting/jobs/All/{guid}` | descricao truncada fica None; vagas internas ignoradas |
+| `avature` | `host`, `path` | feed RSS `.../SearchJobs/feed/` + total do HTML | feed limitado pelo portal (Bloomberg 20 de 336 = parcial) |

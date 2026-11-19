@@ -11,10 +11,35 @@
     },
     "applicantpro": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "Endpoint JSON da pagina de carreiras (`/core/jobs/{domainId}`), sem autenticacao.",
+      "connector_type": "applicantpro",
+      "example_instances": [
+        {
+          "company": "YMCA of Richmond",
+          "config": {
+            "subdomain": "ymcarichmond",
+            "domain_id": 2863
+          }
+        },
+        {
+          "company": "Turner Industries",
+          "config": {
+            "subdomain": "turnerindustries",
+            "domain_id": 3218
+          }
+        },
+        {
+          "company": "VetCo Clinics",
+          "config": {
+            "subdomain": "vetcoclinics",
+            "domain_id": 2693
+          }
+        }
+      ],
+      "limitations": [
+        "Endpoint limitado a 300 vagas: quando `jobCount` excede o devolvido, complete=False (VetCo Clinics tem ~877).",
+        "Sem descricao nem moeda de salario na listagem."
+      ],
       "research_status": "NOT_STARTED"
     },
     "ashby": {
@@ -44,10 +69,28 @@
     },
     "avature": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "Feed RSS publico `{host}/{path}/SearchJobs/feed/` + total do HTML `SearchJobs`.",
+      "connector_type": "avature",
+      "example_instances": [
+        {
+          "company": "Avature",
+          "config": {
+            "host": "careers.avature.net",
+            "path": "en_US/main"
+          }
+        },
+        {
+          "company": "Bloomberg",
+          "config": {
+            "host": "bloomberg.avature.net",
+            "path": "careers"
+          }
+        }
+      ],
+      "limitations": [
+        "O feed e limitado pelo portal (Bloomberg: 20 de 336): complete=False quando o total do HTML nao bate.",
+        "Sem descricao na listagem."
+      ],
       "research_status": "NOT_STARTED"
     },
     "bamboohr": {
@@ -116,18 +159,47 @@
     },
     "careerplug": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "HTML server-side `{sub}.careerplug.com/jobs` com JSON-LD ItemList de JobPosting.",
+      "connector_type": "careerplug",
+      "example_instances": [
+        {
+          "company": "Sport Clips",
+          "config": {
+            "subdomain": "sportclips"
+          }
+        }
+      ],
+      "limitations": [
+        "`/jobs.js` e `/j/` sao proibidos pelo robots.txt e nao sao usados.",
+        "Alguns subdominios (ex.: genesishealthclubs) redirecionam para vaga unica e nao sao suportados.",
+        "Quadro sem vagas (ex.: careerplug-interns) gera 'fonte respondeu sem vagas' no verify; nao serve como instancia de verificacao."
+      ],
       "research_status": "NOT_STARTED"
     },
     "comeet": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "API publica careers-api 2.0 (`company/{uid}/positions`); o token publico da empresa e lido em runtime da pagina de carreiras (nunca guardado).",
+      "connector_type": "comeet",
+      "example_instances": [
+        {
+          "company": "VAST Data",
+          "config": {
+            "company_uid": "43.001",
+            "careers_url": "https://www.vastdata.com/careers"
+          }
+        },
+        {
+          "company": "Evinced",
+          "config": {
+            "company_uid": "28.000",
+            "careers_url": "https://www.evinced.com/careers"
+          }
+        }
+      ],
+      "limitations": [
+        "Exige a URL da pagina de carreiras da empresa (de onde vem o token publico); sem token na pagina e ParseError.",
+        "original_posted_at nao informado (time_updated e data de atualizacao)."
+      ],
       "research_status": "NOT_STARTED"
     },
     "csod": {
@@ -164,10 +236,21 @@
     },
     "eightfold-ai": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "Endpoint publico `api/apply/v2/jobs?domain=` das paginas de carreiras, paginado por offset (10 por pagina).",
+      "connector_type": "eightfold_ai",
+      "example_instances": [
+        {
+          "company": "NetApp",
+          "config": {
+            "tenant": "netapp",
+            "domain": "netapp.com"
+          }
+        }
+      ],
+      "limitations": [
+        "Sem descricao na listagem (so no detalhe por vaga).",
+        "Tenants com a API desligada respondem 403/404 (falha, nao lista vazia)."
+      ],
       "research_status": "NOT_STARTED"
     },
     "firststage": {
@@ -305,58 +388,189 @@
     },
     "hireology": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "HTML renderizado no servidor de careers.hireology.com/{slug}?page=N (10 cartoes por pagina, total declarado em 'N jobs found').",
+      "connector_type": "hireology",
+      "example_instances": [
+        {
+          "company": "BigTime",
+          "config": {
+            "slug": "bigtime"
+          }
+        },
+        {
+          "company": "Sylvan Learning",
+          "config": {
+            "slug": "sylvanlearning"
+          }
+        },
+        {
+          "company": "Companion Health Services",
+          "config": {
+            "slug": "companionhealthservices"
+          }
+        }
+      ],
+      "limitations": [
+        "Sem API JSON publica; depende de seletores data-qa-id (frageis).",
+        "Listagem sem descricao (None); salario so quando o cartao o mostra.",
+        "complete=False se vagas lidas < total declarado."
+      ],
       "research_status": "NOT_STARTED"
     },
     "hiringthing": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "Feed RSS publico {subdomain}.hiringthing.com/api/rss.xml com descricao completa em media:description.",
+      "connector_type": "hiringthing",
+      "example_instances": [
+        {
+          "company": "Vision Spark",
+          "config": {
+            "subdomain": "visionspark1"
+          }
+        },
+        {
+          "company": "Pinnacle",
+          "config": {
+            "subdomain": "pinnacle"
+          }
+        },
+        {
+          "company": "Franklin Companies",
+          "config": {
+            "subdomain": "franklin-companies"
+          }
+        }
+      ],
+      "limitations": [
+        "Feed sem data de publicacao nem salario.",
+        "Se o feed limitar itens, complete pode ser otimista: nao ha total declarado."
+      ],
       "research_status": "NOT_STARTED"
     },
     "icims": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "HTML server-side do portal `{host}/jobs/search?ss=1&in_iframe=1&pr=N`.",
+      "connector_type": "icims",
+      "example_instances": [
+        {
+          "company": "Community Medical Centers",
+          "config": {
+            "host": "careers-communitymedical.icims.com"
+          }
+        },
+        {
+          "company": "Emory University",
+          "config": {
+            "host": "staff-emory.icims.com"
+          }
+        }
+      ],
+      "limitations": [
+        "Portais customizados que nao usam o layout iCIMS_JobCardItem nao sao suportados (ParseError).",
+        "Sem descricao na listagem."
+      ],
       "research_status": "NOT_STARTED"
     },
     "isolvedhire": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "Sitemap /job_site_map.xml + JSON-LD JobPosting em /jobs/{id}.html (busca de detalhe por vaga).",
+      "connector_type": "isolvedhire",
+      "example_instances": [
+        {
+          "company": "HCSC",
+          "config": {
+            "subdomain": "hcsc"
+          }
+        },
+        {
+          "company": "Halvik",
+          "config": {
+            "subdomain": "halvik"
+          }
+        },
+        {
+          "company": "isolved",
+          "config": {
+            "subdomain": "isolved"
+          }
+        }
+      ],
+      "limitations": [
+        "Uma requisicao por vaga; maximo de 200 vagas por coleta (excedente -> complete=False).",
+        "baseSalary do JSON-LD descartado por inconsistencia observada; detalhe que falhar -> complete=False."
+      ],
       "research_status": "NOT_STARTED"
     },
     "jazzhr": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "HTML server-side `{sub}.applytojob.com/apply` (li.list-group-item).",
+      "connector_type": "jazzhr",
+      "example_instances": [
+        {
+          "company": "DTEX Systems",
+          "config": {
+            "subdomain": "dtexsystems"
+          }
+        },
+        {
+          "company": "NRO",
+          "config": {
+            "subdomain": "nro"
+          }
+        }
+      ],
+      "limitations": [
+        "Subdominio inexistente redireciona ao site da JazzHR e vira ParseError.",
+        "Sem descricao na listagem."
+      ],
       "research_status": "NOT_STARTED"
     },
     "jobvite": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "HTML server-side `jobs.jobvite.com/{company}/jobs` (table.jv-job-list).",
+      "connector_type": "jobvite",
+      "example_instances": [
+        {
+          "company": "nLight",
+          "config": {
+            "company": "nlight"
+          }
+        },
+        {
+          "company": "Uplight",
+          "config": {
+            "company": "uplight"
+          }
+        }
+      ],
+      "limitations": [
+        "Paginas com layout proprio que carregam a lista por JavaScript (ex.: innio) nao sao suportadas (ParseError).",
+        "Sem descricao na listagem."
+      ],
       "research_status": "NOT_STARTED"
     },
     "join-com": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "`__NEXT_DATA__` da pagina publica `join.com/companies/{company}` (pageData.jobs).",
+      "connector_type": "join_com",
+      "example_instances": [
+        {
+          "company": "Clark",
+          "config": {
+            "company": "clark"
+          }
+        },
+        {
+          "company": "JOIN",
+          "config": {
+            "company": "join"
+          }
+        }
+      ],
+      "limitations": [
+        "Paginacao `?page=N` nao verificada (nenhum quadro com mais de 5 vagas encontrado); total declarado diferente do obtido gera complete=False.",
+        "Sem descricao na listagem."
+      ],
       "research_status": "NOT_STARTED"
     },
     "kula-ai": {
@@ -432,18 +646,59 @@
     },
     "oracle-recruiting": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "REST publico `hcmRestApi/.../recruitingCEJobRequisitions` (finder findReqs) do Candidate Experience.",
+      "connector_type": "oracle_recruiting",
+      "example_instances": [
+        {
+          "company": "Oracle CX ebxr (CX_1)",
+          "config": {
+            "host": "ebxr.fa.us2.oraclecloud.com",
+            "site_number": "CX_1"
+          }
+        },
+        {
+          "company": "Oracle CX hccz (CX_2)",
+          "config": {
+            "host": "hccz.fa.em3.oraclecloud.com",
+            "site_number": "CX_2"
+          }
+        }
+      ],
+      "limitations": [
+        "Tenants atras de WAF (ex.: jpmc) respondem 403 e nao sao suportados.",
+        "Descricao apenas resumida (ShortDescriptionStr).",
+        "Paginas intermediarias podem trazer menos itens que o limite e o total pode divergir em 1 do coletado (429/430 observado): vira complete=False, sem fechar vagas ausentes."
+      ],
       "research_status": "NOT_STARTED"
     },
     "pageup": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "Feed RSS publico careers.pageuppeople.com/{client_id}/cw/{lang}/rss com extensao job:* (descricao, local, tipo, prazo).",
+      "connector_type": "pageup",
+      "example_instances": [
+        {
+          "company": "PageUp 887",
+          "config": {
+            "client_id": "887"
+          }
+        },
+        {
+          "company": "PageUp 917",
+          "config": {
+            "client_id": "917"
+          }
+        },
+        {
+          "company": "PageUp 1145",
+          "config": {
+            "client_id": "1145"
+          }
+        }
+      ],
+      "limitations": [
+        "Identificador do cliente e numerico e nao descobrivel pelo nome da empresa.",
+        "Sem salario estruturado; item sem id/titulo marca complete=False."
+      ],
       "research_status": "NOT_STARTED"
     },
     "paradox": {
@@ -472,26 +727,77 @@
     },
     "paylocity": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "Pagina publica `recruiting.paylocity.com/recruiting/jobs/All/{guid}` com `window.pageData.Jobs`.",
+      "connector_type": "paylocity",
+      "example_instances": [
+        {
+          "company": "OCHIN",
+          "config": {
+            "guid": "cab4161a-b9de-40e7-85e8-27920748af9d"
+          }
+        },
+        {
+          "company": "Purple Cow",
+          "config": {
+            "guid": "a8060c7d-f792-49d3-a6c4-e276b1e54ddd"
+          }
+        }
+      ],
+      "limitations": [
+        "Descricao da listagem e trecho truncado: fica None.",
+        "Vagas internas (IsInternal) sao ignoradas."
+      ],
       "research_status": "NOT_STARTED"
     },
     "personio": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "Feed XML publico {account}.jobs.personio.{com|de}/xml (workzag-jobs/position), listagem unica com descricao completa.",
+      "connector_type": "personio",
+      "example_instances": [
+        {
+          "company": "Personio",
+          "config": {
+            "account": "personio",
+            "tld": "de"
+          }
+        },
+        {
+          "company": "Stark",
+          "config": {
+            "account": "stark",
+            "tld": "com"
+          }
+        }
+      ],
+      "limitations": [
+        "Endpoint de feed XML nao documentado como API; o dominio (.com/.de) precisa ser informado.",
+        "Sem salario estruturado."
+      ],
       "research_status": "NOT_STARTED"
     },
     "phenom-people": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "POST https://{domain}/widgets (ddoKey refineSearch, from/size), JSON publico usado pelo proprio site de carreiras.",
+      "connector_type": "phenom-people",
+      "example_instances": [
+        {
+          "company": "Synovus",
+          "config": {
+            "domain": "careers.synovus.com"
+          }
+        },
+        {
+          "company": "Freedom Mortgage",
+          "config": {
+            "domain": "careers.freedommortgage.com"
+          }
+        }
+      ],
+      "limitations": [
+        "Endpoint nao documentado, um dominio por cliente; pageId pode variar por site.",
+        "API so entrega descriptionTeaser: descricao truncada. URL da vaga e a applyUrl (URL de detalhe nao verificada).",
+        "complete=False se totalHits exceder o recebido."
+      ],
       "research_status": "NOT_STARTED"
     },
     "pinpoint": {
@@ -550,10 +856,20 @@
     },
     "recooty": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "HTML de jobs.recooty.com/{company}?page=N (cartoes h3 a) + JSON-LD JobPosting no detalhe.",
+      "connector_type": "recooty",
+      "example_instances": [
+        {
+          "company": "Atom",
+          "config": {
+            "company": "atom-com"
+          }
+        }
+      ],
+      "limitations": [
+        "Sem API; seletores de cartao e classes de icone frageis.",
+        "Maximo de 200 vagas; ultima pagina com exatamente 10 vagas resulta em complete=False (sinal conservador)."
+      ],
       "research_status": "NOT_STARTED"
     },
     "recruitee": {
@@ -662,26 +978,81 @@
     },
     "teamtailor": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "Feed RSS publico {company}.teamtailor.com/jobs.rss com namespace tt (locais, remoteStatus).",
+      "connector_type": "teamtailor",
+      "example_instances": [
+        {
+          "company": "IQM",
+          "config": {
+            "company": "iqm"
+          }
+        },
+        {
+          "company": "Resourcify",
+          "config": {
+            "company": "resourcify"
+          }
+        },
+        {
+          "company": "Career",
+          "config": {
+            "company": "career"
+          }
+        }
+      ],
+      "limitations": [
+        "Robots/Content-Signal do host declara ai-train=no: usar so para indexacao de busca, nunca treino de modelos.",
+        "Sem salario estruturado."
+      ],
       "research_status": "NOT_STARTED"
     },
     "trakstar": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "Sitemap {company}.hire.trakstar.com/sitemap.xml + JSON-LD JobPosting em /jobs/{id} (descricao escapada, desescapada no conector).",
+      "connector_type": "trakstar",
+      "example_instances": [
+        {
+          "company": "ECI",
+          "config": {
+            "company": "eciusa"
+          }
+        },
+        {
+          "company": "FutureRecruit",
+          "config": {
+            "company": "futurerecruit"
+          }
+        }
+      ],
+      "limitations": [
+        "Uma requisicao por vaga; maximo de 500 vagas por coleta (excedente -> complete=False).",
+        "JSON-LD sem url (usa a do sitemap) e sem salario.",
+        "JSON-LD de alguns tenants tem barras invertidas soltas; o parse tolera isso (jsonld.py)."
+      ],
       "research_status": "NOT_STARTED"
     },
     "trinet": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "HTML do portal app.trinethire.com/companies/{id}-{slug}/jobs + detalhe por vaga (div.job-descr).",
+      "connector_type": "trinet",
+      "example_instances": [
+        {
+          "company": "IONNA",
+          "config": {
+            "company": "324552-ionna-llc"
+          }
+        },
+        {
+          "company": "Credo",
+          "config": {
+            "company": "1083383-credo"
+          }
+        }
+      ],
+      "limitations": [
+        "robots.txt declara Content-Signal ai-train=no (e bloqueia crawlers de IA): uso restrito a indexacao de busca de vagas, nunca treino.",
+        "Seletores frageis (table.job-list, div.job-descr); maximo de 100 vagas; detalhe que falhar -> complete=False."
+      ],
       "research_status": "NOT_STARTED"
     },
     "ultipro": {
@@ -761,10 +1132,32 @@
     },
     "zoho-recruit": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "Pagina {company}.zohorecruit.com/jobs/Careers com lista completa em JSON escapado no input#jobs.",
+      "connector_type": "zoho-recruit",
+      "example_instances": [
+        {
+          "company": "Koantek",
+          "config": {
+            "company": "koantek"
+          }
+        },
+        {
+          "company": "Execo",
+          "config": {
+            "company": "execo"
+          }
+        },
+        {
+          "company": "RMSI",
+          "config": {
+            "company": "rmsi"
+          }
+        }
+      ],
+      "limitations": [
+        "Alguns tenants (ex.: rmsi) nao enviam Job_Description na lista.",
+        "So o dominio .com foi verificado (regionais .eu/.in/.com.au nao). Vagas nao publicadas/bloqueadas omitidas."
+      ],
       "research_status": "NOT_STARTED"
     },
     "niceboard": {

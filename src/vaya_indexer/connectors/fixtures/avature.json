@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de item do feed RSS SearchJobs do Avature. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "7057",
+      "payload": {
+        "title": "Backend Software Engineer",
+        "link": "https://exemplo.avature.net/en_US/main/JobDetail/Argentina-Backend/7057",
+        "summary": "Argentina - 5706",
+        "published": "2025-04-01T00:00:00+00:00"
+      }
+    },
+    {
+      "external_id": "7058",
+      "payload": {
+        "title": "Designer",
+        "link": "https://exemplo.avature.net/en_US/main/JobDetail/Remote-Designer/7058",
+        "summary": null,
+        "published": null
+      }
+    }
+  ]
+}

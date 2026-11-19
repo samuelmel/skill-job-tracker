@@ -1,0 +1,32 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de Oracle recruitingCEJobRequisitions. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "7001",
+      "payload": {
+        "Id": "7001",
+        "Title": "Associate Engineer",
+        "PostedDate": "2025-05-02",
+        "PrimaryLocation": "Austin, United States",
+        "secondaryLocations": [
+          {
+            "Name": "Dallas, United States"
+          }
+        ],
+        "ShortDescriptionStr": "Resumo sintetico.",
+        "WorkplaceTypeCode": "ORA_REMOTE"
+      }
+    },
+    {
+      "external_id": "7002",
+      "payload": {
+        "Id": "7002",
+        "Title": "Analyst",
+        "PostedDate": null,
+        "PrimaryLocation": "Pune, India",
+        "secondaryLocations": []
+      }
+    }
+  ]
+}

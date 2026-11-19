@@ -1,0 +1,38 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de feed RSS publico do PageUp. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "510001",
+      "payload": {
+        "guid": "https://careers.pageuppeople.com/999/cw/en/job/510001",
+        "link": "https://careers.pageuppeople.com/999/cw/en/job/510001",
+        "title": "Multi Skilled Engineer",
+        "summary": "Resumo curto.",
+        "pubDate": "2025-03-04T09:00:00+00:00",
+        "refNo": "510001",
+        "description": "<p>Full <strong>description</strong>.</p>",
+        "applyLink": "https://secure.dc3.pageuppeople.com/apply/999/gateway/default.aspx?c=apply&id=510001",
+        "closingDate": "Sun, 30 Mar 2025 23:55:00 GMT",
+        "location": "Cardiff",
+        "workType": "Full time"
+      }
+    },
+    {
+      "external_id": "510002",
+      "payload": {
+        "guid": "https://careers.pageuppeople.com/999/cw/en/job/510002",
+        "link": "https://careers.pageuppeople.com/999/cw/en/job/510002",
+        "title": "Casual Librarian",
+        "summary": "Somente resumo.",
+        "pubDate": null,
+        "refNo": "510002",
+        "description": null,
+        "applyLink": null,
+        "closingDate": null,
+        "location": null,
+        "workType": "Casual"
+      }
+    }
+  ]
+}

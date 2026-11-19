@@ -1,0 +1,50 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de listagem HTML + JSON-LD do Recooty. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "registrar-associate-at202",
+      "payload": {
+        "id": "registrar-associate-at202",
+        "title": "Registrar Associate",
+        "url": "https://jobs.recooty.com/acme/registrar-associate-at202",
+        "location": "REMOTE",
+        "type": "Full Time",
+        "seniority": "Associate",
+        "posting": {
+          "@type": "JobPosting",
+          "title": "Registrar Associate",
+          "description": "<p>About the role.</p>",
+          "datePosted": "2025-03-04 19:35:44",
+          "employmentType": "FULL_TIME",
+          "jobLocationType": "TELECOMMUTE",
+          "hiringOrganization": {
+            "@type": "Organization",
+            "name": "Acme"
+          },
+          "jobLocation": {
+            "@type": "Place",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Hoffman Estates",
+              "addressRegion": "IL",
+              "addressCountry": "US"
+            }
+          }
+        }
+      }
+    },
+    {
+      "external_id": "content-writer-at201",
+      "payload": {
+        "id": "content-writer-at201",
+        "title": "Content Writer",
+        "url": "https://jobs.recooty.com/acme/content-writer-at201",
+        "location": "Chicago, IL",
+        "type": "Part Time",
+        "seniority": null,
+        "posting": null
+      }
+    }
+  ]
+}

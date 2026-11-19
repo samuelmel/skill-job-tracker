@@ -1,0 +1,29 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de ApplicantPro core/jobs. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "101",
+      "payload": {
+        "id": 101,
+        "title": "Line Cook",
+        "jobLocation": "Richmond, VA",
+        "jobUrl": "https://exemplo.applicantpro.com/jobs/101",
+        "employmentType": "Full-Time",
+        "workplaceType": "Onsite"
+      }
+    },
+    {
+      "external_id": "102",
+      "payload": {
+        "id": 102,
+        "title": "Remote Support",
+        "city": "Austin",
+        "abbreviation": "TX",
+        "iso3": "USA",
+        "jobUrl": "https://exemplo.applicantpro.com/jobs/102",
+        "workplaceType": "Remote"
+      }
+    }
+  ]
+}

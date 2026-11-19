@@ -1,0 +1,34 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de JOIN pageData.jobs.items. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "11",
+      "payload": {
+        "id": 11,
+        "idParam": "11-compliance-coordinator",
+        "title": "Compliance Coordinator",
+        "createdAt": "2025-06-01T10:00:00.000Z",
+        "workplaceType": "ONSITE",
+        "city": {
+          "cityName": "Bristol",
+          "countryName": "United Kingdom"
+        },
+        "employmentType": {
+          "name": "Contract"
+        }
+      }
+    },
+    {
+      "external_id": "12",
+      "payload": {
+        "id": 12,
+        "idParam": "12-remote-dev",
+        "title": "Developer",
+        "remoteType": "REMOTE",
+        "city": null,
+        "employmentType": null
+      }
+    }
+  ]
+}

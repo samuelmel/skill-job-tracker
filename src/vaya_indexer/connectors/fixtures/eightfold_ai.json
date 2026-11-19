@@ -1,0 +1,29 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de Eightfold api/apply/v2/jobs. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "9001",
+      "payload": {
+        "id": 9001,
+        "name": "Software Engineer",
+        "location": "Bangalore, India",
+        "t_create": 1750000000,
+        "work_location_option": "remote",
+        "canonicalPositionUrl": "https://exemplo.eightfold.ai/careers/job/9001",
+        "job_description": ""
+      }
+    },
+    {
+      "external_id": "9002",
+      "payload": {
+        "id": 9002,
+        "name": "Sales Rep",
+        "location": "Austin, TX",
+        "work_location_option": "onsite",
+        "canonicalPositionUrl": "https://exemplo.eightfold.ai/careers/job/9002",
+        "job_description": "<p>Texto.</p>"
+      }
+    }
+  ]
+}

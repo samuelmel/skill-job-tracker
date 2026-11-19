@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-dir", default=".pgdata-verify")
+    parser.add_argument("--report", action="store_true", help="regenera docs/coverage.*")
     parser.add_argument("slugs", nargs="*")
     args = parser.parse_args()
 
@@ -33,6 +34,10 @@ def main() -> int:
     subprocess.run(
         [sys.executable, "-m", "alembic", "upgrade", "head"], cwd=ROOT, env=env, check=True
     )
+    # idempotente: nunca rebaixa IMPLEMENTED/TESTED/VERIFIED
+    subprocess.run(
+        [sys.executable, "-m", "vaya_indexer", "seed-platforms"], cwd=ROOT, env=env, check=True
+    )
     targets = [["--platform", s] for s in args.slugs] or [["--all"]]
     code = 0
     for target in targets:
@@ -43,6 +48,10 @@ def main() -> int:
             check=False,
         )
         code = code or result.returncode
+    if args.report:
+        subprocess.run(
+            [sys.executable, "-m", "vaya_indexer", "coverage-report"], cwd=ROOT, env=env, check=True
+        )
     return code
 
 

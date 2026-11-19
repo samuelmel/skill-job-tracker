@@ -1,0 +1,45 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato de feed RSS publico do Teamtailor. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "11111111-aaaa-4aaa-8aaa-000000000001",
+      "payload": {
+        "guid": "11111111-aaaa-4aaa-8aaa-000000000001",
+        "title": "Data Analyst",
+        "link": "https://acme.teamtailor.com/jobs/1-data-analyst",
+        "description": "<p>Analyse data.</p>",
+        "pubDate": "2025-03-04T10:00:00+00:00",
+        "remoteStatus": "fully",
+        "department": "Data",
+        "role": "Analyst",
+        "locations": [
+          {
+            "name": "Berlin",
+            "city": "Berlin",
+            "country": "Germany"
+          },
+          {
+            "name": null,
+            "city": "Hamburg",
+            "country": "Germany"
+          }
+        ]
+      }
+    },
+    {
+      "external_id": "11111111-aaaa-4aaa-8aaa-000000000002",
+      "payload": {
+        "guid": "11111111-aaaa-4aaa-8aaa-000000000002",
+        "title": "Office Manager",
+        "link": "https://acme.teamtailor.com/jobs/2-office-manager",
+        "description": null,
+        "pubDate": null,
+        "remoteStatus": "none",
+        "department": null,
+        "role": null,
+        "locations": []
+      }
+    }
+  ]
+}
