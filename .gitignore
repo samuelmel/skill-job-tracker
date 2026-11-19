@@ -16,3 +16,4 @@ dist/
 .pgdata-demo2/
 .pgdata-demo/
 .pgdata-verify/
+.pgdata-verify-*/
