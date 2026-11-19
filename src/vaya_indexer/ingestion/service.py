@@ -30,6 +30,7 @@ from vaya_indexer.database.repositories.fetch_runs import FetchRunRepository
 from vaya_indexer.database.repositories.jobs import JobRepository
 from vaya_indexer.database.repositories.platforms import PlatformRepository
 from vaya_indexer.database.repositories.sources import SourceRepository
+from vaya_indexer.extraction.browser import BrowserFetcher
 from vaya_indexer.extraction.http import HttpClient
 from vaya_indexer.ingestion.job_status import refresh_job_status
 from vaya_indexer.ingestion.reconciliation import ReconcileOutcome, apply_reconciliation
@@ -233,9 +234,11 @@ class IngestionService:
         session_factory: async_sessionmaker[AsyncSession],
         http: HttpClient,
         policy: ProcessingPolicy | None = None,
+        browser: BrowserFetcher | None = None,
     ) -> None:
         self._session_factory = session_factory
         self._http = http
+        self._browser = browser
         self._policy = policy or ProcessingPolicy()
 
     async def run_source(self, source_id: uuid.UUID) -> FetchRunSummary:
@@ -261,7 +264,7 @@ class IngestionService:
         try:
             if not connector_type:
                 raise ConnectorNotFound(f"Plataforma '{platform.slug}' sem conector")
-            connector = create_connector(connector_type, config, self._http)
+            connector = create_connector(connector_type, config, self._http, self._browser)
             result = await connector.fetch_jobs()
             summary.jobs_found = len(result.jobs)
             async with self._session_factory() as session:

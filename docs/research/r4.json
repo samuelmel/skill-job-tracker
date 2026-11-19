@@ -1,0 +1,536 @@
+[
+ {
+  "slug": "niceboard",
+  "name": "Niceboard",
+  "mechanism": "jsonld",
+  "endpoint_template": "https://{board_domain}/sitemap-jobs.xml (list of /job/{id}-{slug} URLs) -> each job page has JSON-LD JobPosting",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "board_domain (custom domain e.g. jobs.aiacolorado.org or {slug}.niceboard.co)"
+  ],
+  "pagination": "None needed: sitemap-jobs.xml lists all active jobs (index sitemap.xml -> sitemap-base/jobs/companies). /api/jobs exists but returns {success:false,error:validation} without required params (undocumented; robots allows /api/jobs).",
+  "fields_available": [
+   "title",
+   "description(html)",
+   "datePosted",
+   "validThrough",
+   "employmentType",
+   "hiringOrganization",
+   "jobLocation",
+   "baseSalary (when present)"
+  ],
+  "platform_signature": "Asset URLs niceboard.co/boards/{boardslug}/assets/... in HTML; /sitemap.xml index with sitemap-base/jobs/companies; job URLs /job/{numeric-id}-{slug}; robots.txt 'Disallow: /api/ Allow: /api/jobs' + Crawl-delay: 1",
+  "docs_urls": [
+   "https://niceboard.co/features",
+   "https://niceboard.co/sitemap.xml"
+  ],
+  "instances": [
+   {
+    "company": "AIA Colorado",
+    "config": {
+     "board_domain": "jobs.aiacolorado.org"
+    },
+    "url_tested": "https://jobs.aiacolorado.org/sitemap-jobs.xml",
+    "http_status": 200,
+    "jobs_observed": 17,
+    "checked_at": "2026-11-19T12:00:00Z"
+   },
+   {
+    "company": "AICAD",
+    "config": {
+     "board_domain": "jobs.aicad.org"
+    },
+    "url_tested": "https://jobs.aicad.org/sitemap-jobs.xml",
+    "http_status": 200,
+    "jobs_observed": 10,
+    "checked_at": "2026-11-19T12:00:00Z"
+   }
+  ],
+  "limitations": "Crawl-delay 1s in robots.txt; no official public API docs; /api/ disallowed except /api/jobs. No auth/captcha seen. JSON-LD verified on aiacolorado job page.",
+  "recommendation": "READY",
+  "notes": "Sitemap+JSON-LD is generic but board is identifiable by niceboard.co asset URLs. Only 2 boards confirmed (third not found in budget).",
+  "category": "JOB_BOARD"
+ },
+ {
+  "slug": "wp-job-manager",
+  "name": "WP Job Manager",
+  "mechanism": "rss",
+  "endpoint_template": "https://{site}{/subpath}/?feed=job_feed  (RSS with job_listing:* namespace)  |  alt: https://{site}{/subpath}/wp-json/wp/v2/job-listings?per_page=100&page=N (JSON, when REST enabled)",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "site base URL (may include subpath e.g. /acrejobs)",
+   "job_categories",
+   "job_types",
+   "search_location",
+   "posts_per_page",
+   "paged (feed)"
+  ],
+  "pagination": "Feed: &posts_per_page=N&paged=N (default 10 items; jobicy returned 200). REST: per_page<=100, page, headers X-WP-Total/X-WP-TotalPages. Feed only includes jobs with a job type.",
+  "fields_available": [
+   "title",
+   "link",
+   "pubDate",
+   "description/content",
+   "job_listing:company",
+   "job_listing:location",
+   "job_listing:job_type",
+   "job_listing:job_category",
+   "job_listing:salary (some sites)",
+   "REST: meta._job_location,_company_name,_application,_company_website,_remote_position,_job_salary, taxonomies job-types/job-categories"
+  ],
+  "platform_signature": "RSS feed with job_listing:* XML namespace; REST route /wp/v2/job-listings; HTML classes job_listing / job_listing_category-*; plugin path /wp-content/plugins/wp-job-manager/",
+  "docs_urls": [
+   "https://wpjobmanager.com/?p=232090",
+   "https://wordpress.org/plugins/wp-job-manager/"
+  ],
+  "instances": [
+   {
+    "company": "A.CRE Job Board",
+    "config": {
+     "base": "https://www.adventuresincre.com/acrejobs"
+    },
+    "url_tested": "https://www.adventuresincre.com/acrejobs/wp-json/wp/v2/job-listings?per_page=3 and /?feed=job_feed",
+    "http_status": 200,
+    "jobs_observed": 345,
+    "checked_at": "2026-11-19T12:05:00Z"
+   },
+   {
+    "company": "Jobicy",
+    "config": {
+     "base": "https://jobicy.com"
+    },
+    "url_tested": "https://jobicy.com/?feed=job_feed",
+    "http_status": 200,
+    "jobs_observed": 200,
+    "checked_at": "2026-11-19T12:05:00Z"
+   },
+   {
+    "company": "jobs.blog (Automattic)",
+    "config": {
+     "base": "https://jobs.blog"
+    },
+    "url_tested": "https://jobs.blog/?feed=job_feed",
+    "http_status": 200,
+    "jobs_observed": 10,
+    "checked_at": "2026-11-19T12:05:00Z"
+   }
+  ],
+  "limitations": "REST route can be disabled/protected per site; jobicy REST returned Cloudflare challenge 403 (not bypassed) but RSS worked; some sites (onwardsearch.com/jobs) are not WPJM anymore. Feed excludes jobs without type. No auth for public feed.",
+  "recommendation": "READY",
+  "notes": "Highly deployed (100k+ sites). Self-hosted WordPress so board identity = site URL, not a SaaS tenant. Prefer RSS feed (uniform), REST for full pagination.",
+  "category": "JOB_BOARD"
+ },
+ {
+  "slug": "smartjobboard",
+  "name": "SmartJobBoard",
+  "mechanism": "rss",
+  "endpoint_template": "https://{board_domain}/rss  (also /feeds/rss.xml); sitemap https://{board_domain}/sitemap.xml; job pages /job/{id}/{slug}/ contain JSON-LD JobPosting",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "board_domain"
+  ],
+  "pagination": "RSS returns latest 29-50 items only (acem 29, others 50); for full coverage use sitemap.xml + JSON-LD per job page.",
+  "fields_available": [
+   "title",
+   "link",
+   "description (location, employer)",
+   "pubDate",
+   "guid",
+   "dc:creator",
+   "JSON-LD: full description, datePosted, validThrough, employmentType, hiringOrganization, jobLocation, baseSalary"
+  ],
+  "platform_signature": "<generator>Smart Job Board</generator> in RSS; HTML contains SJB_GlobalSiteUrl / SJB_UserSiteUrl JS vars and assets smartjobboard.com/{version}/templates/{BreezeDND|BootstrapDND|FlowDND}/",
+  "docs_urls": [
+   "https://smartjobboard.com/customers",
+   "https://www.smartjobboard.com/features/"
+  ],
+  "instances": [
+   {
+    "company": "ACEM Jobs",
+    "config": {
+     "board_domain": "jobs.acem.org.au"
+    },
+    "url_tested": "https://jobs.acem.org.au/rss",
+    "http_status": 200,
+    "jobs_observed": 29,
+    "checked_at": "2026-11-19T12:15:00Z"
+   },
+   {
+    "company": "DataCareer.de",
+    "config": {
+     "board_domain": "www.datacareer.de"
+    },
+    "url_tested": "https://www.datacareer.de/rss",
+    "http_status": 200,
+    "jobs_observed": 50,
+    "checked_at": "2026-11-19T12:15:00Z"
+   },
+   {
+    "company": "EnvironmentalCareer.com",
+    "config": {
+     "board_domain": "environmentalcareer.com"
+    },
+    "url_tested": "https://environmentalcareer.com/rss",
+    "http_status": 200,
+    "jobs_observed": 50,
+    "checked_at": "2026-11-19T12:15:00Z"
+   },
+   {
+    "company": "Jobs in Childcare",
+    "config": {
+     "board_domain": "www.jobsinchildcare.com"
+    },
+    "url_tested": "https://www.jobsinchildcare.com/rss",
+    "http_status": 200,
+    "jobs_observed": 50,
+    "checked_at": "2026-11-19T12:15:00Z"
+   }
+  ],
+  "limitations": "Some boards sit behind Cloudflare managed challenge (jobs.psychologicalscience.org, academiccareers.com home, jobs.buckrail.com /rss returned 403) - not bypassed; treat as BLOCKED per-instance. robots.txt on tested boards only disallows /files/, /download/, /application-redirect/. SmartJobBoard has a paid private API (not public).",
+  "recommendation": "READY",
+  "notes": "RSS is capped (~50) so combine with sitemap + JSON-LD. Strong signature.",
+  "category": "JOB_BOARD"
+ },
+ {
+  "slug": "jobboard-io",
+  "name": "JobBoard.io",
+  "mechanism": "rss",
+  "endpoint_template": "https://{board_domain}/jobs.rss (also /rss, /feed); sitemap https://{board_domain}/sitemap.xml; job pages /jobs/{numeric-id}-{slug} contain JSON-LD JobPosting",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "board_domain"
+  ],
+  "pagination": "RSS returns latest ~7-34 items only (no paging param observed); full list via sitemap.xml + JSON-LD per job page.",
+  "fields_available": [
+   "title (includes 'at Employer (Location)')",
+   "link/guid",
+   "description (truncated snippet, salary prefix)",
+   "pubDate",
+   "enclosure (logo)",
+   "JSON-LD on job page"
+  ],
+  "platform_signature": "Rails app: <meta name=csrf-param authenticity_token>, /assets/application-*.js, uploads/job/logo/{id}/..., RSS at /jobs.rss with <atom:link> and generator = board name, robots.txt disallowing /jobs/*/tracker, /jobs/*/applicants, /backfills/latest_jobs; JS refs to jobboard.io; support docs at support.jobboard.io",
+  "docs_urls": [
+   "https://support.jobboard.io/docs/syndication-xmlrssatom-jobs-feed",
+   "https://jobboard.io/features/"
+  ],
+  "instances": [
+   {
+    "company": "AACC Jobs (American Association of Community Colleges)",
+    "config": {
+     "board_domain": "jobs.aacc.nche.edu"
+    },
+    "url_tested": "https://jobs.aacc.nche.edu/jobs.rss",
+    "http_status": 200,
+    "jobs_observed": 34,
+    "checked_at": "2026-11-19T12:25:00Z"
+   },
+   {
+    "company": "City & State New York Jobs",
+    "config": {
+     "board_domain": "jobs.cityandstateny.com"
+    },
+    "url_tested": "https://jobs.cityandstateny.com/jobs.rss",
+    "http_status": 200,
+    "jobs_observed": 13,
+    "checked_at": "2026-11-19T12:25:00Z"
+   },
+   {
+    "company": "RMetS Jobs",
+    "config": {
+     "board_domain": "jobs.rmets.org"
+    },
+    "url_tested": "https://jobs.rmets.org/jobs.rss",
+    "http_status": 200,
+    "jobs_observed": 7,
+    "checked_at": "2026-11-19T12:25:00Z"
+   }
+  ],
+  "limitations": "Feed XML for aggregators (ZipRecruiter etc.) is configured per board in admin; public RSS descriptions truncated. Disallowed paths only tracker/applicants/manage. No auth/captcha observed. Product is ZipRecruiter-owned; distinct from jboard.io.",
+  "recommendation": "READY",
+  "notes": "Signature is moderate (no visible 'powered by' string confirmed in static grep); identify by /jobs.rss + Rails markup + JS reference to jobboard.io. JSON-LD confirmed on a City&State job page.",
+  "category": "JOB_BOARD"
+ },
+ {
+  "slug": "jboard-io",
+  "name": "JBoard.io",
+  "mechanism": "jsonld",
+  "endpoint_template": "https://{board_domain}/sitemap.xml -> sitemap-jobs-{n}.xml (list of /jobs/{id}-{slug}) -> each job page has JSON-LD JobPosting",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "board_domain"
+  ],
+  "pagination": "Sitemap shards sitemap-jobs-1.xml, -2... (up to ~3000 URLs per shard observed).",
+  "fields_available": [
+   "JSON-LD JobPosting: title, description, datePosted, validThrough, employmentType, hiringOrganization, jobLocation, baseSalary (when present)"
+  ],
+  "platform_signature": "HTML/JS globals JBoardAPI, jBoard, jBoardEvents; assets on jboard-tenant.s3.us-west-1.amazonaws.com (favicons/, social-media-ogs/); sitemap structure sitemap-general/job-types/jobs-N/companies-N/profiles-N/locations",
+  "docs_urls": [
+   "https://jboard.io/about-us",
+   "https://jboard.io/blog/job-feeds"
+  ],
+  "instances": [
+   {
+    "company": "Nuclear Jobs Canada",
+    "config": {
+     "board_domain": "nuclearjobscanada.ca"
+    },
+    "url_tested": "https://nuclearjobscanada.ca/sitemap-jobs-1.xml",
+    "http_status": 200,
+    "jobs_observed": 951,
+    "checked_at": "2026-11-19T12:35:00Z"
+   },
+   {
+    "company": "MyStaffHQ",
+    "config": {
+     "board_domain": "www.mystaffhq.com"
+    },
+    "url_tested": "https://www.mystaffhq.com/sitemap-jobs-1.xml",
+    "http_status": 200,
+    "jobs_observed": 1271,
+    "checked_at": "2026-11-19T12:35:00Z"
+   },
+   {
+    "company": "CourierGigs",
+    "config": {
+     "board_domain": "couriergigs.com"
+    },
+    "url_tested": "https://couriergigs.com/sitemap-jobs-1.xml",
+    "http_status": 200,
+    "jobs_observed": 3000,
+    "checked_at": "2026-11-19T12:35:00Z"
+   }
+  ],
+  "limitations": "robots.txt: Disallow /rss/ and Crawl-delay: 1 (so the /rss feed must NOT be used; /feed,/rss,/jobs.rss all 404 anyway). Sitemap + job-page JSON-LD allowed. One request per job page needed (volume).",
+  "recommendation": "READY",
+  "notes": "Page is JS-heavy but JSON-LD is server-rendered in the job page (verified on all 3). Sitemap counts are <loc> counts of the jobs sitemap shard (may include expired).",
+  "category": "JOB_BOARD"
+ },
+ {
+  "slug": "jobiqo",
+  "name": "Jobiqo",
+  "mechanism": "jsonld",
+  "endpoint_template": "https://{board_domain}/sitemap.xml (flat list of /job/{slug}-{id}) -> job page JSON-LD JobPosting; also paginated /search-{board}/sitemap.xml?page=N",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "board_domain"
+  ],
+  "pagination": "Sitemap lists all job URLs (354 on miamijobs.com); search sitemap sharded with ?page=N.",
+  "fields_available": [
+   "JSON-LD JobPosting: title, description, datePosted, validThrough, employmentType, hiringOrganization, jobLocation, baseSalary"
+  ],
+  "platform_signature": "Drupal site (Simple XML Sitemap module); inline settings JSON with JOBIQO_AIR_TRACKING_ACTIVE and SHOW_POWERED_BY_FOOTER; word 'Jobiqo' in HTML; job URLs /job/{slug}-{numeric id}",
+  "docs_urls": [
+   "https://www.jobiqo.com/",
+   "https://www.jobiqo.com/association-job-board"
+  ],
+  "instances": [
+   {
+    "company": "MiamiJobs.com",
+    "config": {
+     "board_domain": "www.miamijobs.com"
+    },
+    "url_tested": "https://www.miamijobs.com/sitemap.xml",
+    "http_status": 200,
+    "jobs_observed": 354,
+    "checked_at": "2026-11-19T12:45:00Z"
+   }
+  ],
+  "limitations": "robots.txt Crawl-delay: 10 (respect it); Disallow /api/gmapi. Only 1 board confirmed with curl: other candidates (jobs.newsday.com, mediajobcenter.com, careers.mendeley.com) timed out/301 in this session; Jersey Hired had no Jobiqo marker in static HTML. No customer list published (logos only).",
+  "recommendation": "READY",
+  "notes": "Mechanism verified on 1 board; second board still to confirm (try mediajobcenter.com, NYT/Newsday job boards under TheJobNetwork). Treat as READY but low instance count.",
+  "category": "JOB_BOARD"
+ },
+ {
+  "slug": "wiley-madgex",
+  "name": "Wiley Madgex",
+  "mechanism": "unknown",
+  "endpoint_template": null,
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "board_domain"
+  ],
+  "pagination": null,
+  "fields_available": [],
+  "platform_signature": "Not established. No 'madgex'/'mgx' string found in static HTML of tested boards; only jobs.economist.com (HTTP 403 Cloudflare-style, not bypassed) mentions 'madgex' in its HTML.",
+  "docs_urls": [
+   "https://www.madgex.com/",
+   "https://onrec.com/news/news-archive/madgex-launches-itvacanciescom-0"
+  ],
+  "instances": [],
+  "limitations": "Tested jobs.theguardian.com (200, no Madgex marker, JS-less HTML), jobs.hbr.org (Next.js, not Madgex), jobs.thebookseller.com (Java/jsessionid platform, /main/rss/feed allowed but NOT Madgex), pharmiweb.jobs (site closed, 'PharmiWeb.com Thank you'), jobs.bmj.com & jobs.washingtonpost.com (403), jobs.thetimes.co.uk & itvacancies.com (timeouts). Press mentions Madgex customers (Guardian, Washington Post, Times, ITvacancies, InsuranceJobs, NMA Jobs) but none confirmed via curl.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "Next: inspect jobs.economist.com / jobs.bmj.com through an allowed browser session to find Madgex signature; look for Madgex Origin patterns (e.g. /jobs/ listing, /job/{id}/{slug}/ detail with JSON-LD) and per-board RSS. Not confirmed here.",
+  "category": "JOB_BOARD"
+ },
+ {
+  "slug": "jobboardly",
+  "name": "Jobboardly",
+  "mechanism": "rss",
+  "endpoint_template": "https://{board_domain}/jobs.rss (RSS 2.0 with xmlns:job=https://www.jobboardly.com/rss/job); sitemap https://{board_domain}/sitemap.xml; job pages /jobs/{slug}-{hash} with JSON-LD JobPosting",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "board_domain"
+  ],
+  "pagination": "None observed: jobs.rss returns all active jobs (24 to ~429 items); sitemap.xml also lists all.",
+  "fields_available": [
+   "title (includes location)",
+   "link",
+   "description (full HTML in CDATA)",
+   "job:* namespace fields",
+   "JSON-LD JobPosting on job page"
+  ],
+  "platform_signature": "HTML assets from jobboardly.com/assets/application-*.css, board-*.js; footer 'Powered by Jobboardly' link with utm_campaign=board+referral; RSS xmlns:job=https://www.jobboardly.com/rss/job",
+  "docs_urls": [
+   "https://www.jobboardly.com/",
+   "https://www.jobboardly.com/wall-of-love"
+  ],
+  "instances": [
+   {
+    "company": "ET Careers",
+    "config": {
+     "board_domain": "etcareers.com"
+    },
+    "url_tested": "https://etcareers.com/jobs.rss",
+    "http_status": 200,
+    "jobs_observed": 429,
+    "checked_at": "2026-11-19T13:05:00Z"
+   },
+   {
+    "company": "Medical Courier Jobs",
+    "config": {
+     "board_domain": "medicalcourierjobs.com"
+    },
+    "url_tested": "https://medicalcourierjobs.com/jobs.rss",
+    "http_status": 200,
+    "jobs_observed": 289,
+    "checked_at": "2026-11-19T13:05:00Z"
+   },
+   {
+    "company": "JobsInDevon",
+    "config": {
+     "board_domain": "jobsindevon.uk"
+    },
+    "url_tested": "https://jobsindevon.uk/jobs.rss",
+    "http_status": 200,
+    "jobs_observed": 24,
+    "checked_at": "2026-11-19T13:05:00Z"
+   }
+  ],
+  "limitations": "robots.txt Allow: / (tested jobsindevon.uk); no auth/captcha. Item counts are '<item>' counts as returned (include all active jobs).",
+  "recommendation": "READY",
+  "notes": "Best-in-class: full feed in one request, strong signature, JSON-LD confirmed.",
+  "category": "JOB_BOARD"
+ },
+ {
+  "slug": "jobboardhq",
+  "name": "jobBoardHQ",
+  "mechanism": "html",
+  "endpoint_template": "https://{board_domain}/search?page={n} (server-rendered list of /job/{id}/{slug}/{city}/{state} links) -> job page with JSON-LD JobPosting (verified on macslist)",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "board_domain"
+  ],
+  "pagination": "?page=N (20 jobs per page on /search; page=2 returned 20 distinct-link page; njschooljobs returned 50 per page). No sitemap.xml/RSS (these paths return the SPA/HTML shell with HTTP 200 and no items). /atom.xml is advertised in <link rel=alternate> but returned HTML in my tests.",
+  "fields_available": [
+   "title",
+   "job id",
+   "location in URL (city/state)",
+   "JSON-LD JobPosting on detail page: description, datePosted, hiringOrganization, jobLocation, etc."
+  ],
+  "platform_signature": "Static assets from siteresource.blob.core.windows.net/assets/prod/{siteid}/board.css|board.js; /Javascript/uihelpers.js and jquery under /Javascript/; job URLs /job/{6-char id}/{slug}/{city}/{state}; page <link rel=alternate atom+xml href=/atom.xml>",
+  "docs_urls": [
+   "https://jobboardhq.com/"
+  ],
+  "instances": [
+   {
+    "company": "Mac's List",
+    "config": {
+     "board_domain": "jobs.macslist.org"
+    },
+    "url_tested": "https://jobs.macslist.org/search",
+    "http_status": 200,
+    "jobs_observed": 20,
+    "checked_at": "2026-11-19T13:20:00Z"
+   },
+   {
+    "company": "NJ School Jobs",
+    "config": {
+     "board_domain": "njschooljobs.com"
+    },
+    "url_tested": "https://njschooljobs.com/search",
+    "http_status": 200,
+    "jobs_observed": 50,
+    "checked_at": "2026-11-19T13:20:00Z"
+   },
+   {
+    "company": "EstateJobs",
+    "config": {
+     "board_domain": "www.estatejobs.com"
+    },
+    "url_tested": "https://www.estatejobs.com/search",
+    "http_status": 200,
+    "jobs_observed": 20,
+    "checked_at": "2026-11-19T13:20:00Z"
+   }
+  ],
+  "limitations": "No public API/feed confirmed; HTML scraping of /search pagination + detail pages. robots.txt on macslist returned 200 with empty body (no restrictions stated). Whether jobBoardHQ markup is exactly the same on all clients: confirmed via asset host on 4 boards (macslist, njschooljobs, estatejobs, roaddogjobs).",
+  "recommendation": "READY",
+  "notes": "Server-side HTML (no JS needed). Prefer detail-page JSON-LD. Counts are jobs per listing page, not totals.",
+  "category": "JOB_BOARD"
+ },
+ {
+  "slug": "ejobsitesoftware-com",
+  "name": "ejobsitesoftware.com",
+  "mechanism": "jsonld",
+  "endpoint_template": "https://{board_domain}/ (home lists recent jobs) ; job detail https://{board_domain}/{numeric-id}/{Title-Slug}.html (JSON-LD JobPosting); search via https://{board_domain}/job_search.php (GET listing returned no job links in my test)",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "board_domain"
+  ],
+  "pagination": "Not established. job_search.php returned no results to a plain GET; sitemap.xml on tested clients is mis-configured (points to http://www.ejobsitesoftware.com/jobsite_demo/... demo URLs, 239 entries) so it is unusable for discovery; no RSS found (/rss.php, /rss.xml 404).",
+  "fields_available": [
+   "JSON-LD JobPosting on detail page (title, description, etc.)"
+  ],
+  "platform_signature": "PHP script: URLs /{id}/{Title}.html, job_search.php, job_alert_agent_direct.php, /themes/{theme}/css/*; default sitemap.xml pointing to ejobsitesoftware.com/jobsite_demo; robots.txt with _vti_* entries",
+  "docs_urls": [
+   "https://ejobsitesoftware.com/"
+  ],
+  "instances": [
+   {
+    "company": "ConnectAgri",
+    "config": {
+     "board_domain": "connectagri.com"
+    },
+    "url_tested": "https://connectagri.com/",
+    "http_status": 200,
+    "jobs_observed": 8,
+    "checked_at": "2026-11-19T13:35:00Z"
+   },
+   {
+    "company": "Eyetastic Jobs",
+    "config": {
+     "board_domain": "eyetasticjobs.com"
+    },
+    "url_tested": "https://eyetasticjobs.com/",
+    "http_status": 200,
+    "jobs_observed": 8,
+    "checked_at": "2026-11-19T13:35:00Z"
+   }
+  ],
+  "limitations": "Only home-page jobs (8) enumerated; full listing/pagination not found. Other candidate clients: beveiligingsvacature.nl (403 blocked), jobqlick.com (WordPress-like, no job links). jobs_observed = job links on home page.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "Fetch job_search.php with form params (POST/GET params) to find full listing; vendor is a PHP script resold per client, so each site is self-hosted (like WP). JSON-LD on detail verified for 2 clients.",
+  "category": "JOB_BOARD"
+ }
+]

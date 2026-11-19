@@ -3,6 +3,7 @@
 import re
 from dataclasses import dataclass
 
+from vaya_indexer.coverage.metadata import PlatformMetadata, load_platform_metadata
 from vaya_indexer.database.models import ImplementationStatus, PlatformCategory
 
 ATS_NAMES = (
@@ -22,9 +23,6 @@ JOB_BOARD_NAMES = (
     "ejobsitesoftware.com"
 ).split(", ")
 
-# slug da plataforma -> nome do conector registrado em connectors/registry.py
-IMPLEMENTED_CONNECTORS = {"greenhouse": "greenhouse"}
-
 
 @dataclass(frozen=True)
 class PlatformEntry:
@@ -33,20 +31,42 @@ class PlatformEntry:
     category: PlatformCategory
     connector_type: str | None
     implementation_status: ImplementationStatus
+    docs_url: str | None = None
+    extraction_strategy: str | None = None
+    notes: str | None = None
 
 
 def slugify(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
 
 
-def _entry(name: str, category: PlatformCategory) -> PlatformEntry:
+def _entry(
+    name: str, category: PlatformCategory, metadata: dict[str, PlatformMetadata]
+) -> PlatformEntry:
     slug = slugify(name)
-    connector = IMPLEMENTED_CONNECTORS.get(slug)
-    status = ImplementationStatus.IMPLEMENTED if connector else ImplementationStatus.NOT_STARTED
-    return PlatformEntry(name, slug, category, connector, status)
+    meta = metadata.get(slug)
+    if meta is None:
+        raise ValueError(f"platforms.json sem entrada para '{slug}'")
+    # Sem conector, o status e o da pesquisa (NOT_STARTED|RESEARCHING|BLOCKED).
+    status = (
+        ImplementationStatus.IMPLEMENTED
+        if meta.connector_type
+        else ImplementationStatus(meta.research_status.value)
+    )
+    return PlatformEntry(
+        name=name,
+        slug=slug,
+        category=category,
+        connector_type=meta.connector_type,
+        implementation_status=status,
+        docs_url="\n".join(meta.docs_urls) or None,
+        extraction_strategy=meta.extraction_strategy,
+        notes="; ".join(meta.limitations) or None,
+    )
 
 
 def build_catalog() -> list[PlatformEntry]:
-    return [_entry(n, PlatformCategory.ATS) for n in ATS_NAMES] + [
-        _entry(n, PlatformCategory.JOB_BOARD) for n in JOB_BOARD_NAMES
+    metadata = load_platform_metadata()
+    return [_entry(n, PlatformCategory.ATS, metadata) for n in ATS_NAMES] + [
+        _entry(n, PlatformCategory.JOB_BOARD, metadata) for n in JOB_BOARD_NAMES
     ]

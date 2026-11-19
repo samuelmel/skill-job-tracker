@@ -4,6 +4,7 @@ Docs: https://developers.greenhouse.io/job-board.html
 """
 
 import html
+from pathlib import Path
 from typing import Any, ClassVar
 from urllib.parse import urlsplit
 
@@ -91,6 +92,7 @@ def _salary(payload: dict[str, Any], metadata: dict[str, str]) -> ParsedSalary |
 @register("greenhouse")
 class GreenhouseConnector(BaseConnector):
     config_model: ClassVar[type[BaseModel]] = GreenhouseConfig
+    fixture_path: ClassVar[Path | None] = Path(__file__).with_name("fixtures") / "greenhouse.json"
     config: GreenhouseConfig
 
     @classmethod

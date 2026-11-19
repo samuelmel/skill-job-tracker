@@ -7,13 +7,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from vaya_indexer.database.models import ImplementationStatus, Platform
 from vaya_indexer.platforms_catalog import PlatformEntry
 
+# Status que dependem de evidencia (conector/execucao): o seed nunca os sobrescreve.
+_EVIDENCE_STATUSES = (
+    ImplementationStatus.IMPLEMENTED,
+    ImplementationStatus.TESTED,
+    ImplementationStatus.VERIFIED,
+)
+
 
 class PlatformRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
     async def upsert_catalog(self, entries: Sequence[PlatformEntry]) -> None:
-        """Upsert por slug. Nunca rebaixa nem sobrescreve um status ja evoluido."""
+        """Upsert por slug. Status IMPLEMENTED/TESTED/VERIFIED (evidencia) nunca e sobrescrito."""
         stmt = insert(Platform).values(
             [
                 {
@@ -22,6 +29,9 @@ class PlatformRepository:
                     "category": e.category,
                     "connector_type": e.connector_type,
                     "implementation_status": e.implementation_status,
+                    "docs_url": e.docs_url,
+                    "extraction_strategy": e.extraction_strategy,
+                    "notes": e.notes,
                 }
                 for e in entries
             ]
@@ -32,12 +42,15 @@ class PlatformRepository:
                 "name": stmt.excluded.name,
                 "category": stmt.excluded.category,
                 "connector_type": stmt.excluded.connector_type,
+                "docs_url": stmt.excluded.docs_url,
+                "extraction_strategy": stmt.excluded.extraction_strategy,
+                "notes": stmt.excluded.notes,
                 "implementation_status": case(
                     (
-                        Platform.implementation_status == ImplementationStatus.NOT_STARTED,
-                        stmt.excluded.implementation_status,
+                        Platform.implementation_status.in_(_EVIDENCE_STATUSES),
+                        Platform.implementation_status,
                     ),
-                    else_=Platform.implementation_status,
+                    else_=stmt.excluded.implementation_status,
                 ),
             },
         )

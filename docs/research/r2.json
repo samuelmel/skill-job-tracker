@@ -1,0 +1,968 @@
+[
+  {
+    "slug": "lever-co",
+    "name": "Lever.co",
+    "category": "ATS",
+    "mechanism": "json_api",
+    "endpoint_template": "https://api.lever.co/v0/postings/{company}?mode=json (EU tenants: https://api.eu.lever.co/v0/postings/{company}?mode=json)",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "company (site slug, same as jobs.lever.co/{company})",
+      "region: global|eu",
+      "optional filters: team, department, location, commitment, workplaceType"
+    ],
+    "pagination": "limit & skip query params (limit=100 returned 100 for palantir); without limit returns full list (spotify full = ~858KB)",
+    "fields_available": [
+      "id",
+      "text(title)",
+      "categories.location/allLocations/team/department/commitment",
+      "workplaceType",
+      "country",
+      "createdAt(ms)",
+      "description/descriptionPlain/descriptionBody",
+      "lists",
+      "additional",
+      "opening",
+      "hostedUrl",
+      "applyUrl"
+    ],
+    "docs_urls": [
+      "https://github.com/lever/postings-api"
+    ],
+    "instances": [
+      {
+        "company": "Spotify",
+        "config": {
+          "company": "spotify"
+        },
+        "url_tested": "https://api.lever.co/v0/postings/spotify?mode=json&limit=5&skip=0",
+        "http_status": 200,
+        "jobs_observed": 5,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "Palantir",
+        "config": {
+          "company": "palantir"
+        },
+        "url_tested": "https://api.lever.co/v0/postings/palantir?mode=json&limit=100",
+        "http_status": 200,
+        "jobs_observed": 100,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "Lever (EU region)",
+        "config": {
+          "company": "lever",
+          "region": "eu"
+        },
+        "url_tested": "https://api.eu.lever.co/v0/postings/lever?mode=json",
+        "http_status": 200,
+        "jobs_observed": 6,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "Lever demo (test tenant)",
+        "config": {
+          "company": "leverdemo"
+        },
+        "url_tested": "https://api.lever.co/v0/postings/leverdemo?mode=json",
+        "http_status": 200,
+        "jobs_observed": "many (83KB payload, demo data)",
+        "checked_at": "2026-11-19T00:00:00Z"
+      }
+    ],
+    "limitations": "Unknown/nonexistent slug returns 404 {ok:false,error:'Document not found'}; global api.lever.co 'lever' slug returned empty list (tenant lives on EU). No auth needed. Must know region per tenant.",
+    "recommendation": "READY",
+    "notes": "Public Postings API, officially documented. Salary appears in additional text or salaryRange when provided."
+  },
+  {
+    "slug": "join-com",
+    "name": "JOIN.com",
+    "category": "ATS",
+    "mechanism": "html",
+    "endpoint_template": "https://join.com/companies/{company_slug} (SSR Next.js; jobs in <script id=__NEXT_DATA__> props.pageProps.pageData.jobs.items)",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "company_slug"
+    ],
+    "pagination": "pageData.jobs.pagination {page,pageCount,pageSize,perPage,total}; page size 5 observed; page param presumably ?page=N (not verified)",
+    "fields_available": [
+      "idParam (id-slug)",
+      "id",
+      "title",
+      "createdAt",
+      "workplaceType",
+      "remoteType",
+      "city.cityName/countryName",
+      "country.iso3166",
+      "employmentType.name",
+      "category.name"
+    ],
+    "docs_urls": [
+      "https://docs.join.com/reference/getting-started",
+      "https://help.join.com/join-api/api-documentation"
+    ],
+    "instances": [
+      {
+        "company": "JOIN",
+        "config": {
+          "company_slug": "join"
+        },
+        "url_tested": "https://join.com/companies/join",
+        "http_status": 200,
+        "jobs_observed": 4,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "Contensi Software GmbH",
+        "config": {
+          "company_slug": "contensi"
+        },
+        "url_tested": "https://join.com/companies/contensi",
+        "http_status": 200,
+        "jobs_observed": 1,
+        "checked_at": "2026-11-19T00:00:00Z"
+      }
+    ],
+    "limitations": "Official API v2 (api.join.com/v2/jobs) requires a per-account API token; v1 returns 410 deprecated; careers.join.com/api/... 404. Sitemap join.com/companies/sitemap-jobs-index.xml hit a Cloudflare 'Attention Required' 403 (not bypassed). robots.txt only disallows /*/lp/. Job description requires detail page (job detail fetch not verified; one detail URL returned a bare redirect-like body).",
+    "recommendation": "READY",
+    "notes": "List pages are server-rendered JSON in __NEXT_DATA__, no JS rendering needed. No salary/description in list items. Consider Cloudflare rate caution."
+  },
+  {
+    "slug": "hirehive",
+    "name": "HireHive",
+    "category": "ATS",
+    "mechanism": "json_api",
+    "endpoint_template": "https://{subdomain}.hirehive.com/api/v2/jobs",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "subdomain (company slug on {subdomain}.hirehive.com)"
+    ],
+    "pagination": "page & page_size query params; response meta {page,page_size,total_items,total_pages,has_next_page}; links.next. page_size=100 accepted. Filters: sort,title,types,...; also get job by id and categories endpoints",
+    "fields_available": [
+      "id",
+      "title",
+      "location",
+      "state_code",
+      "country",
+      "salary",
+      "description",
+      "category",
+      "type",
+      "experience",
+      "language",
+      "published_date",
+      "created_date",
+      "hosted_url",
+      "compensation_tiers"
+    ],
+    "docs_urls": [
+      "https://docs.hirehive.com/website-integration/jobs-api/list",
+      "https://hirehive-testing-account.hirehive.com/api-documentation/v2"
+    ],
+    "instances": [
+      {
+        "company": "Patagonia",
+        "config": {
+          "subdomain": "patagonia"
+        },
+        "url_tested": "https://patagonia.hirehive.com/api/v2/jobs?page_size=100",
+        "http_status": 200,
+        "jobs_observed": 14,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "AMCS Group",
+        "config": {
+          "subdomain": "amcsgroup"
+        },
+        "url_tested": "https://amcsgroup.hirehive.com/api/v2/jobs?page_size=100",
+        "http_status": 200,
+        "jobs_observed": 53,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "HireHive test account",
+        "config": {
+          "subdomain": "hirehive-testing-account"
+        },
+        "url_tested": "https://hirehive-testing-account.hirehive.com/api/v2/jobs?page=1&limit=2",
+        "http_status": 200,
+        "jobs_observed": 11,
+        "checked_at": "2026-11-19T00:00:00Z"
+      }
+    ],
+    "limitations": "Public, no auth (OpenAPI 'security: []'). Documented for customers' website integration; ToS at hirehive.com/terms-of-service not reviewed.",
+    "recommendation": "READY",
+    "notes": "Items include full HTML description and salary field (null when absent)."
+  },
+  {
+    "slug": "personio",
+    "name": "Personio",
+    "category": "ATS",
+    "mechanism": "xml",
+    "endpoint_template": "https://{account}.jobs.personio.com/xml?language={de|en} (also {account}.jobs.personio.de/xml)",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "account (subdomain)",
+      "tld: com|de",
+      "language (default de)"
+    ],
+    "pagination": "none; whole feed in one XML document (<workzag-jobs><position>...)",
+    "fields_available": [
+      "id",
+      "subcompany",
+      "office",
+      "department",
+      "recruitingCategory",
+      "name",
+      "jobDescriptions/jobDescription(name,value html)",
+      "employmentType",
+      "seniority",
+      "schedule",
+      "occupation",
+      "occupationCategory",
+      "createdAt"
+    ],
+    "docs_urls": [
+      "https://support.personio.de/hc/en-us/articles/207576365-Integrate-jobs-from-Personio-into-your-website-via-XML",
+      "https://support.personio.de/hc/en-us/articles/29375445597725-Frequently-asked-questions-on-XML-job-integration"
+    ],
+    "instances": [
+      {
+        "company": "Personio",
+        "config": {
+          "account": "personio",
+          "tld": "de"
+        },
+        "url_tested": "https://personio.jobs.personio.de/xml?language=en",
+        "http_status": 200,
+        "jobs_observed": 2,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "STARK Defence",
+        "config": {
+          "account": "stark",
+          "tld": "com"
+        },
+        "url_tested": "https://stark.jobs.personio.com/xml?language=en",
+        "http_status": 200,
+        "jobs_observed": 7,
+        "checked_at": "2026-11-19T00:00:00Z"
+      }
+    ],
+    "limitations": "Feed must be enabled by the tenant (XML activation); tenants without it likely return error. robots.txt of careers host: Allow /. No explicit apply URL element seen in feed; apply link = https://{account}.jobs.personio.com/job/{id}. No salary field. stark feed returned identical body for .com and .de.",
+    "recommendation": "READY",
+    "notes": "Personio also offers a separate Recruiting API (authenticated) - not needed."
+  },
+  {
+    "slug": "jobvite",
+    "name": "Jobvite",
+    "category": "ATS",
+    "mechanism": "html",
+    "endpoint_template": "https://jobs.jobvite.com/{company}/jobs (or /{company}/jobs/alljobs); job detail https://jobs.jobvite.com/{company}/job/{jobId}",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "company (path slug)"
+    ],
+    "pagination": "none observed; all jobs rendered on one page grouped in <table class=jv-job-list> by department",
+    "fields_available": [
+      "title (a text)",
+      "job id (href /{company}/job/{id})",
+      "location (td.jv-job-list-location)",
+      "department (h3 heading)",
+      "detail page: description, apply link"
+    ],
+    "docs_urls": [
+      "https://jobspipe.dev/sources/jobvite.md (third-party, not official)"
+    ],
+    "instances": [
+      {
+        "company": "nLIGHT",
+        "config": {
+          "company": "nlight"
+        },
+        "url_tested": "https://jobs.jobvite.com/nlight/jobs",
+        "http_status": 200,
+        "jobs_observed": 81,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "INNIO",
+        "config": {
+          "company": "innio"
+        },
+        "url_tested": "https://jobs.jobvite.com/innio/jobs/alljobs",
+        "http_status": 200,
+        "jobs_observed": 59,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "Uplight",
+        "config": {
+          "company": "uplight"
+        },
+        "url_tested": "https://jobs.jobvite.com/uplight/jobs",
+        "http_status": 200,
+        "jobs_observed": 6,
+        "checked_at": "2026-11-19T00:00:00Z"
+      }
+    ],
+    "limitations": "No official public JSON API; legacy XML (app.jobvite.com/CompanyJobs/Xml.aspx?c=) and opt-in feeds not verified. jobs.jobvite.com/robots.txt returns 404 (no robots restrictions published). Server-side HTML, markup-scrape fragile; no salary/dates in list.",
+    "recommendation": "READY",
+    "notes": "Counts = distinct job ids in list HTML. Detail page needed for description/date/apply URL (not fetched in this round)."
+  },
+  {
+    "slug": "icims",
+    "name": "iCIMS",
+    "category": "ATS",
+    "mechanism": "html",
+    "endpoint_template": "https://{portal-host}.icims.com/jobs/search?ss=1&in_iframe=1&pr={page0} ; discovery via https://{portal-host}.icims.com/sitemap.xml; job detail https://{host}/jobs/{id}/{slug}/job?in_iframe=1 (JobPosting JSON-LD)",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "portal host (e.g. careers-communitymedical.icims.com, staff-emory.icims.com; naming varies per customer, some custom domains)"
+    ],
+    "pagination": "pr=N (0-based) query; 'Page X of Y' in header; ~20 jobs/page (Y=9 for communitymedical)",
+    "fields_available": [
+      "list: title, id, link, location, req id (HTML)",
+      "sitemap.xml: job URLs + lastmod",
+      "detail JSON-LD JobPosting: title, description, datePosted, validThrough, employmentType, jobLocation, hiringOrganization, occupationalCategory, directApply, url"
+    ],
+    "docs_urls": [
+      "https://community.icims.com/articles/HowTo/Candidate-Guide-to-the-iCIMS-Talent-Platform"
+    ],
+    "instances": [
+      {
+        "company": "Community Health Systems",
+        "config": {
+          "host": "careers-communitymedical.icims.com"
+        },
+        "url_tested": "https://careers-communitymedical.icims.com/jobs/search?ss=1&in_iframe=1",
+        "http_status": 200,
+        "jobs_observed": 176,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "Emory University (staff)",
+        "config": {
+          "host": "staff-emory.icims.com"
+        },
+        "url_tested": "https://staff-emory.icims.com/sitemap.xml",
+        "http_status": 200,
+        "jobs_observed": 339,
+        "checked_at": "2026-11-19T00:00:00Z"
+      }
+    ],
+    "limitations": "Subdomain pattern not uniform; many customers use custom domains/new React career sites (careers.icims.com redirected to /careers-home/ - not parsed). robots.txt disallows /jobs/*referral, login, candidate, /connect resume etc. but allows search/sitemap. hrjobs.icims.com/sitemap.xml returned AccessDenied. No public JSON API.",
+    "recommendation": "READY",
+    "notes": "Best approach: sitemap.xml (cheap, lastmod) then detail JSON-LD. Counts: communitymedical=176 sitemap locs incl. intro (9 pages x20 in search); emory 340 locs minus intro."
+  },
+  {
+    "slug": "oracle-recruiting",
+    "name": "Oracle Recruiting",
+    "category": "ATS",
+    "mechanism": "json_api",
+    "endpoint_template": "https://{host}/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList.secondaryLocations&finder=findReqs;siteNumber={siteNumber},limit={n},offset={o},sortBy=POSTING_DATES_DESC",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "host (e.g. jpmc.fa.oraclecloud.com, ebxr.fa.us2.oraclecloud.com; pod/region part varies)",
+      "siteNumber (e.g. CX_1001, CX_1, CX_2, CX)",
+      "language (careers URL /hcmUI/CandidateExperience/{lang}/sites/{siteNumber})"
+    ],
+    "pagination": "limit & offset inside finder string; items[0].TotalJobsCount gives total; jobs under items[0].requisitionList (list of requisitions). Facets (category, location, posting date) also returned",
+    "fields_available": [
+      "Id",
+      "Title",
+      "PostedDate",
+      "PostingEndDate",
+      "PrimaryLocation",
+      "PrimaryLocationCountry",
+      "secondaryLocations",
+      "WorkplaceType",
+      "JobFamily",
+      "JobFunction",
+      "WorkerType",
+      "ContractType",
+      "ManagerLevel",
+      "JobSchedule",
+      "ShortDescriptionStr",
+      "ExternalResponsibilitiesStr",
+      "ExternalQualificationsStr",
+      "Organization",
+      "BusinessUnit",
+      "HotJobFlag",
+      "detail endpoint recruitingCEJobRequisitionDetails (full description; not fully verified)"
+    ],
+    "docs_urls": [
+      "https://docs.oracle.com/en/cloud/saas/human-resources/farws/op-recruitingcejobrequisitions-get.html"
+    ],
+    "instances": [
+      {
+        "company": "JPMorgan Chase",
+        "config": {
+          "host": "jpmc.fa.oraclecloud.com",
+          "siteNumber": "CX_1001"
+        },
+        "url_tested": "https://jpmc.fa.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList.secondaryLocations&finder=findReqs;siteNumber=CX_1001,limit=3,offset=0,sortBy=POSTING_DATES_DESC",
+        "http_status": 200,
+        "jobs_observed": 6911,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "DTCC",
+        "config": {
+          "host": "ebxr.fa.us2.oraclecloud.com",
+          "siteNumber": "CX_1"
+        },
+        "url_tested": "https://ebxr.fa.us2.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList.secondaryLocations&finder=findReqs;siteNumber=CX_1,limit=10,offset=0,sortBy=POSTING_DATES_DESC",
+        "http_status": 200,
+        "jobs_observed": 425,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "Pearson",
+        "config": {
+          "host": "hccz.fa.em3.oraclecloud.com",
+          "siteNumber": "CX_2"
+        },
+        "url_tested": "https://hccz.fa.em3.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList.secondaryLocations&finder=findReqs;siteNumber=CX_2,limit=10,offset=0,sortBy=POSTING_DATES_DESC",
+        "http_status": 200,
+        "jobs_observed": 350,
+        "checked_at": "2026-11-19T00:00:00Z"
+      }
+    ],
+    "limitations": "This is the unauthenticated endpoint the Candidate Experience career site itself calls; it is not the officially documented public integration (Oracle docs restrict recruitingJobSitePostedJobs to marketplace partners; hcmRestApi docs describe authenticated use). Need host+siteNumber per tenant (taken from the career site URL). One tested host (eeho.fa.us2, CX_45001 guess) returned 502. jpmc.fa.oraclecloud.com/robots.txt returned a 'Blocked by WAF4SaaS' page to our UA, so WAF may throttle; keep low rate. Possible ToS concerns: verify before production.",
+    "recommendation": "READY",
+    "notes": "Verify the requisitionList key appears only when limit/offset/sortBy given as in template (calls without sortBy and with expand also worked). Max limit not probed beyond 25."
+  },
+  {
+    "slug": "jazzhr",
+    "name": "JazzHR",
+    "category": "ATS",
+    "mechanism": "html",
+    "endpoint_template": "https://{subdomain}.applytojob.com/apply/jobs ; detail https://{subdomain}.applytojob.com/apply/jobs/details/{jobId} (contains JobPosting JSON-LD)",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "subdomain"
+    ],
+    "pagination": "none observed (all jobs on one page); search via ?q=",
+    "fields_available": [
+      "list: title, location, department(HTML)",
+      "detail JSON-LD JobPosting: title, description, datePosted, validThrough, employmentType, hiringOrganization, jobLocation, jobLocationType, uniqueJobCode, experienceRequirements"
+    ],
+    "docs_urls": [
+      "https://www.jazzhr.com/api (official REST API requires customer API key; not used)"
+    ],
+    "instances": [
+      {
+        "company": "DTEX Systems",
+        "config": {
+          "subdomain": "dtexsystems"
+        },
+        "url_tested": "https://dtexsystems.applytojob.com/apply/jobs",
+        "http_status": 200,
+        "jobs_observed": 11,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "National Reconnaissance Office",
+        "config": {
+          "subdomain": "nro"
+        },
+        "url_tested": "https://nro.applytojob.com/apply/jobs/",
+        "http_status": 200,
+        "jobs_observed": 14,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "TicketManager",
+        "config": {
+          "subdomain": "ticketmanager"
+        },
+        "url_tested": "https://ticketmanager.applytojob.com/apply/jobs/",
+        "http_status": 200,
+        "jobs_observed": 8,
+        "checked_at": "2026-11-19T00:00:00Z"
+      }
+    ],
+    "limitations": "Official API (api.resumatorapi.com) needs API key. robots.txt: Disallow /cb, blocks SemrushBot/dotbot, lists sitemaps at app.jazz.co/feeds/google/xml/N (not fetched). Inactive tenants render 'Inactive Career Page' (eagleeyenetworksinc). /apply/jobs/feed returned 302.",
+    "recommendation": "READY",
+    "notes": "Counts = distinct /apply/jobs/details/ ids in list HTML. Detail fetch needed for description/date."
+  },
+  {
+    "slug": "paylocity",
+    "name": "Paylocity",
+    "category": "ATS",
+    "mechanism": "html",
+    "endpoint_template": "https://recruiting.paylocity.com/recruiting/jobs/All/{companyGuid}/{name} ; jobs embedded as JSON in `window.pageData = {...}` (key Jobs)",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "companyGuid (UUID in career page URL)",
+      "name slug (cosmetic)"
+    ],
+    "pagination": "none; all jobs in pageData.Jobs (624 in one response for Purple Cow)",
+    "fields_available": [
+      "JobId",
+      "JobTitle",
+      "LocationName",
+      "JobLocation(City,State,Zip,Country)",
+      "PublishedDate",
+      "Description (truncated snippet)",
+      "HiringDepartment",
+      "IsRemote",
+      "IndeedRemoteType",
+      "IsInternal"
+    ],
+    "docs_urls": [],
+    "instances": [
+      {
+        "company": "OCHIN",
+        "config": {
+          "companyGuid": "cab4161a-b9de-40e7-85e8-27920748af9d"
+        },
+        "url_tested": "https://recruiting.paylocity.com/recruiting/jobs/All/cab4161a-b9de-40e7-85e8-27920748af9d/OCHIN",
+        "http_status": 200,
+        "jobs_observed": 71,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "Purple Cow Recruiting",
+        "config": {
+          "companyGuid": "a8060c7d-f792-49d3-a6c4-e276b1e54ddd"
+        },
+        "url_tested": "https://recruiting.paylocity.com/recruiting/jobs/All/a8060c7d-f792-49d3-a6c4-e276b1e54ddd/Purple-Cow-Recruiting",
+        "http_status": 200,
+        "jobs_observed": 624,
+        "checked_at": "2026-11-19T00:00:00Z"
+      }
+    ],
+    "limitations": "No documented public API. recruiting.paylocity.com/recruiting/v2/api/feed/jobs/{guid} returned 200 but empty jobs list for 3 GUIDs (not usable as observed). robots.txt returned 404. Full description requires detail page (URL form /recruiting/jobs/Details/{JobId} not verified). GUIDs must be discovered via company careers links/search.",
+    "recommendation": "READY",
+    "notes": "Server-rendered JSON blob; no JS execution needed."
+  },
+  {
+    "slug": "manatal",
+    "name": "Manatal",
+    "category": "ATS",
+    "mechanism": "json_api",
+    "endpoint_template": "https://api.manatal.com/open/v3/career-page/{slug}/jobs/?page={n}",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "slug (careers-page.com/{slug})"
+    ],
+    "pagination": "DRF page-number; fixed 10 per page (page_size ignored); response {count,next,previous,results}; page beyond range => 404 {detail:'Invalid page.'}",
+    "fields_available": [
+      "id",
+      "hash (job id for URL careers-page.com/{slug}/job/{hash})",
+      "organization_name (department)",
+      "position_name",
+      "description (HTML)",
+      "country",
+      "state",
+      "city",
+      "address",
+      "zipcode",
+      "location_display",
+      "is_salary_visible",
+      "is_remote",
+      "contract_details",
+      "is_pinned_in_career_page"
+    ],
+    "docs_urls": [
+      "https://developers.manatal.com/ (official API is authenticated; open career-page API observed via public site)"
+    ],
+    "instances": [
+      {
+        "company": "Manatal Co LTD",
+        "config": {
+          "slug": "manatal"
+        },
+        "url_tested": "https://api.manatal.com/open/v3/career-page/manatal/jobs/",
+        "http_status": 200,
+        "jobs_observed": 33,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "We Recruit",
+        "config": {
+          "slug": "we-recruit"
+        },
+        "url_tested": "https://api.manatal.com/open/v3/career-page/we-recruit/jobs/",
+        "http_status": 200,
+        "jobs_observed": 21,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "Elite Employment",
+        "config": {
+          "slug": "elite-employment"
+        },
+        "url_tested": "https://api.manatal.com/open/v3/career-page/elite-employment/jobs/",
+        "http_status": 200,
+        "jobs_observed": 3,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "Manatal sub-account (manatal3)",
+        "config": {
+          "slug": "manatal3"
+        },
+        "url_tested": "https://api.manatal.com/open/v3/career-page/manatal3/jobs/",
+        "http_status": 200,
+        "jobs_observed": 30,
+        "checked_at": "2026-11-19T00:00:00Z"
+      }
+    ],
+    "limitations": "Endpoint is undocumented-in-public-docs (observed, it serves the careers-page.com site); salary amount not exposed in list (only is_salary_visible flag). careers-page.com/robots.txt returned 404. Many tenants are staffing agencies.",
+    "recommendation": "READY",
+    "notes": "Not found in official docs; endpoint inferred from observed behavior of the public career page: confirm via network inspection of careers-page.com before production."
+  },
+  {
+    "slug": "pageup",
+    "name": "PageUp",
+    "category": "ATS",
+    "mechanism": "rss",
+    "endpoint_template": "https://careers.pageuppeople.com/{clientId}/cw/{lang}/rss  (listing HTML: /{clientId}/cw/en/listing/; job: /{clientId}/cw/en/job/{refNo})",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "clientId (numeric)",
+      "lang (en, en-us, ...)"
+    ],
+    "pagination": "none; whole feed in single RSS",
+    "fields_available": [
+      "guid/link (job URL)",
+      "title",
+      "description (short)",
+      "pubDate",
+      "job:category",
+      "job:refNo",
+      "job:description (full HTML)",
+      "other job:* extensions (location, closing date etc.; not fully enumerated)"
+    ],
+    "docs_urls": [],
+    "instances": [
+      {
+        "company": "City of Greater Geelong",
+        "config": {
+          "clientId": "887"
+        },
+        "url_tested": "https://careers.pageuppeople.com/887/cw/en/rss",
+        "http_status": 200,
+        "jobs_observed": 16,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "Welsh housing provider (client 917)",
+        "config": {
+          "clientId": "917"
+        },
+        "url_tested": "https://careers.pageuppeople.com/917/cw/en/rss",
+        "http_status": 200,
+        "jobs_observed": 28,
+        "checked_at": "2026-11-19T00:00:00Z"
+      },
+      {
+        "company": "University of Mary Washington",
+        "config": {
+          "clientId": "1145"
+        },
+        "url_tested": "https://careers.pageuppeople.com/1145/cw/en/rss",
+        "http_status": 200,
+        "jobs_observed": 23,
+        "checked_at": "2026-11-19T00:00:00Z"
+      }
+    ],
+    "limitations": "RSS not officially documented in what I found; robots.txt not checked. Some portals use custom domains/careersite.pageuppeople.com subdomains. Encoding showed replacement characters in output (check charset handling).",
+    "recommendation": "READY",
+    "notes": "Feed carries full description. Confirm location/closing date element names in a full parse."
+  },
+  {
+    "slug": "paycor",
+    "name": "Paycor",
+    "category": "ATS",
+    "mechanism": "blocked",
+    "endpoint_template": "https://recruitingbypaycor.com/career/CareerHome.action?clientId={32hex}",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "clientId (32 hex chars)"
+    ],
+    "pagination": "n/a (not scraped)",
+    "fields_available": [],
+    "docs_urls": [
+      "https://recruitingbypaycor.com/robots.txt"
+    ],
+    "instances": [
+      {
+        "company": "Teton County",
+        "config": "clientId=8a7883d09a31ed69019a5b11230b0f74",
+        "url_tested": "https://recruitingbypaycor.com/career/CareerHome.action?clientId=8a7883d09a31ed69019a5b11230b0f74",
+        "http_status": 200,
+        "jobs_observed": null,
+        "checked_at": "2026-11-19"
+      },
+      {
+        "company": "Fargo Roofing",
+        "config": "clientId=8a7883c69af127d1019b0ee7a20408d8",
+        "url_tested": "https://recruitingbypaycor.com/career/CareerHome.action?clientId=8a7883c69af127d1019b0ee7a20408d8",
+        "http_status": 200,
+        "jobs_observed": null,
+        "checked_at": "2026-11-19"
+      }
+    ],
+    "limitations": "robots.txt on recruitingbypaycor.com returns 200 with 'User-agent: * / Disallow: /' (whole site disallowed). Pages respond 200 but crawling is disallowed; not scraped.",
+    "recommendation": "BLOCKED",
+    "notes": "Only the landing page status was checked; job counts not collected due to robots disallow. Revisit only with partner/permission."
+  },
+  {
+    "slug": "hireology",
+    "name": "Hireology",
+    "category": "ATS",
+    "mechanism": "html",
+    "endpoint_template": "https://careers.hireology.com/{slug}?page={n}",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "slug"
+    ],
+    "pagination": "page=N, 10 job cards per page; 'N jobs found' and 'Page X of Y' in HTML",
+    "fields_available": [
+      "title",
+      "location",
+      "job id",
+      "detail url (/{subslug}/{id}/description)"
+    ],
+    "docs_urls": [
+      "https://careers.hireology.com/sitemap_index.xml"
+    ],
+    "instances": [
+      {
+        "company": "BigTime",
+        "config": "bigtime",
+        "url_tested": "https://careers.hireology.com/bigtime",
+        "http_status": 200,
+        "jobs_observed": 6,
+        "checked_at": "2026-11-19"
+      },
+      {
+        "company": "Sylvan Learning",
+        "config": "sylvanlearning",
+        "url_tested": "https://careers.hireology.com/sylvanlearning",
+        "http_status": 200,
+        "jobs_observed": 161,
+        "checked_at": "2026-11-19"
+      },
+      {
+        "company": "Companion Health Services",
+        "config": "companionhealthservices",
+        "url_tested": "https://careers.hireology.com/companionhealthservices",
+        "http_status": 200,
+        "jobs_observed": 37,
+        "checked_at": "2026-11-19"
+      },
+      {
+        "company": "Hireology",
+        "config": "hireology2",
+        "url_tested": "https://careers.hireology.com/hireology2",
+        "http_status": 200,
+        "jobs_observed": 2,
+        "checked_at": "2026-11-19"
+      }
+    ],
+    "limitations": "No public JSON API found (api.hireology.com/v2/career_sites/bigtime/jobs returned 404). robots.txt allows all.",
+    "recommendation": "READY",
+    "notes": "Server-rendered Next.js; job cards have data-qa-id=job-card. Sitemap index available for discovery."
+  },
+  {
+    "slug": "hiringthing",
+    "name": "HiringThing",
+    "category": "ATS",
+    "mechanism": "rss",
+    "endpoint_template": "https://{sub}.hiringthing.com/api/rss.xml",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "subdomain"
+    ],
+    "pagination": "none observed (full feed in one response)",
+    "fields_available": [
+      "title",
+      "link",
+      "description (truncated)",
+      "location",
+      "media:description (full HTML)"
+    ],
+    "docs_urls": [],
+    "instances": [
+      {
+        "company": "visionspark1",
+        "config": "visionspark1",
+        "url_tested": "https://visionspark1.hiringthing.com/api/rss.xml",
+        "http_status": 200,
+        "jobs_observed": 20,
+        "checked_at": "2026-11-19"
+      },
+      {
+        "company": "pinnacle",
+        "config": "pinnacle",
+        "url_tested": "https://pinnacle.hiringthing.com/api/rss.xml",
+        "http_status": 200,
+        "jobs_observed": 10,
+        "checked_at": "2026-11-19"
+      },
+      {
+        "company": "franklin-companies",
+        "config": "franklin-companies",
+        "url_tested": "https://franklin-companies.hiringthing.com/api/rss.xml",
+        "http_status": 200,
+        "jobs_observed": 46,
+        "checked_at": "2026-11-19"
+      }
+    ],
+    "limitations": "robots.txt only disallows /admin. Item count = <item> elements in RSS; HTML listing at https://{sub}.hiringthing.com/ (links /job/{id}/{slug}) agrees. /rss returns 404.",
+    "recommendation": "READY",
+    "notes": "Category element empty; no salary/date fields in feed; fetch detail page for more."
+  },
+  {
+    "slug": "isolvedhire",
+    "name": "iSolvedHire",
+    "category": "ATS",
+    "mechanism": "xml",
+    "endpoint_template": "https://{sub}.isolvedhire.com/job_site_map.xml (list) then https://{sub}.isolvedhire.com/jobs/{id}.html (JobPosting JSON-LD)",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "subdomain"
+    ],
+    "pagination": "none (sitemap lists all jobs)",
+    "fields_available": [
+      "title",
+      "url",
+      "description",
+      "identifier",
+      "datePosted",
+      "validThrough",
+      "employmentType",
+      "baseSalary",
+      "hiringOrganization",
+      "jobLocation"
+    ],
+    "docs_urls": [
+      "https://feeds.isolvedhire.com/site_map_index.xml"
+    ],
+    "instances": [
+      {
+        "company": "HCSC",
+        "config": "hcsc",
+        "url_tested": "https://hcsc.isolvedhire.com/job_site_map.xml",
+        "http_status": 200,
+        "jobs_observed": 36,
+        "checked_at": "2026-11-19"
+      },
+      {
+        "company": "Halvik",
+        "config": "halvik",
+        "url_tested": "https://halvik.isolvedhire.com/job_site_map.xml",
+        "http_status": 200,
+        "jobs_observed": 38,
+        "checked_at": "2026-11-19"
+      },
+      {
+        "company": "isolved",
+        "config": "isolved",
+        "url_tested": "https://isolved.isolvedhire.com/job_site_map.xml",
+        "http_status": 200,
+        "jobs_observed": 39,
+        "checked_at": "2026-11-19"
+      }
+    ],
+    "limitations": "Listing page /jobs/ is a Vue web component (JS-rendered, no data in HTML). robots.txt disallows only /admin/, /stats/, /internaljobs*.",
+    "recommendation": "READY",
+    "notes": "Tenant discovery: feeds.isolvedhire.com/site_map_index.xml lists ~7435 tenant sitemaps. One detail fetch per job needed."
+  },
+  {
+    "slug": "paycom",
+    "name": "Paycom",
+    "category": "ATS",
+    "mechanism": "playwright",
+    "endpoint_template": null,
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [],
+    "pagination": null,
+    "fields_available": [],
+    "docs_urls": [
+      "https://www.paycomonline.net/robots.txt"
+    ],
+    "instances": [],
+    "limitations": "robots.txt (https://www.paycomonline.net/robots.txt, 200) is 'Disallow: /' with explicit Allow for /v4/ats/sitemap.php, /v4/ats/web.php/portal/, /api/ats/job-postings/, /api/ats/company-name, /api/ats/portal-settings, /career-portal/*. Portal URL pattern .../v4/ats/web.php/portal/{32hex clientkey}/jobs returned 404 for a key tested (C94965F4...). Guessing further API endpoints was blocked by the session classifier and not retried; no instance confirmed.",
+    "recommendation": "NEEDS_PLAYWRIGHT",
+    "notes": "Paycom career portal is a JS app (sprawl). The allowed /api/ats/job-postings/ and /v4/ats/sitemap.php paths look like the intended public data sources but were NOT verified. Known portal keys seen in search: C94965F4C08AE75F2F865E92D70115C7, 37AD8E8D17DEE6DD404A9ADE55B502E8, f65425da8c0eec0562064ffbf0224d08. Next step: open a real portal URL in a browser, observe XHR to /api/ats/job-postings/, then confirm with curl."
+  },
+  {
+    "slug": "paradox",
+    "name": "Paradox",
+    "category": "ATS",
+    "mechanism": "unknown",
+    "endpoint_template": null,
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [],
+    "pagination": null,
+    "fields_available": [],
+    "docs_urls": [],
+    "instances": [],
+    "limitations": "Not researched: search quota exhausted before instances could be found. No curl done.",
+    "recommendation": "NEEDS_MORE_RESEARCH",
+    "notes": "Paradox (Olivia) careers sites are usually per-client domains/paradox-hosted; unverified."
+  },
+  {
+    "slug": "kula-ai",
+    "name": "Kula.ai",
+    "category": "ATS",
+    "mechanism": "unknown",
+    "endpoint_template": null,
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [],
+    "pagination": null,
+    "fields_available": [],
+    "docs_urls": [],
+    "instances": [],
+    "limitations": "Not researched: kula.ai/robots.txt returned 301 only; search quota exhausted. No endpoint verified.",
+    "recommendation": "NEEDS_MORE_RESEARCH",
+    "notes": "Do not rely on guesses like jobs.kula.ai/{slug}."
+  },
+  {
+    "slug": "hirebridge",
+    "name": "HireBridge",
+    "category": "ATS",
+    "mechanism": "unknown",
+    "endpoint_template": null,
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [],
+    "pagination": null,
+    "fields_available": [],
+    "docs_urls": [
+      "https://www.hirebridge.com/robots.txt"
+    ],
+    "instances": [],
+    "limitations": "www.hirebridge.com/robots.txt returns 200 and allows all (only /corp/ legacy pages disallowed), but that is the vendor marketing site; job-board URL pattern and instances not found (search quota exhausted).",
+    "recommendation": "NEEDS_MORE_RESEARCH",
+    "notes": "Need to find real jobseeker URLs via search, then curl."
+  }
+]

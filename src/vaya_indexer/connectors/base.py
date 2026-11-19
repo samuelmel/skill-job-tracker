@@ -3,11 +3,13 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from decimal import Decimal
+from pathlib import Path
 from typing import Any, ClassVar
 
 from pydantic import BaseModel, Field, ValidationError
 
 from vaya_indexer.core.exceptions import ConnectorConfigError
+from vaya_indexer.extraction.browser import BrowserFetcher
 from vaya_indexer.extraction.http import HttpClient
 
 
@@ -44,6 +46,11 @@ class FetchResult(BaseModel):
 class BaseConnector(ABC):
     platform_name: ClassVar[str]
     config_model: ClassVar[type[BaseModel]]
+    # True so para conectores que dependem de JS: a ingestao injeta `self.browser`.
+    requires_browser: ClassVar[bool] = False
+    # JSON sintetico {"synthetic": true, "raw_jobs": [{external_id, payload}]} p/ teste de contrato.
+    fixture_path: ClassVar[Path | None] = None
+    browser: BrowserFetcher | None = None
 
     def __init__(self, http: HttpClient, **config: Any) -> None:
         self.http = http

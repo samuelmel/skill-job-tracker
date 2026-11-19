@@ -4,7 +4,8 @@ from collections.abc import Callable
 from typing import Any
 
 from vaya_indexer.connectors.base import BaseConnector
-from vaya_indexer.core.exceptions import ConnectorNotFound
+from vaya_indexer.core.exceptions import BrowserUnavailable, ConnectorNotFound
+from vaya_indexer.extraction.browser import BrowserFetcher
 from vaya_indexer.extraction.http import HttpClient
 
 _REGISTRY: dict[str, type[BaseConnector]] = {}
@@ -39,5 +40,16 @@ def registered_names() -> list[str]:
     return sorted(_REGISTRY)
 
 
-def create_connector(name: str, config: dict[str, Any], http: HttpClient) -> BaseConnector:
-    return get_connector_class(name)(http, **config)
+def create_connector(
+    name: str,
+    config: dict[str, Any],
+    http: HttpClient,
+    browser: BrowserFetcher | None = None,
+) -> BaseConnector:
+    cls = get_connector_class(name)
+    if cls.requires_browser and browser is None:
+        raise BrowserUnavailable(f"Conector '{name}' exige BrowserFetcher (requires_browser)")
+    connector = cls(http, **config)
+    if cls.requires_browser:
+        connector.browser = browser
+    return connector

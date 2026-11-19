@@ -42,3 +42,7 @@ class ConnectorNotFound(VayaError):
 
 class SourceNotFound(VayaError):
     """Source inexistente."""
+
+
+class BrowserUnavailable(VayaError):
+    """Playwright/Chromium indisponivel (extra `browser` ou `playwright install chromium`)."""

@@ -1,0 +1,990 @@
+[
+ {
+  "slug": "workday",
+  "name": "Workday",
+  "mechanism": "json_api",
+  "endpoint_template": "https://{tenant}.{wdN}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs",
+  "method": "POST",
+  "request_body_example": "{\"appliedFacets\":{},\"limit\":20,\"offset\":0,\"searchText\":\"\"}",
+  "config_params": [
+   "tenant",
+   "wd_host (wd1/wd3/wd5/wd12...)",
+   "site"
+  ],
+  "pagination": "offset/limit in POST body (limit max ~20); response 'total'. Detail: GET /wday/cxs/{tenant}/{site}{externalPath}",
+  "fields_available": [
+   "title",
+   "externalPath",
+   "locationsText",
+   "postedOn (relative text)",
+   "bulletFields (req id)",
+   "detail endpoint: jobDescription, startDate, timeType, remoteType, jobReqId, additionalLocations, country"
+  ],
+  "docs_urls": [
+   "No official public docs for the CXS endpoint (undocumented, used by the career-site SPA)"
+  ],
+  "instances": [
+   {
+    "company": "NVIDIA",
+    "config": {
+     "tenant": "nvidia",
+     "host": "wd5",
+     "site": "NVIDIAExternalCareerSite"
+    },
+    "url_tested": "https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/NVIDIAExternalCareerSite/jobs",
+    "http_status": 200,
+    "jobs_observed": 2000,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Salesforce",
+    "config": {
+     "tenant": "salesforce",
+     "host": "wd12",
+     "site": "External_Career_Site"
+    },
+    "url_tested": "https://salesforce.wd12.myworkdayjobs.com/wday/cxs/salesforce/External_Career_Site/jobs",
+    "http_status": 200,
+    "jobs_observed": 1604,
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "Undocumented internal API. Host number (wdN) and site name must be taken from the career-site URL. NVIDIA total of exactly 2000 may be a cap. List dates are relative text; exact date only in detail. No auth/CAPTCHA observed. Detail endpoint not tested by me.",
+  "recommendation": "READY",
+  "notes": "tenant/host/site are extractable from any myworkdayjobs.com URL.",
+  "category": "ATS"
+ },
+ {
+  "slug": "recruitee",
+  "name": "Recruitee",
+  "mechanism": "json_api",
+  "endpoint_template": "https://{company}.recruitee.com/api/offers/",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "company (subdomain)"
+  ],
+  "pagination": "none observed; full list in one response (bunq: 637KB)",
+  "fields_available": [
+   "title",
+   "slug",
+   "guid",
+   "description",
+   "requirements",
+   "department",
+   "employment_type_code",
+   "experience_code",
+   "education_code",
+   "location",
+   "city",
+   "country",
+   "country_code",
+   "state_name",
+   "remote",
+   "hybrid",
+   "on_site",
+   "salary",
+   "min_hours",
+   "max_hours",
+   "tags",
+   "created_at",
+   "published_at",
+   "close_at",
+   "careers_url",
+   "careers_apply_url",
+   "company_name"
+  ],
+  "docs_urls": [
+   "https://docs.recruitee.com/reference/intro-to-careers-site-api"
+  ],
+  "instances": [
+   {
+    "company": "bunq",
+    "config": {
+     "company": "bunq"
+    },
+    "url_tested": "https://bunq.recruitee.com/api/offers/",
+    "http_status": 200,
+    "jobs_observed": "many (637KB JSON)",
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Goodwall",
+    "config": {
+     "company": "goodwall"
+    },
+    "url_tested": "https://goodwall.recruitee.com/api/offers/",
+    "http_status": 200,
+    "jobs_observed": 4,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Miaplaza",
+    "config": {
+     "company": "miaplaza"
+    },
+    "url_tested": "https://miaplaza.recruitee.com/api/offers/",
+    "http_status": 200,
+    "jobs_observed": 8,
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "Nonexistent subdomain returns 404; empty boards return {\"offers\":[]}.",
+  "recommendation": "READY",
+  "notes": "Public Careers Site API.",
+  "category": "ATS"
+ },
+ {
+  "slug": "teamtailor",
+  "name": "Teamtailor",
+  "mechanism": "rss",
+  "endpoint_template": "https://{company}.teamtailor.com/jobs.rss",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "company (subdomain; custom domains also serve /jobs.rss)"
+  ],
+  "pagination": "none; full feed in one response",
+  "fields_available": [
+   "title",
+   "description (HTML)",
+   "link",
+   "guid",
+   "pubDate",
+   "remoteStatus",
+   "tt:department",
+   "tt:role",
+   "tt:locations (tt:name, tt:address, tt:city, tt:zip, tt:country)"
+  ],
+  "docs_urls": [
+   "https://support.teamtailor.com/en/articles/6007270-rss-feed-for-your-jobs"
+  ],
+  "instances": [
+   {
+    "company": "IQM Quantum Computers",
+    "config": {
+     "company": "iqm"
+    },
+    "url_tested": "https://iqm.teamtailor.com/jobs.rss",
+    "http_status": 200,
+    "jobs_observed": 29,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Resourcify",
+    "config": {
+     "company": "resourcify"
+    },
+    "url_tested": "https://resourcify.teamtailor.com/jobs.rss",
+    "http_status": 200,
+    "jobs_observed": 5,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Teamtailor (own)",
+    "config": {
+     "company": "career"
+    },
+    "url_tested": "https://career.teamtailor.com/jobs.rss",
+    "http_status": 200,
+    "jobs_observed": "feed 121KB",
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "Invalid subdomains return 404. teamtailor.com robots.txt: Disallow empty (crawlable). No salary field in feed.",
+  "recommendation": "READY",
+  "notes": "An authenticated partner API exists (api.teamtailor.com) but is not needed.",
+  "category": "ATS"
+ },
+ {
+  "slug": "workable",
+  "name": "Workable",
+  "mechanism": "json_api",
+  "endpoint_template": "https://apply.workable.com/api/v3/accounts/{account}/jobs",
+  "method": "POST",
+  "request_body_example": "{\"query\":\"\",\"location\":[],\"department\":[],\"worktype\":[],\"remote\":[]}  (next page: add \"token\":\"<nextPage>\")",
+  "config_params": [
+   "account (slug in apply.workable.com/{account})"
+  ],
+  "pagination": "cursor: response 'nextPage' token sent back as 'token' in body; 10 per page; 'total' returned (page 2 verified). Detail: GET /api/v2/accounts/{account}/jobs/{shortcode} adds description/requirements/benefits. Alternate: GET /api/v1/widget/accounts/{account}?details=true",
+  "fields_available": [
+   "id",
+   "shortcode",
+   "title",
+   "remote",
+   "workplace",
+   "location/locations (city,region,country)",
+   "department",
+   "type",
+   "published",
+   "language",
+   "state",
+   "description/requirements/benefits (detail)"
+  ],
+  "docs_urls": [
+   "https://workable.readme.io/reference/jobs (token-authenticated API; not used)"
+  ],
+  "instances": [
+   {
+    "company": "Workable",
+    "config": {
+     "account": "careers"
+    },
+    "url_tested": "https://apply.workable.com/api/v3/accounts/careers/jobs",
+    "http_status": 200,
+    "jobs_observed": 6,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Tiger Analytics",
+    "config": {
+     "account": "tiger-analytics"
+    },
+    "url_tested": "https://apply.workable.com/api/v3/accounts/tiger-analytics/jobs",
+    "http_status": 200,
+    "jobs_observed": 162,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Berry Street",
+    "config": {
+     "account": "berry-street"
+    },
+    "url_tested": "https://apply.workable.com/api/v3/accounts/berry-street/jobs",
+    "http_status": 200,
+    "jobs_observed": "10 on page 1 (nextPage present)",
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "Unknown account gives 200 with empty results or 404. Undocumented public endpoint used by the SPA. robots.txt: Disallow empty; Content-Signal ai-train=no. Salary not in list payload. Also /{account}/jobs.md serves a markdown table.",
+  "recommendation": "READY",
+  "notes": "v2 detail confirmed 200 with description fields.",
+  "category": "ATS"
+ },
+ {
+  "slug": "smartrecruiters",
+  "name": "SmartRecruiters",
+  "mechanism": "json_api",
+  "endpoint_template": "https://api.smartrecruiters.com/v1/companies/{companyIdentifier}/postings?limit=100&offset=0",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "companyIdentifier (case-sensitive, from jobs.smartrecruiters.com/{id})"
+  ],
+  "pagination": "offset/limit query params; response totalFound",
+  "fields_available": [
+   "id",
+   "name",
+   "uuid",
+   "refNumber",
+   "company",
+   "releasedDate",
+   "location",
+   "industry",
+   "department",
+   "function",
+   "typeOfEmployment",
+   "experienceLevel",
+   "customField",
+   "ref",
+   "language",
+   "detail: jobAd sections, applyUrl, postingUrl"
+  ],
+  "docs_urls": [
+   "https://developers.smartrecruiters.com/docs/posting-api"
+  ],
+  "instances": [
+   {
+    "company": "Bosch Group",
+    "config": {
+     "companyIdentifier": "BoschGroup"
+    },
+    "url_tested": "https://api.smartrecruiters.com/v1/companies/BoschGroup/postings?limit=2",
+    "http_status": 200,
+    "jobs_observed": 5157,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Equinox",
+    "config": {
+     "companyIdentifier": "Equinox"
+    },
+    "url_tested": "https://api.smartrecruiters.com/v1/companies/Equinox/postings?limit=1",
+    "http_status": 200,
+    "jobs_observed": 783,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "ServiceNow",
+    "config": {
+     "companyIdentifier": "ServiceNow"
+    },
+    "url_tested": "https://api.smartrecruiters.com/v1/companies/ServiceNow/postings?limit=1",
+    "http_status": 200,
+    "jobs_observed": 838,
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "Documented public Posting API, no auth for published postings. Wrong identifier returns 200 with totalFound 0 (Visa, Spotify, Skechers returned 0), so identifier must be verified. Salary not in list.",
+  "recommendation": "READY",
+  "notes": "Detail GET /v1/companies/{id}/postings/{postingId} confirmed 200.",
+  "category": "ATS"
+ },
+ {
+  "slug": "pinpoint",
+  "name": "Pinpoint",
+  "mechanism": "json_api",
+  "endpoint_template": "https://{subdomain}.pinpointhq.com/postings.json",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "subdomain"
+  ],
+  "pagination": "none observed; all postings in one 'data' array (187 for Sun King)",
+  "fields_available": [
+   "id",
+   "title",
+   "url",
+   "description",
+   "key_responsibilities",
+   "skills_knowledge_expertise",
+   "benefits",
+   "compensation_minimum/maximum/currency/frequency/visible",
+   "employment_type",
+   "workplace_type",
+   "deadline_at",
+   "location (city,province,name)",
+   "job"
+  ],
+  "docs_urls": [
+   "https://developers.pinpointhq.com/"
+  ],
+  "instances": [
+   {
+    "company": "Pinpoint",
+    "config": {
+     "subdomain": "workwithus"
+    },
+    "url_tested": "https://workwithus.pinpointhq.com/postings.json",
+    "http_status": 200,
+    "jobs_observed": 3,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Sun King",
+    "config": {
+     "subdomain": "sunking"
+    },
+    "url_tested": "https://sunking.pinpointhq.com/postings.json",
+    "http_status": 200,
+    "jobs_observed": 187,
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "robots.txt does not disallow /postings.json (disallows /mydata, /admin, /companies).",
+  "recommendation": "READY",
+  "notes": "Rich fields incl. compensation.",
+  "category": "ATS"
+ },
+ {
+  "slug": "polymer",
+  "name": "Polymer",
+  "mechanism": "json_api",
+  "endpoint_template": "https://api.polymer.co/v1/hire/organizations/{org}/jobs",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "org (slug in jobs.polymer.co/{org})"
+  ],
+  "pagination": "meta.page / next_page / is_last (only single pages observed)",
+  "fields_available": [
+   "id",
+   "hash_id",
+   "title",
+   "city",
+   "state_region",
+   "country",
+   "display_location",
+   "kind_pretty",
+   "remoteness_pretty",
+   "job_category_name",
+   "salary_pretty",
+   "published_at",
+   "created_at",
+   "job_post_url",
+   "remote_restriction_*"
+  ],
+  "docs_urls": [],
+  "instances": [
+   {
+    "company": "Invicta Software",
+    "config": {
+     "org": "invicta-software"
+    },
+    "url_tested": "https://api.polymer.co/v1/hire/organizations/invicta-software/jobs",
+    "http_status": 200,
+    "jobs_observed": 10,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Eli",
+    "config": {
+     "org": "eli"
+    },
+    "url_tested": "https://api.polymer.co/v1/hire/organizations/eli/jobs",
+    "http_status": 200,
+    "jobs_observed": 11,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Rune",
+    "config": {
+     "org": "rune"
+    },
+    "url_tested": "https://api.polymer.co/v1/hire/organizations/rune/jobs",
+    "http_status": 200,
+    "jobs_observed": 13,
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "Undocumented API used by jobs.polymer.co SPA. No description in list payload (fetch job_post_url HTML).",
+  "recommendation": "READY",
+  "notes": "",
+  "category": "ATS"
+ },
+ {
+  "slug": "rippling",
+  "name": "Rippling",
+  "mechanism": "json_api",
+  "endpoint_template": "https://api.rippling.com/platform/api/ats/v1/board/{board}/jobs",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "board (slug in ats.rippling.com/{board}/jobs)"
+  ],
+  "pagination": "none observed; full array",
+  "fields_available": [
+   "uuid",
+   "name",
+   "department{id,label}",
+   "url",
+   "workLocation{label,id}"
+  ],
+  "docs_urls": [],
+  "instances": [
+   {
+    "company": "Zaden Technologies",
+    "config": {
+     "board": "zadentech"
+    },
+    "url_tested": "https://api.rippling.com/platform/api/ats/v1/board/zadentech/jobs",
+    "http_status": 200,
+    "jobs_observed": 45,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "LegitScript",
+    "config": {
+     "board": "legitscript-careers"
+    },
+    "url_tested": "https://api.rippling.com/platform/api/ats/v1/board/legitscript-careers/jobs",
+    "http_status": 200,
+    "jobs_observed": 4,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Futuri",
+    "config": {
+     "board": "futuri-careers"
+    },
+    "url_tested": "https://api.rippling.com/platform/api/ats/v1/board/futuri-careers/jobs",
+    "http_status": 200,
+    "jobs_observed": 3,
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "List has no description/salary; detail GET .../jobs/{uuid} returned 200 (fields not inspected). ats.rippling.com robots.txt disallows only /internal/.",
+  "recommendation": "READY",
+  "notes": "Board page is Next.js HTML; the API is simpler.",
+  "category": "ATS"
+ },
+ {
+  "slug": "recooty",
+  "name": "Recooty",
+  "mechanism": "html",
+  "endpoint_template": "https://jobs.recooty.com/{company} (job pages: /{company}/{job-slug})",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "company slug"
+  ],
+  "pagination": "?page=N (seen in indexed URLs, e.g. gibbons-group?page=4; not tested)",
+  "fields_available": [
+   "title",
+   "location",
+   "employment type",
+   "description (job page has ld+json)"
+  ],
+  "docs_urls": [],
+  "instances": [
+   {
+    "company": "atom.com",
+    "config": {
+     "company": "atom-com"
+    },
+    "url_tested": "https://jobs.recooty.com/atom-com",
+    "http_status": 200,
+    "jobs_observed": 20,
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "Server-side HTML, no API found (/feed/ 404). robots.txt allows all. Many boards are commission/low-quality listings. Needs selector parsing.",
+  "recommendation": "READY",
+  "notes": "Only 1 board verified; sitemap.xml returns 200 (not inspected).",
+  "category": "ATS"
+ },
+ {
+  "slug": "phenom-people",
+  "name": "Phenom People",
+  "mechanism": "json_api",
+  "endpoint_template": "https://{careers-domain}/widgets",
+  "method": "POST",
+  "request_body_example": "{\"lang\":\"en_us\",\"deviceType\":\"desktop\",\"country\":\"us\",\"pageName\":\"search-results\",\"ddoKey\":\"refineSearch\",\"sortBy\":\"\",\"subsearch\":\"\",\"from\":0,\"jobs\":true,\"counts\":true,\"all_fields\":[\"category\",\"country\",\"state\",\"city\",\"type\"],\"size\":10,\"clearAll\":false,\"jdsource\":\"facets\",\"isSliderEnable\":false,\"pageId\":\"page11\",\"siteType\":\"external\",\"keywords\":\"\",\"global\":true,\"selected_fields\":{},\"sort\":{\"order\":\"desc\",\"field\":\"postedDate\"},\"locationData\":{}}",
+  "config_params": [
+   "careers_domain (custom domain of the Phenom site)",
+   "lang/country locale (en_us/us)",
+   "pageId (varies per site; page11 worked on both tested)"
+  ],
+  "pagination": "'from' offset and 'size' in body; response refineSearch.totalHits and hits",
+  "fields_available": [
+   "title",
+   "jobId",
+   "reqId",
+   "category",
+   "type",
+   "city",
+   "state",
+   "country",
+   "location",
+   "multi_location_array",
+   "remote",
+   "postedDate",
+   "dateCreated",
+   "descriptionTeaser",
+   "applyUrl",
+   "latitude",
+   "longitude",
+   "ml_skills"
+  ],
+  "docs_urls": [],
+  "instances": [
+   {
+    "company": "Synovus",
+    "config": {
+     "domain": "careers.synovus.com"
+    },
+    "url_tested": "https://careers.synovus.com/widgets",
+    "http_status": 200,
+    "jobs_observed": 158,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Freedom Mortgage",
+    "config": {
+     "domain": "careers.freedommortgage.com"
+    },
+    "url_tested": "https://careers.freedommortgage.com/widgets",
+    "http_status": 200,
+    "jobs_observed": 18,
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "Undocumented endpoint used by the Phenom career-site front end; there is no central tenant host, so each customer domain must be known/detected. Full job description not in list (descriptionTeaser only; job page or detail widget needed). Synovus robots.txt (first 15 lines read) disallows tracking/apply/chatbot paths, not /widgets. Some Phenom customers sit behind bot protection (not seen on these two).",
+  "recommendation": "READY",
+  "notes": "Phenom sites are always on customer domains; instance discovery needs a domain list.",
+  "category": "ATS"
+ },
+ {
+  "slug": "taleo",
+  "name": "Taleo (Oracle)",
+  "mechanism": "json_api",
+  "endpoint_template": "Enterprise: https://{host}.taleo.net/careersection/rest/jobboard/searchjobs?lang=en&portal={portalNo}  |  Business Edition (TBE): https://{pod}.tbe.taleo.net/{pod}/ats/careers/v2/searchResults?org={ORG}&cws={n}",
+  "method": "POST",
+  "request_body_example": "{\"multilineEnabled\":false,\"sortingSelection\":{\"sortBySelectionParam\":\"3\",\"ascendingSortingOrder\":\"false\"},\"fieldData\":{\"fields\":{\"KEYWORD\":\"\",\"LOCATION\":\"\"},\"valid\":true},\"filterSelectionParam\":{\"searchFilterSelections\":[{\"id\":\"POSTING_DATE\",\"selectedValues\":[]},{\"id\":\"LOCATION\",\"selectedValues\":[]},{\"id\":\"JOB_FIELD\",\"selectedValues\":[]}]},\"advancedSearchFiltersSelectionParam\":{\"searchFilterSelections\":[]},\"pageNo\":1}  (header tz: GMT+00:00)",
+  "config_params": [
+   "host (tenant subdomain)",
+   "portal number (enterprise; I could not find it in the page HTML by grep, value 101430233 worked for NATO)",
+   "careersection id",
+   "TBE: pod, org, cws"
+  ],
+  "pagination": "Enterprise: pageNo in body; response pagingData{currentPageNo,pageSize:25,totalCount}. TBE: HTML list, 40 requisitions on first page of the instance tested",
+  "fields_available": [
+   "Enterprise list: jobId, contestNo, column[title, location, posting date], detail via jobdetail.ftl?job={contestNo}",
+   "TBE: HTML list + viewRequisition?org=..&rid=.. detail pages"
+  ],
+  "docs_urls": [],
+  "instances": [
+   {
+    "company": "NATO (Enterprise Taleo)",
+    "config": {
+     "host": "nato",
+     "careersection": "2",
+     "portal": "101430233"
+    },
+    "url_tested": "https://nato.taleo.net/careersection/rest/jobboard/searchjobs?lang=en&portal=101430233",
+    "http_status": 200,
+    "jobs_observed": 70,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Canadian Nuclear Laboratories (TBE)",
+    "config": {
+     "pod": "tre01",
+     "org": "CNLLTD",
+     "cws": "37"
+    },
+    "url_tested": "https://tre.tbe.taleo.net/tre01/ats/careers/v2/searchResults?org=CNLLTD&cws=37",
+    "http_status": 200,
+    "jobs_observed": 40,
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "Two product lines with different mechanisms. Portal number discovery for enterprise tenants not verified (the careersection jobsearch.ftl page returned 200 with 171KB). nato.taleo.net and tbe robots.txt return 404 (no rules). Oracle has been migrating Taleo customers to OCI Recruiting, so tenants disappear over time. Only 1 instance per product line verified.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "Enterprise REST is promising; confirm portal-id discovery and test 2 more tenants before building.",
+  "category": "ATS"
+ },
+ {
+  "slug": "trakstar",
+  "name": "Trakstar Hire",
+  "mechanism": "html",
+  "endpoint_template": "https://{company}.hire.trakstar.com/  (jobs: /jobs/{id}/; sitemap: /sitemap.xml)",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "company subdomain"
+  ],
+  "pagination": "first page showed 50 job links; paging not tested; /sitemap.xml lists all job URLs with lastmod (200, 15KB for eciusa)",
+  "fields_available": [
+   "title",
+   "location",
+   "department",
+   "description (detail page includes JobPosting JSON-LD)"
+  ],
+  "docs_urls": [
+   "https://help.trakstar.com/hire (API requires key; not used)"
+  ],
+  "instances": [
+   {
+    "company": "Electrical Consultants Inc.",
+    "config": {
+     "company": "eciusa"
+    },
+    "url_tested": "https://eciusa.hire.trakstar.com/",
+    "http_status": 200,
+    "jobs_observed": 50,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "FutureRecruit",
+    "config": {
+     "company": "futurerecruit"
+    },
+    "url_tested": "https://futurerecruit.hire.trakstar.com/",
+    "http_status": 200,
+    "jobs_observed": "page 200 (search snippet says 326 openings)",
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "Server-side HTML, no public JSON found (/api/v1/jobs 404). robots.txt allows /, disallows /prepare* and /published_jobs_list_v2*.",
+  "recommendation": "READY",
+  "notes": "Best approach: sitemap.xml for job URLs + JSON-LD on detail pages.",
+  "category": "ATS"
+ },
+ {
+  "slug": "zoho-recruit",
+  "name": "Zoho Recruit",
+  "mechanism": "html",
+  "endpoint_template": "https://{company}.zohorecruit.com/jobs/Careers",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "company subdomain (region variants such as zohorecruit.eu/.in exist, not tested)"
+  ],
+  "pagination": "none; the page embeds the full list as HTML-escaped JSON in <input id=\"jobs\" value=\"[...]\"> (server-rendered)",
+  "fields_available": [
+   "id",
+   "Posting_Title",
+   "Job_Opening_Name",
+   "Job_Type",
+   "City",
+   "State",
+   "Country",
+   "Remote_Job",
+   "Work_Location",
+   "Industry",
+   "Date_Opened",
+   "Job_Description",
+   "Work_Experience",
+   "Currency",
+   "Publish",
+   "Is_Locked"
+  ],
+  "docs_urls": [
+   "https://www.zoho.com/recruit/developer-guide/ (authenticated API; not used)"
+  ],
+  "instances": [
+   {
+    "company": "Koantek",
+    "config": {
+     "company": "koantek"
+    },
+    "url_tested": "https://koantek.zohorecruit.com/jobs/Careers",
+    "http_status": 200,
+    "jobs_observed": 24,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Execo",
+    "config": {
+     "company": "execo"
+    },
+    "url_tested": "https://execo.zohorecruit.com/jobs/Careers",
+    "http_status": 200,
+    "jobs_observed": 35,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "RMSI",
+    "config": {
+     "company": "rmsi"
+    },
+    "url_tested": "https://rmsi.zohorecruit.com/jobs/Careers",
+    "http_status": 200,
+    "jobs_observed": 21,
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "Page is large (up to ~1.9MB). Some entries have Is_Locked/Keep_on_Career_Site flags to respect. robots.txt allows /recruit/Portal.na, ViewJob.na, Apply.na, downloadrssfeed, sitemapfeed (RSS/sitemap feeds exist but not tested).",
+  "recommendation": "READY",
+  "notes": "No JS needed. Could also try /recruit/downloadrssfeed.",
+  "category": "ATS"
+ },
+ {
+  "slug": "trinet",
+  "name": "TriNet Hire",
+  "mechanism": "html",
+  "endpoint_template": "https://app.trinethire.com/companies/{id}-{slug}/jobs  (detail: /companies/{id}-{slug}/jobs/{jobId}-{slug})",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "company id-slug (from the URL; numeric id required)"
+  ],
+  "pagination": "none observed (11 and 4 job links on tested boards)",
+  "fields_available": [
+   "title",
+   "location (HTML)",
+   "department (HTML)",
+   "description (detail page; JSON-LD not seen on list page, detail not tested)"
+  ],
+  "docs_urls": [],
+  "instances": [
+   {
+    "company": "IONNA LLC",
+    "config": {
+     "company": "324552-ionna-llc"
+    },
+    "url_tested": "https://app.trinethire.com/companies/324552-ionna-llc/jobs",
+    "http_status": 200,
+    "jobs_observed": 11,
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Credo",
+    "config": {
+     "company": "1083383-credo"
+    },
+    "url_tested": "https://app.trinethire.com/companies/1083383-credo/jobs",
+    "http_status": 200,
+    "jobs_observed": 4,
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "Server-side HTML, no JSON found (/jobs.json returns the same HTML). robots.txt: User-agent * Content-Signal search=yes, ai-train=no, Allow /; blocks named AI crawlers (ClaudeBot, GPTBot, etc.). TriNet is also selling TriNet Recruit powered by JazzHR (possible successor).",
+  "recommendation": "READY",
+  "notes": "Separate from TriNet's own corporate careers (a different system). Honour ai-train=no: use for job search indexing only.",
+  "category": "ATS"
+ },
+ {
+  "slug": "werecruit",
+  "name": "WeRecruit",
+  "mechanism": "html",
+  "endpoint_template": "https://careers.werecruit.io/{lang}/{company}  ; offers listed in https://careers.werecruit.io/sitemap.xml (/{lang}/{company}/offers/{slug}-{hash}); detail pages carry JobPosting JSON-LD",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "lang (fr/en)",
+   "company slug"
+  ],
+  "pagination": "not determined (the /offers list URL redirected to an error/home page for the tenants tried)",
+  "fields_available": [
+   "JobPosting JSON-LD on detail page (title, description, location, dates)"
+  ],
+  "docs_urls": [],
+  "instances": [
+   {
+    "company": "Superprod",
+    "config": {
+     "company": "superprod",
+     "lang": "en"
+    },
+    "url_tested": "https://careers.werecruit.io/en/superprod/offers/production-designer-adult-animated-series-899bac",
+    "http_status": 200,
+    "jobs_observed": "1 detail page confirmed (JSON-LD JobPosting present); sitemap lists 34 offer URLs across all tenants",
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "French ATS. robots.txt allows all. Sitemap has ~23k company URLs but only 34 offer URLs (stale lastmod 2022), so completeness is uncertain; listing page URL pattern not resolved.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "Likely implementable via sitemap + JSON-LD, but listing route unresolved.",
+  "category": "ATS"
+ },
+ {
+  "slug": "ultipro",
+  "name": "UltiPro / UKG Pro Recruiting",
+  "mechanism": "blocked",
+  "endpoint_template": "https://recruiting.ultipro.com/{CODE}/JobBoard/{boardGuid}/JobBoardView/LoadSearchResults",
+  "method": "POST",
+  "request_body_example": "{\"opportunitySearch\":{\"Top\":3,\"Skip\":0,\"QueryString\":\"\",\"OrderBy\":[{\"Value\":\"postedDateDesc\",\"PropertyName\":\"PostedDate\",\"Ascending\":false}],\"Filters\":[]},\"matchCriteria\":{\"PreferredJobs\":[],\"Criteria\":[],\"SearchCriteria\":[]}}",
+  "config_params": [
+   "tenant CODE (e.g. APP1010ARAI)",
+   "board GUID"
+  ],
+  "pagination": "Top/Skip in body",
+  "fields_available": [
+   "Id",
+   "Title",
+   "RequisitionNumber",
+   "FullTime",
+   "JobCategoryName",
+   "Locations",
+   "PostedDate",
+   "BriefDescription"
+  ],
+  "docs_urls": [],
+  "instances": [
+   {
+    "company": "ARA",
+    "config": {
+     "code": "APP1010ARAI",
+     "board": "07442cec-d18e-4589-ab15-8342edc29af7"
+    },
+    "url_tested": "https://recruiting.ultipro.com/APP1010ARAI/JobBoard/07442cec-d18e-4589-ab15-8342edc29af7/JobBoardView/LoadSearchResults",
+    "http_status": 200,
+    "jobs_observed": "3 returned (Top=3)",
+    "checked_at": "2026-11-19T00:00:00Z"
+   },
+   {
+    "company": "Ocean State Job Lot",
+    "config": {
+     "code": "OCE1003OCNS",
+     "board": "758136e3-00bb-455c-a999-27d98172635d"
+    },
+    "url_tested": "https://recruiting.ultipro.com/OCE1003OCNS/JobBoard/758136e3-00bb-455c-a999-27d98172635d/JobBoardView/LoadSearchResults",
+    "http_status": 200,
+    "jobs_observed": "3 returned (Top=3)",
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "BLOCKED BY ROBOTS: recruiting.ultipro.com/robots.txt = 'Disallow: /', 'Allow: */JobBoard/', 'Disallow: */JobBoardView', 'Disallow: */JobBoard/*/Styles', 'Disallow: */JobBoard/*/AnonymousSessionCheck'. The JSON endpoint lives under JobBoardView and is disallowed. (Two probe requests were sent to it before robots.txt was read; no further calls made.) The /JobBoard/{guid} HTML page is allowed but its list loads through the disallowed endpoint.",
+  "recommendation": "BLOCKED",
+  "notes": "Revisit only with the customer's permission or an official UKG feed.",
+  "category": "ATS"
+ },
+ {
+  "slug": "sap-successfactors",
+  "name": "SAP SuccessFactors",
+  "mechanism": "blocked",
+  "endpoint_template": "https://career{N}.successfactors.com/career?company={companyId}  (JS-rendered); official OData API (api*.successfactors.com/odata/v2/JobRequisition) requires authentication",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "career host (career4/career5/career8...)",
+   "company id"
+  ],
+  "pagination": "n/a",
+  "fields_available": [],
+  "docs_urls": [
+   "https://api.sap.com/package/SuccessFactorsRecruiting/odata (authenticated)"
+  ],
+  "instances": [
+   {
+    "company": "Komatsu",
+    "config": {
+     "host": "career8",
+     "company": "KomatsuLive"
+    },
+    "url_tested": "https://career8.successfactors.com/career?company=KomatsuLive",
+    "http_status": 200,
+    "jobs_observed": 0,
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "BLOCKED BY ROBOTS: career8.successfactors.com/robots.txt = 'Disallow: /', 'Disallow: /*company', 'Allow: /login'. The rss variant query returned the same HTML page (200, no feed). Customer-domain career sites (e.g. jobs.sap.com: robots Allow /, sitemap.xml with ~103 URLs in /en/sitemap.xml) have different rules and are the only viable route, per-customer.",
+  "recommendation": "BLOCKED",
+  "notes": "Only per-customer branded sites with permissive robots/sitemaps are candidates.",
+  "category": "ATS"
+ },
+ {
+  "slug": "talentreef",
+  "name": "talentReef",
+  "mechanism": "unknown",
+  "endpoint_template": "https://apply.jobappnetwork.com/{client-slug} (React SPA)",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [
+   "client slug",
+   "clientId (numeric)"
+  ],
+  "pagination": "unknown",
+  "fields_available": [
+   "unverified"
+  ],
+  "docs_urls": [],
+  "instances": [
+   {
+    "company": "Abacus Corporation",
+    "config": {
+     "slug": "abacus-corporation"
+    },
+    "url_tested": "https://apply.jobappnetwork.com/abacus-corporation",
+    "http_status": 200,
+    "jobs_observed": 0,
+    "checked_at": "2026-11-19T00:00:00Z"
+   }
+  ],
+  "limitations": "Search-indexed URLs on recruiting.talentreef.com no longer resolve (NXDOMAIN); the current host is apply.jobappnetwork.com, a JavaScript SPA (751-byte shell, robots Disallow empty). Its front end calls a shared multi-tenant gateway whose list endpoint answered a single unauthenticated probe with cross-tenant data; I did not continue probing it (a follow-up call was denied by the session safety classifier) and do not recommend relying on that internal gateway without confirmation from the owner.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "Likely needs Playwright on apply.jobappnetwork.com/{slug} or a vendor-sanctioned feed.",
+  "category": "ATS"
+ },
+ {
+  "slug": "rival",
+  "name": "Rival (formerly SilkRoad)",
+  "mechanism": "unknown",
+  "endpoint_template": "unknown",
+  "method": "GET",
+  "request_body_example": null,
+  "config_params": [],
+  "pagination": "unknown",
+  "fields_available": [],
+  "docs_urls": [
+   "https://rival-hr.com/platform/rival-recruit/"
+  ],
+  "instances": [],
+  "limitations": "No public board domain or API identified. Rival (rival-hr.com) sells Rival Recruit (ex-SilkRoad OpenHire); customers such as NYU Langone run branded sites (jobs.nyulangone.org) whose ATS link is unconfirmed. Third-party aggregator fantastic.jobs lists ~500 Rival customers but gives no endpoint. rival-hr.com robots disallows /api/.",
+  "recommendation": "NEEDS_MORE_RESEARCH",
+  "notes": "Identify the candidate-facing domain pattern (e.g. via customer apply links) before deciding.",
+  "category": "ATS"
+ }
+]

@@ -1,0 +1,33 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato da API publica do Greenhouse. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "9001",
+      "payload": {
+        "id": 9001,
+        "title": "  Staff   Platform Engineer ",
+        "updated_at": "2024-05-02T10:15:00-04:00",
+        "first_published": "2024-04-01T09:00:00-04:00",
+        "location": {"name": "Remote - Brazil"},
+        "absolute_url": "https://boards.greenhouse.io/exemplo/jobs/9001",
+        "company_name": "Exemplo Ltda",
+        "metadata": null,
+        "content": "&lt;p&gt;Texto sintetico.&lt;/p&gt;"
+      }
+    },
+    {
+      "external_id": "9002",
+      "payload": {
+        "id": 9002,
+        "title": "Analista de Dados",
+        "updated_at": "2024-05-03T08:00:00Z",
+        "location": {"name": "Sao Paulo"},
+        "absolute_url": "https://boards.greenhouse.io/exemplo/jobs/9002",
+        "company_name": "Exemplo Ltda",
+        "metadata": [{"id": 1, "name": "Employment Type", "value": "Full-time", "value_type": "single_select"}],
+        "content": ""
+      }
+    }
+  ]
+}

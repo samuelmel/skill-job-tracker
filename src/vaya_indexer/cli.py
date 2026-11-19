@@ -1,4 +1,7 @@
-"""CLI: seed-platforms, add-source, fetch, list-jobs. (Migrations: use `alembic upgrade head`.)"""
+"""CLI: seed-platforms, add-source, fetch, list-jobs, verify, coverage-report.
+
+Migrations: use `alembic upgrade head`.
+"""
 
 import argparse
 import asyncio
@@ -6,13 +9,17 @@ import json
 import sys
 import uuid
 from collections.abc import Coroutine, Sequence
+from pathlib import Path
 from typing import Any
 
 from vaya_indexer.core.config import get_settings
 from vaya_indexer.core.logging import configure_logging
+from vaya_indexer.coverage.report import build_report, write_report
+from vaya_indexer.coverage.verification import PlatformResult, VerificationService
 from vaya_indexer.database.repositories.jobs import JobRepository
 from vaya_indexer.database.repositories.platforms import PlatformRepository
 from vaya_indexer.database.session import create_engine, create_session_factory
+from vaya_indexer.extraction.browser import BrowserFetcher
 from vaya_indexer.extraction.http import HttpClient
 from vaya_indexer.ingestion.service import IngestionService, register_source
 from vaya_indexer.platforms_catalog import build_catalog
@@ -35,6 +42,17 @@ def build_parser() -> argparse.ArgumentParser:
 
     listing = sub.add_parser("list-jobs", help="Lista vagas recentes")
     listing.add_argument("--limit", type=int, default=20)
+
+    verify = sub.add_parser(
+        "verify", help="Roda o conector contra instancias reais e grava evidencia de cobertura"
+    )
+    target = verify.add_mutually_exclusive_group(required=True)
+    target.add_argument("--platform", help="slug da plataforma, ex.: greenhouse")
+    target.add_argument("--all", action="store_true", help="todas com conector")
+    verify.add_argument("--concurrency", type=int, default=3, help="instancias em paralelo")
+
+    report = sub.add_parser("coverage-report", help="Gera docs/coverage.md e docs/coverage.json")
+    report.add_argument("--output-dir", type=Path, default=Path("docs"))
     return parser
 
 
@@ -73,6 +91,7 @@ async def _add_source(args: argparse.Namespace) -> int:
 async def _fetch(source_id: uuid.UUID) -> int:
     settings = get_settings()
     engine = create_engine(settings.database_url)
+    browser = BrowserFetcher(user_agent=settings.user_agent, timeout=settings.http_timeout)
     try:
         async with HttpClient(
             user_agent=settings.user_agent,
@@ -81,11 +100,14 @@ async def _fetch(source_id: uuid.UUID) -> int:
             per_domain_concurrency=settings.per_domain_concurrency,
             min_interval=settings.per_domain_min_interval,
         ) as http:
-            service = IngestionService(create_session_factory(engine), http, settings.policy())
+            service = IngestionService(
+                create_session_factory(engine), http, settings.policy(), browser
+            )
             summary = await service.run_source(source_id)
         print(summary.model_dump_json(indent=2))
         return 0 if summary.status.value != "FAILED" else 1
     finally:
+        await browser.aclose()
         await engine.dispose()
 
 
@@ -95,6 +117,61 @@ async def _list_jobs(limit: int) -> int:
         async with create_session_factory(engine)() as session:
             for job, company in await JobRepository(session).list_recent(limit):
                 print(f"{job.title} | {company} | {job.location or '-'} | {job.status.value}")
+    finally:
+        await engine.dispose()
+    return 0
+
+
+def _print_verification(result: PlatformResult) -> None:
+    if result.skipped_reason:
+        print(f"{result.slug}: ignorada ({result.skipped_reason})")
+        return
+    print(f"{result.slug}: {result.status_before.value} -> {result.status_after.value}")
+    for inst in result.instances:
+        mark = "ok" if inst.success else f"FALHOU ({inst.error})"
+        print(f"  - {inst.company}: {inst.jobs_found} vagas, {mark}")
+        for title in inst.sample_titles:
+            print(f"      * {title}")
+
+
+async def _verify(args: argparse.Namespace) -> int:
+    settings = get_settings()
+    engine = create_engine(settings.database_url)
+    browser = BrowserFetcher(user_agent=settings.user_agent, timeout=settings.http_timeout)
+    try:
+        async with HttpClient(
+            user_agent=settings.user_agent,
+            timeout=settings.http_timeout,
+            max_retries=settings.http_max_retries,
+            per_domain_concurrency=settings.per_domain_concurrency,
+            min_interval=settings.per_domain_min_interval,
+        ) as http:
+            factory = create_session_factory(engine)
+            ingestion = IngestionService(factory, http, settings.policy(), browser)
+            service = VerificationService(factory, ingestion)
+            if args.all:
+                results = await service.verify_all(concurrency=args.concurrency)
+            else:
+                results = [
+                    await service.verify_platform(args.platform, concurrency=args.concurrency)
+                ]
+        for result in results:
+            _print_verification(result)
+        attempted = [r for r in results if not r.skipped_reason]
+        print(f"{sum(r.verified for r in attempted)}/{len(attempted)} plataformas verificadas")
+        return 0 if all(r.verified for r in attempted) else 1
+    finally:
+        await browser.aclose()
+        await engine.dispose()
+
+
+async def _coverage_report(output_dir: Path) -> int:
+    engine = create_engine(get_settings().database_url)
+    try:
+        async with create_session_factory(engine)() as session:
+            report = await build_report(session)
+        md_path, json_path = write_report(report, output_dir)
+        print(f"{md_path} e {json_path} gerados ({report.totals_by_status})")
     finally:
         await engine.dispose()
     return 0
@@ -117,6 +194,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             return run_async(_fetch(args.source_id))
         case "list-jobs":
             return run_async(_list_jobs(args.limit))
+        case "verify":
+            return run_async(_verify(args))
+        case "coverage-report":
+            return run_async(_coverage_report(args.output_dir))
     return 2
 
 

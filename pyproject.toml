@@ -17,6 +17,10 @@ dependencies = [
     "starlette>=0.37",
 ]
 
+[project.optional-dependencies]
+# Conectores que exigem JavaScript (BrowserFetcher). Depois: uv run playwright install chromium
+browser = ["playwright>=1.45"]
+
 [dependency-groups]
 dev = [
     "pytest>=8.2",
@@ -64,3 +68,7 @@ strict = true
 disallow_untyped_defs = true
 plugins = ["pydantic.mypy"]
 mypy_path = "src"
+
+[[tool.mypy.overrides]]
+module = ["lxml.*", "playwright.*"]
+ignore_missing_imports = true

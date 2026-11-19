@@ -92,6 +92,9 @@ class Platform(TimestampMixin, Base):
     docs_url: Mapped[str | None] = mapped_column(Text)
     extraction_strategy: Mapped[str | None] = mapped_column(Text)
     notes: Mapped[str | None] = mapped_column(Text)
+    # Ultima verificacao BEM-SUCEDIDA (evidencia); falhas ficam so em platform_verifications.
+    last_verified_at: Mapped[datetime | None] = tstz(nullable=True)
+    last_verified_job_count: Mapped[int | None] = mapped_column(Integer)
 
 
 class Company(TimestampMixin, Base):
@@ -282,3 +285,30 @@ class ConnectorError(Base):
     message: Mapped[str] = mapped_column(Text)
     payload: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     created_at: Mapped[datetime] = tstz(server_default=text("now()"))
+
+
+class PlatformVerification(Base):
+    """Evidencia (append-only) de uma execucao real de `verify` contra uma instancia."""
+
+    __tablename__ = "platform_verifications"
+    __table_args__ = (
+        Index("ix_platform_verifications_platform_id_verified_at", "platform_id", "verified_at"),
+    )
+
+    id: Mapped[uuid.UUID] = uuid_pk()
+    platform_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("platforms.id", ondelete="CASCADE")
+    )
+    source_id: Mapped[uuid.UUID | None] = fk("sources.id", "SET NULL", nullable=True)
+    fetch_run_id: Mapped[uuid.UUID | None] = fk("fetch_runs.id", "SET NULL", nullable=True)
+    verified_at: Mapped[datetime] = tstz(server_default=text("now()"))
+    jobs_extracted: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
+    sample_job_titles: Mapped[list[str]] = mapped_column(
+        JSONB, default=list, server_default=text("'[]'::jsonb")
+    )
+    sample_urls: Mapped[list[str]] = mapped_column(
+        JSONB, default=list, server_default=text("'[]'::jsonb")
+    )
+    success: Mapped[bool] = mapped_column()
+    error_message: Mapped[str | None] = mapped_column(Text)
+    connector_version: Mapped[str | None] = mapped_column(String(60))

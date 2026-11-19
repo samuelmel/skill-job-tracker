@@ -1,0 +1,869 @@
+[
+  {
+    "slug": "ashby",
+    "name": "Ashby",
+    "category": "ATS",
+    "mechanism": "json_api",
+    "endpoint_template": "https://api.ashbyhq.com/posting-api/job-board/{org_slug}?includeCompensation=true",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "org_slug (job board name, from jobs.ashbyhq.com/{org_slug})",
+      "includeCompensation (optional bool)"
+    ],
+    "pagination": "None; single response with all listed jobs (openai: 835 jobs, 14MB)",
+    "fields_available": [
+      "id",
+      "title",
+      "department",
+      "team",
+      "employmentType",
+      "location",
+      "secondaryLocations",
+      "address",
+      "isRemote",
+      "workplaceType",
+      "publishedAt",
+      "isListed",
+      "jobUrl",
+      "applyUrl",
+      "descriptionHtml",
+      "descriptionPlain",
+      "compensation (with includeCompensation=true)"
+    ],
+    "docs_urls": [
+      "https://developers.ashbyhq.com/docs/public-job-posting-api"
+    ],
+    "instances": [
+      {
+        "company": "Ramp",
+        "config": {
+          "org_slug": "ramp"
+        },
+        "url_tested": "https://api.ashbyhq.com/posting-api/job-board/ramp",
+        "http_status": 200,
+        "jobs_observed": 182,
+        "checked_at": "2026-11-19T15:00:54Z"
+      },
+      {
+        "company": "Notion",
+        "config": {
+          "org_slug": "notion"
+        },
+        "url_tested": "https://api.ashbyhq.com/posting-api/job-board/notion",
+        "http_status": 200,
+        "jobs_observed": 168,
+        "checked_at": "2026-11-19T15:00:54Z"
+      },
+      {
+        "company": "OpenAI",
+        "config": {
+          "org_slug": "openai"
+        },
+        "url_tested": "https://api.ashbyhq.com/posting-api/job-board/openai",
+        "http_status": 200,
+        "jobs_observed": 835,
+        "checked_at": "2026-11-19T15:00:54Z"
+      },
+      {
+        "company": "Ashby",
+        "config": {
+          "org_slug": "ashby"
+        },
+        "url_tested": "https://api.ashbyhq.com/posting-api/job-board/ashby?includeCompensation=true",
+        "http_status": 200,
+        "jobs_observed": null,
+        "checked_at": "2026-11-19T15:00:54Z"
+      }
+    ],
+    "limitations": "Public documented API, no auth. Large payloads (up to ~14MB) because descriptions are inline. jobs.ashbyhq.com/robots.txt disallows /api/ and /b/ (that is the web app's internal API, not posting-api on api.ashbyhq.com). Unknown org slug likely returns 404/empty.",
+    "recommendation": "READY",
+    "notes": "Observed response top-level key 'jobs'. A request for slug 'linear' returned an unrelated payload ('offers' list) in one of my runs; likely a shell artifact, not re-verified."
+  },
+  {
+    "slug": "bamboohr",
+    "name": "BambooHR",
+    "category": "ATS",
+    "mechanism": "json_api",
+    "endpoint_template": "https://{subdomain}.bamboohr.com/careers/list  (detail: https://{subdomain}.bamboohr.com/careers/{id}/detail)",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "subdomain"
+    ],
+    "pagination": "None observed; list returns all openings (meta.totalCount); detail per job id",
+    "fields_available": [
+      "id",
+      "jobOpeningName",
+      "departmentId",
+      "departmentLabel",
+      "employmentStatusLabel",
+      "employmentType",
+      "location{city,state}",
+      "atsLocation{country,state,province,city}",
+      "isRemote",
+      "locationType",
+      "(detail) jobOpeningShareUrl",
+      "(detail) description html",
+      "(detail) location.postalCode/addressCountry",
+      "(detail) jobOpeningStatus",
+      "(detail) compensation if published"
+    ],
+    "docs_urls": [
+      "https://documentation.bamboohr.com/"
+    ],
+    "instances": [
+      {
+        "company": "New York City Ballet",
+        "config": {
+          "subdomain": "nycballet"
+        },
+        "url_tested": "https://nycballet.bamboohr.com/careers/list",
+        "http_status": 200,
+        "jobs_observed": 2,
+        "checked_at": "2026-11-19T15:00:54Z"
+      },
+      {
+        "company": "Trim Group",
+        "config": {
+          "subdomain": "trimgroup"
+        },
+        "url_tested": "https://trimgroup.bamboohr.com/careers/list",
+        "http_status": 200,
+        "jobs_observed": 46,
+        "checked_at": "2026-11-19T15:00:54Z"
+      }
+    ],
+    "limitations": "Undocumented (internal careers-page endpoint, no auth). Subdomains without an enabled careers page return 302 to www.bamboohr.com (observed for adobe, cascadedental, others). Behind Cloudflare but no challenge seen. nycballet robots.txt allows all. Official api.bamboohr.com needs per-company API key (HRIS), not used. Description needs one extra request per job (/detail).",
+    "recommendation": "READY",
+    "notes": "Detail endpoint verified on nycballet job 160. No tenant directory; tenants must be supplied/discovered externally."
+  },
+  {
+    "slug": "breezy-hr",
+    "name": "Breezy HR",
+    "category": "ATS",
+    "mechanism": "json_api",
+    "endpoint_template": "https://{company}.breezy.hr/json",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "company (subdomain slug)"
+    ],
+    "pagination": "None; array of all published positions",
+    "fields_available": [
+      "id",
+      "friendly_id",
+      "name",
+      "url",
+      "published_date",
+      "type{id,name}",
+      "location{country,state,city,is_remote,remote_details,name}",
+      "locations[]",
+      "department",
+      "salary",
+      "company{name,logo_url,friendly_id}",
+      "(description via position page url)"
+    ],
+    "docs_urls": [
+      "https://breezy.hr/"
+    ],
+    "instances": [
+      {
+        "company": "Breezy HR (AB Test demo)",
+        "config": {
+          "company": "breezy-hr"
+        },
+        "url_tested": "https://breezy-hr.breezy.hr/json",
+        "http_status": 200,
+        "jobs_observed": 1,
+        "checked_at": "2026-11-19T15:00:54Z"
+      },
+      {
+        "company": "Kimmel & Associates",
+        "config": {
+          "company": "kimmel-associates"
+        },
+        "url_tested": "https://kimmel-associates.breezy.hr/json",
+        "http_status": 200,
+        "jobs_observed": 504,
+        "checked_at": "2026-11-19T15:00:54Z"
+      },
+      {
+        "company": "Turner Mining Group",
+        "config": {
+          "company": "turner-mining-group"
+        },
+        "url_tested": "https://turner-mining-group.breezy.hr/json",
+        "http_status": 200,
+        "jobs_observed": 208,
+        "checked_at": "2026-11-19T15:00:54Z"
+      },
+      {
+        "company": "Rhyno Care",
+        "config": {
+          "company": "rhynocare"
+        },
+        "url_tested": "https://rhynocare.breezy.hr/json",
+        "http_status": 200,
+        "jobs_observed": 31,
+        "checked_at": "2026-11-19T15:00:54Z"
+      },
+      {
+        "company": "Barloworld Equipment",
+        "config": {
+          "company": "barloworldequipment"
+        },
+        "url_tested": "https://barloworldequipment.breezy.hr/json",
+        "http_status": 200,
+        "jobs_observed": 13,
+        "checked_at": "2026-11-19T15:00:54Z"
+      }
+    ],
+    "limitations": "Undocumented but stable, keyless. Not every tenant enables feed; unknown slug returns 404 HTML (fyllo/sertis/hrm returned 404). Apex breezy.hr/json is 403 (CloudFront). robots.txt disallows only assets. Counts for kimmel/turner are from JSON array length (504/208 observed). Description not in the list feed (fetch position url).",
+    "recommendation": "READY",
+    "notes": "jobs_observed = array length."
+  },
+  {
+    "slug": "gem-com",
+    "name": "Gem.com",
+    "category": "ATS",
+    "mechanism": "json_api",
+    "endpoint_template": "https://api.gem.com/job_board/v0/{board_slug}/job_posts/",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "board_slug (vanity path of jobs.gem.com/{board_slug})"
+    ],
+    "pagination": "None observed; array of all posts (nominal: 83, 1.2MB)",
+    "fields_available": [
+      "id",
+      "title",
+      "absolute_url",
+      "content (html)",
+      "content_plain",
+      "created_at",
+      "first_published_at",
+      "updated_at",
+      "departments",
+      "offices",
+      "employment_type",
+      "location",
+      "location_type",
+      "internal_job_id",
+      "requisition_id"
+    ],
+    "docs_urls": [
+      "https://help.gem.com/databases/gem-help-center/the-job-board-api"
+    ],
+    "instances": [
+      {
+        "company": "Gem",
+        "config": {
+          "board_slug": "gem"
+        },
+        "url_tested": "https://api.gem.com/job_board/v0/gem/job_posts/",
+        "http_status": 200,
+        "jobs_observed": 1,
+        "checked_at": "2026-11-19T15:00:54Z"
+      },
+      {
+        "company": "Nominal",
+        "config": {
+          "board_slug": "nominal"
+        },
+        "url_tested": "https://api.gem.com/job_board/v0/nominal/job_posts/",
+        "http_status": 200,
+        "jobs_observed": 83,
+        "checked_at": "2026-11-19T15:00:54Z"
+      }
+    ],
+    "limitations": "Public documented API, no auth. Unknown board slug returns 404 JSON (lattice, hightouch, anthropic = 404). jobs.gem.com/robots.txt returns 404.",
+    "recommendation": "READY",
+    "notes": "No salary field except in description text. Only 2 confirmed boards; slugs for others not discovered."
+  },
+  {
+    "slug": "eightfold-ai",
+    "name": "Eightfold AI",
+    "category": "ATS",
+    "mechanism": "json_api",
+    "endpoint_template": "https://{tenant}.eightfold.ai/api/apply/v2/jobs?domain={domain}&start={offset}&num={page_size}",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "tenant (subdomain)",
+      "domain (employer email domain, e.g. netapp.com)"
+    ],
+    "pagination": "start (offset) + num (page size); response has 'count' total and 'positions' array",
+    "fields_available": [
+      "id",
+      "name",
+      "posting_name",
+      "location",
+      "locations",
+      "department",
+      "business_unit",
+      "t_create",
+      "t_update",
+      "ats_job_id",
+      "display_job_id",
+      "type",
+      "job_description",
+      "work_location_option",
+      "location_flexibility",
+      "canonicalPositionUrl",
+      "isPrivate"
+    ],
+    "docs_urls": [],
+    "instances": [
+      {
+        "company": "NetApp",
+        "config": {
+          "tenant": "netapp",
+          "domain": "netapp.com"
+        },
+        "url_tested": "https://netapp.eightfold.ai/api/apply/v2/jobs?domain=netapp.com&start=0&num=5",
+        "http_status": 200,
+        "jobs_observed": 323,
+        "checked_at": "2026-11-19T15:01:57Z"
+      }
+    ],
+    "limitations": "Undocumented public endpoint used by career pages; per-tenant feature flag: paypal, vodafone, microsoft(apply.careers.microsoft.com) returned 403 {'message':'Not authorized for PCSX'}, starbucks and micron 403; bnymellon/chevron/aexp 404 (wrong tenant/domain guess). netapp robots.txt Disallow:/ but explicitly Allow: /careers, /api/apply, /api/pcsx. Need exact tenant+domain pair per employer; no directory. Only 1 instance confirmed.",
+    "recommendation": "READY",
+    "notes": "Works per tenant when enabled; many large tenants gate it. A second confirmed tenant not found within request budget. Newer /api/pcsx/search exists but returned 'PCSX is not enabled' for netapp."
+  },
+  {
+    "slug": "avature",
+    "name": "Avature",
+    "category": "ATS",
+    "mechanism": "rss",
+    "endpoint_template": "https://{host}/{path}/SearchJobs/feed/  (HTML list: https://{host}/{path}/SearchJobs ; detail: .../JobDetail/{slug}/{id})",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "host (e.g. careers.avature.net or {tenant}.avature.net)",
+      "portal path (e.g. en_US/main or careers)"
+    ],
+    "pagination": "RSS feed returns one page (15-20 items); HTML SearchJobs paginates server-side via jobOffset/jobRecordsPerPage query params (not verified beyond page 1)",
+    "fields_available": [
+      "title",
+      "description (location + req id only in RSS)",
+      "link/guid (JobDetail url with numeric id)",
+      "pubDate",
+      "(HTML detail) full description, location, other custom fields"
+    ],
+    "docs_urls": [],
+    "instances": [
+      {
+        "company": "Avature (own careers)",
+        "config": {
+          "host": "careers.avature.net",
+          "path": "en_US/main"
+        },
+        "url_tested": "https://careers.avature.net/en_US/main/SearchJobs/feed/",
+        "http_status": 200,
+        "jobs_observed": 15,
+        "checked_at": "2026-11-19T15:01:57Z"
+      },
+      {
+        "company": "Bloomberg",
+        "config": {
+          "host": "bloomberg.avature.net",
+          "path": "careers"
+        },
+        "url_tested": "https://bloomberg.avature.net/careers/SearchJobs/feed/",
+        "http_status": 200,
+        "jobs_observed": 20,
+        "checked_at": "2026-11-19T15:01:57Z"
+      }
+    ],
+    "limitations": "Server-rendered HTML works without JS (25 JobDetail links on careers.avature.net, 12 on Bloomberg). RSS feed is capped to one page and lacks description. Many large customers use custom domains and portal paths; no directory. robots allow /careers, /main; disallow *qtvc= param. Pubdate from RSS may be old (2020 item seen).",
+    "recommendation": "READY",
+    "notes": "Feed enabled on both tested portals. Full data requires fetching JobDetail HTML. Pagination params not verified."
+  },
+  {
+    "slug": "dayforce",
+    "name": "Dayforce",
+    "category": "ATS",
+    "mechanism": "playwright",
+    "endpoint_template": "https://jobs.dayforcehcm.com/en-US/{clientNamespace}/{careerSiteXRefCode}   (internal API: POST https://jobs.dayforcehcm.com/api/geo/{clientNamespace}/jobposting/search)",
+    "method": "POST",
+    "request_body_example": "{\"clientNamespace\":\"mydayforce\",\"jobBoardCode\":\"candidateportal\",\"cultureCode\":\"en-US\",\"distanceUnit\":0,\"paginationStart\":0}",
+    "config_params": [
+      "clientNamespace",
+      "careerSiteXRefCode (usually CANDIDATEPORTAL)"
+    ],
+    "pagination": "paginationStart in internal API (unverified)",
+    "fields_available": [
+      "(official authenticated Dayforce REST Get Job Postings: see docs)",
+      "public site: title, location, posting date, description via client-side rendering"
+    ],
+    "docs_urls": [
+      "https://help.dayforce.com/r/documents/Dayforce-RESTful-Web-Services-Developer-Guide/RESTful-Get-Job-Postings",
+      "https://help.dayforce.com/r/documents/Recruiting-Guide/How-to-Access-External-Client-Career-Sites"
+    ],
+    "instances": [
+      {
+        "company": "Dayforce (mydayforce namespace) - page",
+        "config": {
+          "clientNamespace": "mydayforce",
+          "careerSiteXRefCode": "CANDIDATEPORTAL"
+        },
+        "url_tested": "https://jobs.dayforcehcm.com/en-US/mydayforce/CANDIDATEPORTAL",
+        "http_status": 200,
+        "jobs_observed": null,
+        "checked_at": "2026-11-19T15:01:57Z"
+      },
+      {
+        "company": "Dayforce internal search API",
+        "config": {
+          "clientNamespace": "mydayforce"
+        },
+        "url_tested": "https://jobs.dayforcehcm.com/api/geo/mydayforce/jobposting/search",
+        "http_status": 403,
+        "jobs_observed": null,
+        "checked_at": "2026-11-19T15:01:57Z"
+      }
+    ],
+    "limitations": "Next.js app; job list not in SSR payload (only site-info query dehydrated). Internal search API found in JS bundle returned 403 'Forbidden' twice (with and without Origin/Referer); I did not attempt to bypass. Official Get Job Postings API requires Dayforce credentials (customer-side). robots.txt has content-signal clauses. jobs_observed unknown.",
+    "recommendation": "NEEDS_PLAYWRIGHT",
+    "notes": "Browser rendering (Playwright) is the remaining route; verify TOS/robots before use. Only the vendor's own namespace tested; no customer tenant jobs confirmed."
+  },
+  {
+    "slug": "applicantpro",
+    "name": "ApplicantPro",
+    "category": "ATS",
+    "mechanism": "json_api",
+    "endpoint_template": "https://{subdomain}.applicantpro.com/core/jobs/{domain_id}?getParams={url-encoded JSON, e.g. {\"isInternal\":0}}",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "subdomain",
+      "domain_id (numeric; read from page https://{subdomain}.applicantpro.com/jobs/ -> 'domainId : N' / mountingData.domain_id)"
+    ],
+    "pagination": "Response caps at 300 jobs and returns data.jobCount (total). Tried getParams page/offset: ignored (same first 300). Pagination/filters not resolved; getParams in page include cityUrl, countryAbbreviation, stateAbbreviation, isInternal, showLocation etc. so filtering by location/category may split large boards.",
+    "fields_available": [
+      "id",
+      "title",
+      "city",
+      "stateName",
+      "abbreviation",
+      "iso3",
+      "classification",
+      "jobCategory",
+      "customCategory",
+      "employmentType",
+      "workplaceType",
+      "payRate",
+      "payType",
+      "payTypeFrame",
+      "payDetails",
+      "minSalary",
+      "maxSalary",
+      "jobLocation",
+      "streetAddress",
+      "startDateRef",
+      "endDateRef",
+      "untilFilled",
+      "orgTitle",
+      "parentTitle",
+      "jobUrl",
+      "siteId",
+      "subdomain"
+    ],
+    "docs_urls": [],
+    "instances": [
+      {
+        "company": "Vetco Clinics",
+        "config": {
+          "subdomain": "vetcoclinics",
+          "domain_id": 2693
+        },
+        "url_tested": "https://vetcoclinics.applicantpro.com/core/jobs/2693?getParams=%7B%22isInternal%22%3A0%7D",
+        "http_status": 200,
+        "jobs_observed": 300,
+        "checked_at": "2026-11-19T15:04:38Z"
+      },
+      {
+        "company": "Turner Industries",
+        "config": {
+          "subdomain": "turnerindustries",
+          "domain_id": 3218
+        },
+        "url_tested": "https://turnerindustries.applicantpro.com/core/jobs/3218?getParams=%7B%22isInternal%22%3A0%7D",
+        "http_status": 200,
+        "jobs_observed": 110,
+        "checked_at": "2026-11-19T15:04:38Z"
+      },
+      {
+        "company": "YMCA of Greater Richmond",
+        "config": {
+          "subdomain": "ymcarichmond",
+          "domain_id": 2863
+        },
+        "url_tested": "https://ymcarichmond.applicantpro.com/core/jobs/2863?getParams=%7B%22isInternal%22%3A0%7D",
+        "http_status": 200,
+        "jobs_observed": 107,
+        "checked_at": "2026-11-19T15:04:38Z"
+      }
+    ],
+    "limitations": "Undocumented internal endpoint used by the career-site Vue component (Content-Type json, no auth). Vetco: 300 returned of jobCount 873 (truncated). Description requires job detail page (HTML). robots.txt on tenant disallows /admin/, /internaljobs*; www.applicantpro.com robots has Content-Signal preamble. Some guessed subdomains return 200 with 400-byte body (non-tenant).",
+    "recommendation": "READY",
+    "notes": "Listing is client-rendered (Vue) but data API is plain JSON, so no Playwright needed. Need pagination solution for >300 job boards; HTML sitemap at feeds.applicantpro.com/site_map_index.xml could be an alternative (not tested)."
+  },
+  {
+    "slug": "hibob",
+    "name": "HiBob",
+    "category": "ATS",
+    "mechanism": "playwright",
+    "endpoint_template": "https://{company}.careers.hibob.com/  (SPA). Official Hiring API: POST https://api.hibob.com/v1/hiring/job-ads/search",
+    "method": "POST",
+    "request_body_example": "{\"fields\":[],\"filters\":[]}  (official Hiring API; needs service-user credentials)",
+    "config_params": [
+      "company (subdomain on careers.hibob.com)"
+    ],
+    "pagination": "unknown",
+    "fields_available": [
+      "official Hiring API: jobAd fields incl. jobAd/applyUrl, jobAdSite, location (requires auth)"
+    ],
+    "docs_urls": [
+      "https://apidocs.hibob.com/reference/post_hiring-job-ads-search",
+      "https://apidocs.hibob.com/docs/how-to-use-hiring-api-careers-page"
+    ],
+    "instances": [
+      {
+        "company": "HiBob (own careers)",
+        "config": {
+          "company": "hibob"
+        },
+        "url_tested": "https://hibob.careers.hibob.com/",
+        "http_status": 200,
+        "jobs_observed": null,
+        "checked_at": "2026-11-19T15:04:38Z"
+      },
+      {
+        "company": "HiBob public job-ad API probe",
+        "config": {
+          "company": "hibob"
+        },
+        "url_tested": "https://hibob.careers.hibob.com/api/job-ad",
+        "http_status": 401,
+        "jobs_observed": null,
+        "checked_at": "2026-11-19T15:04:38Z"
+      }
+    ],
+    "limitations": "Official Hiring API requires a service-user token per company (not public). Public SPA at {company}.careers.hibob.com serves a 1.3KB Angular shell; GET /api/job-ad returned 401 (with and without companyidentifier header); POST /api/job-ad returned 405/'unexpected error'. I could not find the unauthenticated listing call within request budget; no jobs observed.",
+    "recommendation": "NEEDS_PLAYWRIGHT",
+    "notes": "Aggregators (Fantastic.jobs, JobsPipe) claim to read public HiBob careers pages, so a public path likely exists; inspect network calls in a browser. Known HiBob customers (names only): Paysafe, Sapiens, Synpulse, Hyve Group, IGEL, Leboncoin, SG Fleet, Gresham."
+  },
+  {
+    "slug": "careerplug",
+    "name": "CareerPlug",
+    "category": "ATS",
+    "mechanism": "html",
+    "endpoint_template": "https://{subdomain}.careerplug.com/jobs (server-rendered HTML with schema.org JSON-LD ItemList of JobPosting)",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "subdomain"
+    ],
+    "pagination": "Not observed; sportclips page listed all 16 jobs in the ItemList (numberOfItems=16). Unverified whether large tenants paginate.",
+    "fields_available": [
+      "title",
+      "description",
+      "JobPosting JSON-LD fields",
+      "job link /jobs/{id}",
+      "location text"
+    ],
+    "docs_urls": [],
+    "instances": [
+      {
+        "company": "sportclips",
+        "config": {
+          "subdomain": "sportclips"
+        },
+        "url_tested": "https://sportclips.careerplug.com/jobs",
+        "http_status": 200,
+        "jobs_observed": 16,
+        "checked_at": "2026-11-19T15:07:48Z"
+      },
+      {
+        "company": "careerplug-interns",
+        "config": {
+          "subdomain": "careerplug-interns"
+        },
+        "url_tested": "https://careerplug-interns.careerplug.com/jobs",
+        "http_status": 200,
+        "jobs_observed": 0,
+        "checked_at": "2026-11-19T15:07:48Z"
+      },
+      {
+        "company": "genesishealthclubs",
+        "config": {
+          "subdomain": "genesishealthclubs"
+        },
+        "url_tested": "https://genesishealthclubs.careerplug.com/jobs",
+        "http_status": 200,
+        "jobs_observed": null,
+        "checked_at": "2026-11-19T15:07:48Z"
+      }
+    ],
+    "limitations": "robots.txt (careerplug-interns) disallows /apps/, /j/, /manage/, /admin/, /jobs.js, /account.js; /jobs and /jobs/{id} not disallowed. Unknown subdomains (suntancity) redirect to app.careerplug.com sign-in (202). genesishealthclubs redirected to a job apply page (single-job tenant), count not determined.",
+    "recommendation": "READY",
+    "notes": "Parse the JSON-LD script in /jobs. Only sportclips has confirmed jobs; the other two are 0 or undetermined. Do not use /jobs.js (disallowed)."
+  },
+  {
+    "slug": "comeet",
+    "name": "Comeet",
+    "category": "ATS",
+    "mechanism": "json_api",
+    "endpoint_template": "https://www.comeet.co/careers-api/2.0/company/{company_uid}/positions?token={token}&details=true",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "company_uid",
+      "token"
+    ],
+    "pagination": "None observed; single response lists all positions (vast: 267 in one response, 318KB).",
+    "fields_available": [
+      "name",
+      "department",
+      "uid",
+      "location",
+      "employment_type",
+      "experience_level",
+      "workplace_type",
+      "url_comeet_hosted_page",
+      "url_active_page",
+      "time_updated",
+      "company_name",
+      "details",
+      "categories"
+    ],
+    "docs_urls": [
+      "https://developers.comeet.com/reference"
+    ],
+    "instances": [
+      {
+        "company": "Evinced",
+        "config": {
+          "company_uid": "28.000",
+          "token": "(public token embedded in evinced.com/careers markup)"
+        },
+        "url_tested": "https://www.comeet.co/careers-api/2.0/company/28.000/positions?token=<redacted>&details=true",
+        "http_status": 200,
+        "jobs_observed": 2,
+        "checked_at": "2026-11-19T15:07:48Z"
+      },
+      {
+        "company": "VAST Data",
+        "config": {
+          "company_uid": "43.001",
+          "token": "(public token embedded in vastdata.com/careers markup)"
+        },
+        "url_tested": "https://www.comeet.co/careers-api/2.0/company/43.001/positions?token=<redacted>",
+        "http_status": 200,
+        "jobs_observed": 267,
+        "checked_at": "2026-11-19T15:07:48Z"
+      }
+    ],
+    "limitations": "Needs per-company UID+token, which is not discoverable from Comeet; both were read from the company's own public careers page markup (careers-api URL). Token is the public widget token. Made-up UID/token returned 400. www.comeet.com/jobs/cyera/ returned 404; cyera.com/careers has no UID in markup (301 on probe); nova.org 404; solaredge 403.",
+    "recommendation": "READY",
+    "notes": "Discovery strategy: crawl company careers pages for 'careers-api/2.0/company/<uid>/positions?token=' or comeet.com/jobs/{co}/{uid}. Tokens are redacted in this file."
+  },
+  {
+    "slug": "csod",
+    "name": "Cornerstone OnDemand (CSOD)",
+    "category": "ATS",
+    "mechanism": "playwright",
+    "endpoint_template": "https://{tenant}.csod.com/ux/ats/careersite/{siteId}/home?c={tenant}",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "tenant",
+      "siteId"
+    ],
+    "pagination": "Unknown",
+    "fields_available": [],
+    "docs_urls": [],
+    "instances": [
+      {
+        "company": "henkel",
+        "config": {
+          "tenant": "henkel",
+          "siteId": 1
+        },
+        "url_tested": "https://henkel.csod.com/ux/ats/careersite/1/home?c=henkel",
+        "http_status": 200,
+        "jobs_observed": null,
+        "checked_at": "2026-11-19T15:07:48Z"
+      },
+      {
+        "company": "kohler",
+        "config": {
+          "tenant": "kohler",
+          "siteId": 1
+        },
+        "url_tested": "https://kohler.csod.com/ux/ats/careersite/1/home?c=kohler",
+        "http_status": 200,
+        "jobs_observed": null,
+        "checked_at": "2026-11-19T15:07:48Z"
+      }
+    ],
+    "limitations": "Page is a JS SPA shell (5.5KB); jobs load via internal rec-job-search API using an anonymous JWT embedded in the page. That API call was not tested (the call was blocked by the permission system in this session), so its behavior is unverified. No jobs counted.",
+    "recommendation": "NEEDS_PLAYWRIGHT",
+    "notes": "Candidate internal endpoint (unverified): POST https://{tenant}.csod.com/rec-job-search/external/jobsearch/v1/search with the page token. Verify manually/with Playwright before relying on it."
+  },
+  {
+    "slug": "freshteam",
+    "name": "Freshteam",
+    "category": "ATS",
+    "mechanism": "html",
+    "endpoint_template": "https://{subdomain}.freshteam.com/jobs",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "subdomain"
+    ],
+    "pagination": "Unknown",
+    "fields_available": [],
+    "docs_urls": [],
+    "instances": [],
+    "limitations": "Guessed tenants (simera, leap, hotelogix) all returned the generic 'We couldn't find' 889-byte page (200). No real tenant discovered; freshworks.freshteam.com returned 503. Freshteam ATS was sunset/replaced by Freshworks in 2025-2026 per public notices (not verified here).",
+    "recommendation": "NEEDS_MORE_RESEARCH",
+    "notes": "Need real tenant slugs before mechanism can be confirmed. Note: invalid tenants return HTTP 200 with a stub page, so check the body."
+  },
+  {
+    "slug": "gohire",
+    "name": "GoHire",
+    "category": "ATS",
+    "mechanism": "html",
+    "endpoint_template": "https://careers.gohire.io/ (company board; per-company boards on jobs.gohire.io/careers subdomains, unconfirmed)",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "company board host"
+    ],
+    "pagination": "Unknown",
+    "fields_available": [],
+    "docs_urls": [],
+    "instances": [
+      {
+        "company": "GoHire (own board)",
+        "config": {},
+        "url_tested": "https://careers.gohire.io/",
+        "http_status": 200,
+        "jobs_observed": 0,
+        "checked_at": "2026-11-19T15:07:48Z"
+      }
+    ],
+    "limitations": "Only GoHire's own board was reachable (200, 'no job openings'); it is server-rendered HTML, robots.txt allows all. Frontend JS uses api.gohire.io, no endpoints observed. No customer tenants found via search.",
+    "recommendation": "NEEDS_MORE_RESEARCH",
+    "notes": "Customer board URL pattern not confirmed."
+  },
+  {
+    "slug": "dover",
+    "name": "Dover",
+    "category": "ATS",
+    "mechanism": "playwright",
+    "endpoint_template": "https://app.dover.com/jobs/{company}",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "company"
+    ],
+    "pagination": "Unknown",
+    "fields_available": [],
+    "docs_urls": [
+      "https://app.dover.com/api/v1/external/job-postings"
+    ],
+    "instances": [
+      {
+        "company": "weave-robotics",
+        "config": {
+          "company": "weave-robotics"
+        },
+        "url_tested": "https://app.dover.com/jobs/weave-robotics",
+        "http_status": 301,
+        "jobs_observed": null,
+        "checked_at": "2026-11-19T15:07:48Z"
+      }
+    ],
+    "limitations": "Official API (/api/v1/external/job-postings) requires a Bearer API key and a paid plan (from docs, not tested). Public page is a JS app; probe returned 301 (redirect target not followed).",
+    "recommendation": "NEEDS_MORE_RESEARCH",
+    "notes": "Follow redirect and test in Playwright; slug guesses unverified."
+  },
+  {
+    "slug": "brassring",
+    "name": "BrassRing (IBM Kenexa)",
+    "category": "ATS",
+    "mechanism": "playwright",
+    "endpoint_template": "https://sjobs.brassring.com/TGnewUI/Search/Home/Home?partnerid={partnerid}&siteid={siteid}",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "partnerid",
+      "siteid"
+    ],
+    "pagination": "Unknown",
+    "fields_available": [],
+    "docs_urls": [],
+    "instances": [],
+    "limitations": "No tenant tested in this session. Talent Gateway is a JS app; internal search API not probed.",
+    "recommendation": "NEEDS_MORE_RESEARCH",
+    "notes": "Pattern from IBM docs only."
+  },
+  {
+    "slug": "adp",
+    "name": "ADP (Workforce Now / Recruiting Management)",
+    "category": "ATS",
+    "mechanism": "unknown",
+    "endpoint_template": "https://workforcenow.adp.com/mascsr/default/careercenter/public/events/staffing/v1/job-requisitions?cid={uuid} ; https://recruiting.adp.com/srccar/public/RTI.home?c={id}",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [
+      "cid",
+      "c"
+    ],
+    "pagination": "Unknown",
+    "fields_available": [],
+    "docs_urls": [],
+    "instances": [],
+    "limitations": "Not probed; patterns recalled from memory, unverified. Requires a per-company cid.",
+    "recommendation": "NEEDS_MORE_RESEARCH",
+    "notes": "No tenants identified."
+  },
+  {
+    "slug": "deel",
+    "name": "Deel",
+    "category": "ATS",
+    "mechanism": "unknown",
+    "endpoint_template": "unknown",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [],
+    "pagination": "Unknown",
+    "fields_available": [],
+    "docs_urls": [],
+    "instances": [],
+    "limitations": "No public Deel ATS job board host found (jobs.deel.com not confirmed). Deel's own careers are at deel.com/careers/open-roles.",
+    "recommendation": "NEEDS_MORE_RESEARCH",
+    "notes": ""
+  },
+  {
+    "slug": "firststage",
+    "name": "FirstStage",
+    "category": "ATS",
+    "mechanism": "unknown",
+    "endpoint_template": "unknown",
+    "method": "GET",
+    "request_body_example": null,
+    "config_params": [],
+    "pagination": "Unknown",
+    "fields_available": [],
+    "docs_urls": [],
+    "instances": [],
+    "limitations": "Searches found no public board URL pattern.",
+    "recommendation": "NEEDS_MORE_RESEARCH",
+    "notes": ""
+  }
+]

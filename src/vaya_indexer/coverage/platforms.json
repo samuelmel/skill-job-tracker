@@ -1,0 +1,658 @@
+{
+  "schema_version": 1,
+  "platforms": {
+    "adp": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "applicantpro": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "ashby": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "avature": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "bamboohr": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "brassring": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "breezy-hr": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "careerplug": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "comeet": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "csod": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "dayforce": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "deel": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "dover": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "eightfold-ai": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "firststage": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "freshteam": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "gem-com": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "gohire": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "greenhouse": {
+      "docs_urls": [
+        "https://developers.greenhouse.io/job-board.html"
+      ],
+      "extraction_strategy": "API JSON publica do Job Board (boards-api.greenhouse.io/v1/boards/{board_token}/jobs?content=true), sem autenticacao.",
+      "connector_type": "greenhouse",
+      "example_instances": [
+        {
+          "company": "GitLab",
+          "config": {
+            "board_token": "gitlab"
+          }
+        },
+        {
+          "company": "Airbnb",
+          "config": {
+            "board_token": "airbnb"
+          }
+        },
+        {
+          "company": "Discord",
+          "config": {
+            "board_token": "discord"
+          }
+        },
+        {
+          "company": "Stripe",
+          "config": {
+            "board_token": "stripe"
+          }
+        }
+      ],
+      "limitations": [
+        "Apenas boards publicos com board_token conhecido; salario so quando ha texto explicito."
+      ],
+      "research_status": "NOT_STARTED"
+    },
+    "hibob": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "hirebridge": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "hirehive": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "hireology": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "hiringthing": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "icims": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "isolvedhire": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "jazzhr": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "jobvite": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "join-com": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "kula-ai": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "lever-co": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "manatal": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "oracle-recruiting": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "pageup": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "paradox": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "paycom": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "paycor": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "paylocity": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "personio": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "phenom-people": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "pinpoint": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "polymer": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "recooty": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "recruitee": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "rippling": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "rival": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "sap-successfactors": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "smartrecruiters": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "talentreef": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "taleo": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "teamtailor": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "trakstar": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "trinet": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "ultipro": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "werecruit": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "workable": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "workday": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "zoho-recruit": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "niceboard": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "wp-job-manager": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "jobkit": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "jobboardly": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "jobiqo": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "jboard-io": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "jobboardfire": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "smartjobboard": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "jobboard-io": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "wiley-madgex": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "talenetic": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "jobmount": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "careersitecloud": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "jobboard-com": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "artha": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "jobboardsoftware-com": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "jobboardhq": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "nodex": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "ejobboard": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    },
+    "ejobsitesoftware-com": {
+      "docs_urls": [],
+      "extraction_strategy": null,
+      "connector_type": null,
+      "example_instances": [],
+      "limitations": [],
+      "research_status": "NOT_STARTED"
+    }
+  }
+}

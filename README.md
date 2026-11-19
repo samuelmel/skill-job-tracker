@@ -76,7 +76,14 @@ uv run vaya seed-platforms
 uv run vaya add-source --platform greenhouse --company "GitLab" --config '{"board_token":"gitlab"}'
 uv run vaya fetch --source-id <uuid>
 uv run vaya list-jobs --limit 10
+uv run vaya verify --platform greenhouse      # ou --all [--concurrency N]
+uv run vaya coverage-report                   # gera docs/coverage.md e docs/coverage.json
 ```
+
+`verify` roda a ingestao real e grava evidencia em `platform_verifications` (migration 0003);
+o status da plataforma reflete a ultima verificacao. Conectores que precisam de navegador usam o
+extra opcional `browser` (`uv sync --extra browser`). Para criar conectores, veja
+`docs/connectors.md`.
 
 (`python -m vaya_indexer ...` equivale a `vaya ...`.) `fetch` imprime o resumo da run em JSON e
 retorna codigo 1 se a run falhou. Com Docker: `docker compose run --rm app seed-platforms`.
