@@ -81,7 +81,7 @@ async def _fetch(source_id: uuid.UUID) -> int:
             per_domain_concurrency=settings.per_domain_concurrency,
             min_interval=settings.per_domain_min_interval,
         ) as http:
-            service = IngestionService(create_session_factory(engine), http)
+            service = IngestionService(create_session_factory(engine), http, settings.policy())
             summary = await service.run_source(source_id)
         print(summary.model_dump_json(indent=2))
         return 0 if summary.status.value != "FAILED" else 1

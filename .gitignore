@@ -13,3 +13,5 @@ pgdata/
 *.egg-info/
 dist/
 .uvcache/
+.pgdata-demo2/
+.pgdata-demo/

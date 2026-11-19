@@ -30,6 +30,7 @@ class NormalizedJob(BaseModel):
     salary_min: Decimal | None = None
     salary_max: Decimal | None = None
     salary_currency: str | None = Field(default=None, min_length=3, max_length=3)
+    salary_period: str | None = None
     employment_type: str | None = None
     workplace_type: str | None = None
     original_posted_at: datetime | None = None

@@ -1,4 +1,4 @@
-"""Normalizacao basica de texto, datas e fingerprints (a Fase 2 aprofunda)."""
+"""Normalizacao basica de texto, datas e fingerprints."""
 
 import hashlib
 import json
@@ -80,10 +80,12 @@ def sha256_hex(value: str) -> str:
 
 
 def canonical_fingerprint(company: str, title: str, location: str | None) -> str:
-    """Identidade aproximada da vaga: empresa + titulo + local normalizados."""
+    """Identidade aproximada da vaga: empresa + titulo + location_key normalizados."""
+    from vaya_indexer.processing.location import normalize_location  # evita import circular
+
     parts = [
         normalize_company_name(company),
         normalize_title(title),
-        normalize_title(location or ""),
+        normalize_location(location).location_key,
     ]
     return sha256_hex("|".join(parts))

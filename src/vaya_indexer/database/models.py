@@ -139,6 +139,10 @@ class Job(TimestampMixin, Base):
     __tablename__ = "jobs"
     __table_args__ = (
         Index("ix_jobs_search_vector", "search_vector", postgresql_using="gin"),
+        Index("ix_jobs_company_id_normalized_title", "company_id", "normalized_title"),
+        CheckConstraint(
+            "salary_period IN ('HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR')", name="salary_period"
+        ),
         # O indice trigram em normalized_title (gin_trgm_ops) e criado so na migration,
         # pois depende da extensao pg_trgm estar disponivel no servidor.
     )
@@ -155,6 +159,8 @@ class Job(TimestampMixin, Base):
     salary_min: Mapped[Decimal | None] = mapped_column(Numeric(14, 2))
     salary_max: Mapped[Decimal | None] = mapped_column(Numeric(14, 2))
     salary_currency: Mapped[str | None] = mapped_column(CHAR(3))
+    # HOUR|DAY|WEEK|MONTH|YEAR: valores de periodos diferentes nunca se misturam nem se convertem.
+    salary_period: Mapped[str | None] = mapped_column(String(10))
     original_posted_at: Mapped[datetime | None] = tstz(nullable=True)
     first_seen_at: Mapped[datetime] = tstz()
     last_seen_at: Mapped[datetime] = tstz()
@@ -180,6 +186,8 @@ class JobSource(TimestampMixin, Base):
     external_job_id: Mapped[str] = mapped_column(String(300))
     original_url: Mapped[str | None] = mapped_column(Text)
     application_url: Mapped[str | None] = mapped_column(Text)
+    canonical_url: Mapped[str | None] = mapped_column(Text, index=True)
+    canonical_application_url: Mapped[str | None] = mapped_column(Text, index=True)
     raw_data: Mapped[dict[str, Any]] = mapped_column(JSONB)
     source_fingerprint: Mapped[str] = mapped_column(String(64))
     first_seen_at: Mapped[datetime] = tstz()
@@ -232,19 +240,34 @@ class JobHistory(Base):
 
 
 class DedupMatch(Base):
-    """Usada a partir da Fase 2 (deduplicacao cross-source)."""
+    """Decisoes de deduplicacao cross-source.
+
+    MERGED: `job_id_a` e o job canonico que absorveu o `job_source_id`; `job_id_b` e NULL.
+    REVIEW: `job_id_a` e o candidato existente e `job_id_b` o job novo (criado separado).
+    """
 
     __tablename__ = "dedup_matches"
     __table_args__ = (
         UniqueConstraint("job_id_a", "job_id_b"),
-        CheckConstraint("job_id_a <> job_id_b", name="distinct_jobs"),
+        CheckConstraint("job_id_b IS NULL OR job_id_a <> job_id_b", name="distinct_jobs"),
+        Index(
+            "uq_dedup_matches_job_id_a_job_source_id",
+            "job_id_a",
+            "job_source_id",
+            unique=True,
+            postgresql_where=text("job_source_id IS NOT NULL"),
+        ),
     )
 
     id: Mapped[uuid.UUID] = uuid_pk()
     job_id_a: Mapped[uuid.UUID] = fk("jobs.id", "CASCADE")
-    job_id_b: Mapped[uuid.UUID] = fk("jobs.id", "CASCADE")
+    job_id_b: Mapped[uuid.UUID | None] = fk("jobs.id", "CASCADE", nullable=True)
+    job_source_id: Mapped[uuid.UUID | None] = fk("job_sources.id", "CASCADE", nullable=True)
     score: Mapped[float] = mapped_column(Float)
     method: Mapped[str] = mapped_column(String(60))
+    reasons: Mapped[list[str]] = mapped_column(
+        JSONB, default=list, server_default=text("'[]'::jsonb")
+    )
     decision: Mapped[DedupDecision] = mapped_column(pg_enum(DedupDecision, "dedup_decision"))
     created_at: Mapped[datetime] = tstz(server_default=text("now()"))
 

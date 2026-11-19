@@ -4,7 +4,7 @@ import respx
 
 from tests.fixtures.greenhouse import BOARD_TOKEN, JOBS_URL, board_payload
 from vaya_indexer.connectors.greenhouse import GreenhouseConnector
-from vaya_indexer.core.exceptions import HttpStatusError, ParseError
+from vaya_indexer.core.exceptions import ConnectorConfigError, HttpStatusError, ParseError
 from vaya_indexer.extraction.http import HttpClient
 
 
@@ -59,3 +59,34 @@ async def test_health_check() -> None:
     respx.get(url).mock(return_value=httpx.Response(404))
     async with HttpClient(user_agent="t") as http:
         assert await connector(http).health_check() is False
+
+
+@respx.mock
+async def test_fetch_jobs_uses_custom_api_base_url() -> None:
+    url = "http://127.0.0.1:9999/v1/boards/acme/jobs"
+    route = respx.get(url).mock(return_value=httpx.Response(200, json=board_payload()))
+    async with HttpClient(user_agent="t") as http:
+        result = await GreenhouseConnector(
+            http, board_token=BOARD_TOKEN, api_base_url="http://127.0.0.1:9999/v1/boards/"
+        ).fetch_jobs()
+    assert route.called and len(result.jobs) == 3
+
+
+def test_api_base_url_must_be_http() -> None:
+    with pytest.raises(ConnectorConfigError, match="api_base_url"):
+        GreenhouseConnector.validate_config({"board_token": "a", "api_base_url": "ftp://x"})
+
+
+async def test_normalize_extracts_explicit_attributes_and_salary() -> None:
+    payload = board_payload()["jobs"][0]
+    payload["metadata"] = [
+        {"name": "Employment Type", "value": "Full-time"},
+        {"name": "Salary Range", "value": "$120k - $150k"},
+    ]
+    from vaya_indexer.connectors.base import RawJob
+
+    async with HttpClient(user_agent="t") as http:
+        job = connector(http).normalize(RawJob(external_id="1001", payload=payload))
+    assert job.workplace_type == "REMOTE" and job.employment_type == "FULL_TIME"
+    assert (job.salary_currency, job.salary_period) == ("USD", "YEAR")
+    assert job.salary_min is not None and int(job.salary_min) == 120000

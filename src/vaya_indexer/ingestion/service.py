@@ -9,17 +9,20 @@ from decimal import Decimal
 from typing import Any
 
 from pydantic import BaseModel
-from sqlalchemy import update
+from sqlalchemy import text, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from vaya_indexer.connectors.base import BaseConnector, NormalizedJob, RawJob
 from vaya_indexer.connectors.registry import create_connector, get_connector_class
+from vaya_indexer.core.config import ProcessingPolicy
 from vaya_indexer.core.exceptions import ConnectorNotFound, SourceNotFound
 from vaya_indexer.database.models import (
     Company,
+    DedupDecision,
     FetchRunStatus,
     Job,
     JobSource,
+    JobStatus,
     Source,
 )
 from vaya_indexer.database.repositories.companies import CompanyRepository
@@ -28,12 +31,22 @@ from vaya_indexer.database.repositories.jobs import JobRepository
 from vaya_indexer.database.repositories.platforms import PlatformRepository
 from vaya_indexer.database.repositories.sources import SourceRepository
 from vaya_indexer.extraction.http import HttpClient
+from vaya_indexer.ingestion.job_status import refresh_job_status
+from vaya_indexer.ingestion.reconciliation import ReconcileOutcome, apply_reconciliation
+from vaya_indexer.processing.dedup import (
+    DedupAction,
+    JobProfile,
+    MatchScore,
+    best_match,
+    decide,
+)
 from vaya_indexer.processing.normalization import (
     canonical_fingerprint,
     canonical_json,
     normalize_title,
     sha256_hex,
 )
+from vaya_indexer.processing.urls import canonical_url
 
 logger = logging.getLogger("vaya.ingestion")
 
@@ -47,6 +60,7 @@ _TRACKED_FIELDS = (
     "salary_min",
     "salary_max",
     "salary_currency",
+    "salary_period",
     "original_posted_at",
 )
 _CHUNK = 5000
@@ -64,6 +78,20 @@ class FetchRunSummary(BaseModel):
     records_failed: int = 0
     error_message: str | None = None
     duration_ms: int = 0
+
+
+@dataclass
+class JobResolution:
+    """Resultado de `resolve_job_identity`: job canonico e a decisao de dedup que o originou."""
+
+    job: Job
+    action: DedupAction = DedupAction.NONE
+    candidate_job_id: uuid.UUID | None = None
+    match: MatchScore | None = None
+
+    @property
+    def merged(self) -> bool:
+        return self.action is DedupAction.MERGE
 
 
 @dataclass
@@ -121,10 +149,94 @@ async def register_source(
     )
 
 
+CONCURRENT_MESSAGE = "execucao concorrente em andamento"
+
+
+class ConcurrentRunError(Exception):
+    """Outra run da mesma source esta persistindo/reconciliando."""
+
+
+def source_lock_key(source_id: uuid.UUID) -> int:
+    """Chave estavel (bigint com sinal) do advisory lock por source."""
+    return int.from_bytes(source_id.bytes[:8], "big", signed=True)
+
+
+async def _try_source_lock(session: AsyncSession, source_id: uuid.UUID) -> bool:
+    """Lock transacional: vale ate o commit/rollback da persistencia + reconciliacao."""
+    result = await session.scalar(
+        text("SELECT pg_try_advisory_xact_lock(:k)"), {"k": source_lock_key(source_id)}
+    )
+    return bool(result)
+
+
+def _canon(url: str | None) -> str | None:
+    return canonical_url(url) if url else None
+
+
+def _canonical_urls(normalized: NormalizedJob) -> set[str]:
+    return {u for u in (_canon(normalized.original_url), _canon(normalized.application_url)) if u}
+
+
+async def _candidate_profiles(
+    repo: JobRepository, candidates: list[Job]
+) -> list[tuple[uuid.UUID, JobProfile]]:
+    by_job: dict[uuid.UUID, list[JobSource]] = {}
+    for js in await repo.job_sources_for_jobs([j.id for j in candidates]):
+        by_job.setdefault(js.job_id, []).append(js)
+    profiles: list[tuple[uuid.UUID, JobProfile]] = []
+    for job in candidates:
+        sources = by_job.get(job.id, [])
+        urls = {u for js in sources for u in (js.canonical_url, js.canonical_application_url) if u}
+        profile = JobProfile(
+            company_id=job.company_id,
+            title=job.title,
+            location=job.location,
+            description=job.description,
+            urls=frozenset(urls),
+            source_ids=frozenset(js.source_id for js in sources),
+            fingerprint=job.canonical_fingerprint,
+        )
+        profiles.append((job.id, profile))
+    return profiles
+
+
+def _apply_fields(
+    repo: JobRepository,
+    job: Job,
+    normalized: NormalizedJob,
+    source_id: uuid.UUID,
+    run_id: uuid.UUID,
+    now: datetime,
+    *,
+    overwrite: bool,
+) -> None:
+    """Aplica os campos rastreados registrando job_history; sem `overwrite`, so preenche NULLs."""
+    for field, new in normalized.model_dump(include=set(_TRACKED_FIELDS)).items():
+        old = getattr(job, field)
+        if old == new or not (overwrite or old is None):
+            continue
+        repo.add_history(
+            job_id=job.id,
+            source_id=source_id,
+            fetch_run_id=run_id,
+            field_name=field,
+            old_value=_jsonable(old),
+            new_value=_jsonable(new),
+            detected_at=now,
+        )
+        setattr(job, field, new)
+
+
 class IngestionService:
-    def __init__(self, session_factory: async_sessionmaker[AsyncSession], http: HttpClient) -> None:
+    def __init__(
+        self,
+        session_factory: async_sessionmaker[AsyncSession],
+        http: HttpClient,
+        policy: ProcessingPolicy | None = None,
+    ) -> None:
         self._session_factory = session_factory
         self._http = http
+        self._policy = policy or ProcessingPolicy()
 
     async def run_source(self, source_id: uuid.UUID) -> FetchRunSummary:
         started = time.monotonic()
@@ -153,18 +265,40 @@ class IngestionService:
             result = await connector.fetch_jobs()
             summary.jobs_found = len(result.jobs)
             async with self._session_factory() as session:
+                if not await _try_source_lock(session, source_id):
+                    raise ConcurrentRunError(CONCURRENT_MESSAGE)
                 counts = await self._persist(
                     session, connector, source_id, run_id, result.jobs, company_id, company_name
                 )
+                clean = counts.failed == 0 and result.complete
+                outcome = ReconcileOutcome()
+                if clean:
+                    outcome = await apply_reconciliation(
+                        session,
+                        source_id=source_id,
+                        run_id=run_id,
+                        seen_external_ids={r.external_id for r in result.jobs},
+                        jobs_found=len(result.jobs),
+                        complete=result.complete,
+                        records_failed=counts.failed,
+                        now=datetime.now(UTC),
+                        policy=self._policy,
+                    )
                 await session.commit()
             summary.jobs_inserted = counts.inserted
             summary.jobs_updated = counts.updated
             summary.jobs_unchanged = counts.unchanged
             summary.records_failed = counts.failed
-            clean = counts.failed == 0 and result.complete
-            summary.status = FetchRunStatus.SUCCEEDED if clean else FetchRunStatus.PARTIAL
+            summary.jobs_closed = outcome.jobs_closed
+            ok = clean and not outcome.blocked
+            summary.status = FetchRunStatus.SUCCEEDED if ok else FetchRunStatus.PARTIAL
             if not result.complete:
                 summary.error_message = "listagem incompleta"
+            elif outcome.message:
+                summary.error_message = outcome.message
+        except ConcurrentRunError as exc:
+            summary.status = FetchRunStatus.FAILED
+            summary.error_message = str(exc)
         except Exception as exc:
             logger.exception("fetch_failed", extra={"source_id": str(source_id)})
             summary.status = FetchRunStatus.FAILED
@@ -224,6 +358,7 @@ class IngestionService:
                         known[raw.external_id] = await self._insert(
                             session,
                             source_id,
+                            run_id,
                             raw,
                             normalized,
                             fingerprint,
@@ -232,10 +367,11 @@ class IngestionService:
                             now,
                         )
                         counts.inserted += 1
-                    elif existing.source_fingerprint == fingerprint:
-                        seen_unchanged.append(existing)
-                        counts.unchanged += 1
-                    else:
+                        continue
+                    reopened = existing.status is not JobStatus.OPEN
+                    if reopened:
+                        await self._reopen(session, jobs_repo, existing, run_id, now)
+                    if existing.source_fingerprint != fingerprint:
                         await self._update(
                             jobs_repo,
                             existing,
@@ -248,6 +384,12 @@ class IngestionService:
                             now,
                         )
                         counts.updated += 1
+                    elif reopened:
+                        await self._touch_one(session, existing, now)
+                        counts.updated += 1
+                    else:
+                        seen_unchanged.append(existing)
+                        counts.unchanged += 1
             except Exception as exc:
                 logger.warning(
                     "record_failed",
@@ -268,36 +410,68 @@ class IngestionService:
         self,
         session: AsyncSession,
         *,
+        source_id: uuid.UUID,
         normalized: NormalizedJob,
         company_id: uuid.UUID,
         company_name: str,
         now: datetime,
-    ) -> Job:
-        """Ponto de extensao da Fase 2 (dedup cross-source).
+    ) -> JobResolution:
+        """Dedup cross-source: devolve um job existente (MERGE) ou cria um novo (NONE/REVIEW).
 
-        Hoje cada job_source novo gera um job canonico 1:1. A Fase 2 devera consultar
-        `canonical_fingerprint`/similaridade e devolver um job existente quando houver match.
+        Candidatos: so jobs da mesma empresa, filtrados por fingerprint/URL/titulo e com LIMIT.
         """
-        job = JobRepository(session).add_job(
-            canonical_fingerprint=canonical_fingerprint(
-                company_name, normalized.title, normalized.location
-            ),
+        repo = JobRepository(session)
+        fingerprint = canonical_fingerprint(company_name, normalized.title, normalized.location)
+        normalized_title = normalize_title(normalized.title)
+        best: tuple[uuid.UUID, MatchScore] | None = None
+        if normalized_title:
+            candidates = await repo.find_dedup_candidates(
+                company_id=company_id,
+                fingerprint=fingerprint,
+                normalized_title=normalized_title,
+                canonical_urls=sorted(_canonical_urls(normalized)),
+                limit=self._policy.dedup_candidate_limit,
+            )
+            new_profile = JobProfile(
+                company_id=company_id,
+                title=normalized.title,
+                location=normalized.location,
+                description=normalized.description,
+                urls=frozenset(_canonical_urls(normalized)),
+                source_ids=frozenset({source_id}),
+                fingerprint=fingerprint,
+            )
+            best = best_match(
+                new_profile,
+                await _candidate_profiles(repo, candidates),
+                self._policy.dedup_url_min_title_similarity,
+            )
+        action = DedupAction.NONE
+        if best is not None:
+            action = decide(
+                best[1], self._policy.dedup_merge_threshold, self._policy.dedup_review_threshold
+            )
+        if action is DedupAction.MERGE and best is not None:
+            return JobResolution(await repo.get_job(best[0]), action, best[0], best[1])
+        job = repo.add_job(
+            canonical_fingerprint=fingerprint,
             company_id=company_id,
-            normalized_title=normalize_title(normalized.title),
+            normalized_title=normalized_title,
             first_seen_at=now,
             last_seen_at=now,
             last_checked_at=now,
-            **normalized.model_dump(
-                include=set(_TRACKED_FIELDS),
-            ),
+            **normalized.model_dump(include=set(_TRACKED_FIELDS)),
         )
         await session.flush()
-        return job
+        if action is DedupAction.REVIEW and best is not None:
+            return JobResolution(job, action, best[0], best[1])
+        return JobResolution(job)
 
     async def _insert(
         self,
         session: AsyncSession,
         source_id: uuid.UUID,
+        run_id: uuid.UUID,
         raw: RawJob,
         normalized: NormalizedJob,
         fingerprint: str,
@@ -308,19 +482,23 @@ class IngestionService:
         company_id = source_company_id or await CompanyRepository(session).get_or_create(
             company_name
         )
-        job = await self.resolve_job_identity(
+        resolution = await self.resolve_job_identity(
             session,
+            source_id=source_id,
             normalized=normalized,
             company_id=company_id,
             company_name=company_name,
             now=now,
         )
-        job_source = JobRepository(session).add_job_source(
-            job_id=job.id,
+        repo = JobRepository(session)
+        job_source = repo.add_job_source(
+            job_id=resolution.job.id,
             source_id=source_id,
             external_job_id=raw.external_id,
             original_url=normalized.original_url,
             application_url=normalized.application_url,
+            canonical_url=_canon(normalized.original_url),
+            canonical_application_url=_canon(normalized.application_url),
             raw_data=raw.payload,
             source_fingerprint=fingerprint,
             first_seen_at=now,
@@ -328,7 +506,72 @@ class IngestionService:
             last_checked_at=now,
         )
         await session.flush()
+        match = resolution.match
+        if match is not None and resolution.candidate_job_id is not None:
+            if resolution.merged:
+                repo.add_dedup_match(
+                    job_id_a=resolution.job.id,
+                    job_id_b=None,
+                    job_source_id=job_source.id,
+                    score=match.score,
+                    method=match.method,
+                    reasons=match.reasons,
+                    decision=DedupDecision.MERGED,
+                )
+                # Job canonico com varias fontes: mantem os campos do primeiro, so preenche NULLs.
+                _apply_fields(
+                    repo, resolution.job, normalized, source_id, run_id, now, overwrite=False
+                )
+                resolution.job.last_seen_at = resolution.job.last_checked_at = now
+                await session.flush()
+                await refresh_job_status(
+                    session, resolution.job.id, source_id=source_id, run_id=run_id, now=now
+                )
+            else:
+                repo.add_dedup_match(
+                    job_id_a=resolution.candidate_job_id,
+                    job_id_b=resolution.job.id,
+                    job_source_id=job_source.id,
+                    score=match.score,
+                    method=match.method,
+                    reasons=match.reasons,
+                    decision=DedupDecision.REVIEW,
+                )
+        await session.flush()
         return job_source
+
+    async def _reopen(
+        self,
+        session: AsyncSession,
+        repo: JobRepository,
+        job_source: JobSource,
+        run_id: uuid.UUID,
+        now: datetime,
+    ) -> None:
+        """Vaga que reaparece volta a OPEN (job_source e, se preciso, o job) com historico."""
+        repo.add_history(
+            job_id=job_source.job_id,
+            source_id=job_source.source_id,
+            fetch_run_id=run_id,
+            field_name="source_status",
+            old_value=job_source.status.value,
+            new_value=JobStatus.OPEN.value,
+            detected_at=now,
+        )
+        job_source.status = JobStatus.OPEN
+        job_source.missing_count = 0
+        await session.flush()
+        await refresh_job_status(
+            session, job_source.job_id, source_id=job_source.source_id, run_id=run_id, now=now
+        )
+
+    @staticmethod
+    async def _touch_one(session: AsyncSession, job_source: JobSource, now: datetime) -> None:
+        job_source.last_seen_at = job_source.last_checked_at = now
+        job_source.missing_count = 0
+        job = await session.get(Job, job_source.job_id)
+        assert job is not None
+        job.last_seen_at = job.last_checked_at = now
 
     async def _update(
         self,
@@ -343,27 +586,19 @@ class IngestionService:
         now: datetime,
     ) -> None:
         job = await jobs_repo.get_job(job_source.job_id)
-        new_values = normalized.model_dump(include=set(_TRACKED_FIELDS))
-        for field, new in new_values.items():
-            old = getattr(job, field)
-            if old != new:
-                jobs_repo.add_history(
-                    job_id=job.id,
-                    source_id=source_id,
-                    fetch_run_id=run_id,
-                    field_name=field,
-                    old_value=_jsonable(old),
-                    new_value=_jsonable(new),
-                    detected_at=now,
-                )
-                setattr(job, field, new)
-        job.normalized_title = normalize_title(normalized.title)
-        job.canonical_fingerprint = canonical_fingerprint(
-            company_name, normalized.title, normalized.location
-        )
+        # So a fonte primaria sobrescreve campos; as demais apenas preenchem NULLs.
+        primary = await jobs_repo.primary_job_source_id(job.id) == job_source.id
+        _apply_fields(jobs_repo, job, normalized, source_id, run_id, now, overwrite=primary)
+        if primary:
+            job.normalized_title = normalize_title(normalized.title)
+            job.canonical_fingerprint = canonical_fingerprint(
+                company_name, normalized.title, normalized.location
+            )
         job.last_seen_at = job.last_checked_at = now
         job_source.original_url = normalized.original_url
         job_source.application_url = normalized.application_url
+        job_source.canonical_url = _canon(normalized.original_url)
+        job_source.canonical_application_url = _canon(normalized.application_url)
         job_source.raw_data = raw.payload
         job_source.source_fingerprint = fingerprint
         job_source.last_seen_at = job_source.last_checked_at = now
