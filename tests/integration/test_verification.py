@@ -171,7 +171,14 @@ async def test_coverage_report_counts_only_real_evidence(
     async with session_factory() as session:
         report = await build_report(session, METADATA)
     assert report.totals_by_status["VERIFIED"] == 1
-    assert report.totals_by_status["NOT_STARTED"] == 77
+    # os demais conectores existem mas nao foram verificados aqui: nao contam como VERIFIED
+    assert sum(report.totals_by_status.values()) == 78
+    assert (
+        report.totals_by_status["NOT_STARTED"]
+        + report.totals_by_status["IMPLEMENTED"]
+        + (report.totals_by_status["BLOCKED"])
+        == 77
+    )
     gh = next(p for p in report.platforms if p.slug == "greenhouse")
     assert gh.jobs == 3 and gh.instances_verified == 1 and gh.instances_configured == 1
     assert "Senior Backend Engineer" in gh.sample_titles

@@ -24,7 +24,22 @@ def register[C: type[BaseConnector]](name: str) -> Callable[[C], C]:
 
 def _ensure_loaded() -> None:
     # Importar o modulo dispara o decorator @register.
-    from vaya_indexer.connectors import greenhouse  # noqa: F401
+    from vaya_indexer.connectors import (  # noqa: F401
+        ashby,
+        bamboohr,
+        breezy_hr,
+        gem_com,
+        greenhouse,
+        hirehive,
+        lever_co,
+        manatal,
+        pinpoint,
+        polymer,
+        recruitee,
+        rippling,
+        workable,
+        workday,
+    )
 
 
 def get_connector_class(name: str) -> type[BaseConnector]:

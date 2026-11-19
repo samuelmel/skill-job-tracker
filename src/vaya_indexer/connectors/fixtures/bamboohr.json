@@ -1,0 +1,35 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato da API publica de BambooHR. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "192",
+      "payload": {
+        "id": "192",
+        "jobOpeningName": "Winter Intern",
+        "departmentLabel": "Development",
+        "employmentStatusLabel": "Internship",
+        "employmentType": null,
+        "location": {
+          "city": "New York",
+          "state": "New York"
+        },
+        "isRemote": null,
+        "locationType": "0"
+      }
+    },
+    {
+      "external_id": "195",
+      "payload": {
+        "id": "195",
+        "jobOpeningName": "Operations Lead",
+        "employmentStatusLabel": "Full-Time",
+        "location": {
+          "city": null,
+          "state": null
+        },
+        "isRemote": true
+      }
+    }
+  ]
+}

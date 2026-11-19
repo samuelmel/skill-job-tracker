@@ -1,0 +1,45 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato da API publica de Pinpoint. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "p-1",
+      "payload": {
+        "id": "p-1",
+        "title": "Staff Designer",
+        "url": "https://exemplo.pinpointhq.com/en/postings/p-1",
+        "description": "<div>Descricao.</div>",
+        "key_responsibilities": "<ul><li>Projetar</li></ul>",
+        "key_responsibilities_header": "O que fara",
+        "benefits": "<div>Beneficios</div>",
+        "benefits_header": "Oferecemos",
+        "compensation_visible": true,
+        "compensation_minimum": 60000,
+        "compensation_maximum": 80000,
+        "compensation_currency": "GBP",
+        "compensation_frequency": "yearly",
+        "employment_type_text": "Full Time",
+        "workplace_type": "remote",
+        "workplace_type_text": "Fully remote",
+        "location": {
+          "city": "London",
+          "province": "London",
+          "name": "Remote"
+        }
+      }
+    },
+    {
+      "external_id": "p-2",
+      "payload": {
+        "id": "p-2",
+        "title": "Analista",
+        "url": "https://exemplo.pinpointhq.com/en/postings/p-2",
+        "compensation_visible": false,
+        "compensation_minimum": 1,
+        "employment_type_text": "Internship",
+        "workplace_type": "onsite",
+        "location": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato da API publica de Manatal. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "4599513",
+      "payload": {
+        "id": 4599513,
+        "hash": "V678RRWR",
+        "position_name": "Optometrist",
+        "description": "<p>Descricao sintetica.</p>",
+        "country": "Namibia",
+        "state": "",
+        "city": "Windhoek",
+        "location_display": "Windhoek, Namibia",
+        "is_salary_visible": false,
+        "is_remote": null,
+        "contract_details": "full_time"
+      }
+    },
+    {
+      "external_id": "4599514",
+      "payload": {
+        "id": 4599514,
+        "hash": "V678RRWS",
+        "position_name": "Recruiter",
+        "description": "",
+        "location_display": "",
+        "city": "Manila",
+        "state": "",
+        "country": "Philippines",
+        "is_remote": true,
+        "contract_details": "part_time"
+      }
+    }
+  ]
+}

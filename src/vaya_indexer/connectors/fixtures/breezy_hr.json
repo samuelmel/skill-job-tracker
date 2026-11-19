@@ -1,0 +1,43 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato da API publica de Breezy HR. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "f001",
+      "payload": {
+        "id": "f001",
+        "friendly_id": "f001-nurse",
+        "name": "Registered Nurse",
+        "url": "https://exemplo.breezy.hr/p/f001-nurse",
+        "published_date": "2025-04-01T00:00:00.000Z",
+        "type": {
+          "id": "fullTime",
+          "name": "Full-Time"
+        },
+        "location": {
+          "name": "Toronto, ON",
+          "is_remote": false
+        },
+        "salary": "$45 / hour",
+        "company": {
+          "name": "Exemplo Care"
+        }
+      }
+    },
+    {
+      "external_id": "f002",
+      "payload": {
+        "id": "f002",
+        "name": "Coordinator",
+        "url": "https://exemplo.breezy.hr/p/f002",
+        "type": null,
+        "location": {
+          "name": "Remote",
+          "is_remote": true
+        },
+        "salary": null,
+        "company": {}
+      }
+    }
+  ]
+}

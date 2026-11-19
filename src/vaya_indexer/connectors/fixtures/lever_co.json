@@ -1,0 +1,50 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato da API publica de Lever. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "l-0001",
+      "payload": {
+        "id": "l-0001",
+        "text": "Data Engineer",
+        "categories": {
+          "commitment": "Full-time",
+          "location": "Remote - Brazil",
+          "team": "Data",
+          "allLocations": [
+            "Remote - Brazil"
+          ]
+        },
+        "createdAt": 1714521600000,
+        "description": "<div>Intro sintetica.</div>",
+        "lists": [
+          {
+            "text": "Responsabilidades",
+            "content": "<li>Construir pipelines</li>"
+          }
+        ],
+        "additional": "<div>Beneficios</div>",
+        "workplaceType": "remote",
+        "salaryRange": {
+          "min": 90000,
+          "max": 120000,
+          "currency": "USD",
+          "interval": "per-year-salary"
+        },
+        "hostedUrl": "https://jobs.lever.co/exemplo/l-0001",
+        "applyUrl": "https://jobs.lever.co/exemplo/l-0001/apply"
+      }
+    },
+    {
+      "external_id": "l-0002",
+      "payload": {
+        "id": "l-0002",
+        "text": "Analista",
+        "categories": {
+          "location": "Lisboa"
+        },
+        "hostedUrl": "https://jobs.lever.co/exemplo/l-0002"
+      }
+    }
+  ]
+}

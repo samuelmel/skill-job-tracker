@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato da API publica de Workday. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "/job/US-CA-Santa-Clara/Machine-Learning-Engineer_JR100001",
+      "payload": {
+        "title": "Machine Learning Engineer",
+        "externalPath": "/job/US-CA-Santa-Clara/Machine-Learning-Engineer_JR100001",
+        "locationsText": "US, CA, Santa Clara",
+        "postedOn": "Posted Today",
+        "bulletFields": [
+          "JR100001"
+        ]
+      }
+    },
+    {
+      "external_id": "/job/Remote-Brazil/Analyst_JR100002",
+      "payload": {
+        "title": "Analyst (Remote)",
+        "externalPath": "/job/Remote-Brazil/Analyst_JR100002",
+        "locationsText": "2 Locations",
+        "postedOn": "Posted 30+ Days Ago",
+        "bulletFields": [
+          "JR100002"
+        ]
+      }
+    }
+  ]
+}

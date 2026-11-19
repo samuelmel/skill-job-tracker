@@ -1,0 +1,34 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato da API publica de Gem. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "g-0001",
+      "payload": {
+        "id": "g-0001",
+        "title": "Mission Engineer",
+        "absolute_url": "https://jobs.gem.com/exemplo/g-0001",
+        "content": "<p>Descricao sintetica.</p>",
+        "first_published_at": "2025-05-05T10:00:00.000Z",
+        "created_at": "2025-05-01T10:00:00.000Z",
+        "employment_type": "full_time",
+        "location": {
+          "name": "Los Angeles, United States"
+        },
+        "location_type": "hybrid"
+      }
+    },
+    {
+      "external_id": "g-0002",
+      "payload": {
+        "id": "g-0002",
+        "title": "Designer",
+        "absolute_url": "https://jobs.gem.com/exemplo/g-0002",
+        "location": {
+          "name": null
+        },
+        "location_type": "remote"
+      }
+    }
+  ]
+}

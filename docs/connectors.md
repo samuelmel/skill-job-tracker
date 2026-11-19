@@ -99,3 +99,34 @@ Sem o extra, conectores com `requires_browser = True` falham com `BrowserUnavail
 `tests/contract/test_connector_contract.py` roda sobre todos os conectores registrados:
 nome unico, declarado em `platforms.json`, config valida nas instancias de exemplo e
 fixture sintetica que normaliza. Um conector novo entra automaticamente.
+
+## 10. Conectores do lote 1 (APIs publicas de ATS)
+
+Todos usam o `HttpClient` do projeto (UA identificavel, limite por dominio), sem autenticacao.
+Campos que a listagem nao traz ficam `None`; `complete=False` sempre que a listagem pode
+estar truncada (limite de paginas, total divergente, item sem identidade).
+
+| Conector (`connector_type`) | Config | Endpoint | Paginacao | Limitacoes |
+|---|---|---|---|---|
+| `ashby` | `org_slug` | GET `api.ashbyhq.com/posting-api/job-board/{org}` (`includeCompensation=true`) | lista unica | so vagas `isListed` |
+| `lever_co` | `company`, `region` (`global`/`eu`) | GET `api.lever.co/v0/postings/{company}?mode=json` | listagem completa | external_id da instancia EU: `eu:{company}` |
+| `recruitee` | `company` | GET `{company}.recruitee.com/api/offers/` | lista unica | - |
+| `workable` | `account` | POST `apply.workable.com/api/v3/accounts/{account}/jobs` | cursor `token`/`nextPage` | sem descricao |
+| `breezy_hr` | `company` | GET `{company}.breezy.hr/json` | lista unica | sem descricao |
+| `bamboohr` | `subdomain` | GET `{sub}.bamboohr.com/careers/list` | lista unica, confere `meta.totalCount` | sem descricao |
+| `gem_com` | `board_slug` | GET `api.gem.com/job_board/v0/{slug}/job_posts/` | lista unica | - |
+| `pinpoint` | `subdomain` | GET `{sub}.pinpointhq.com/postings.json` | lista unica | salario so se `compensation_visible` |
+| `polymer` | `org` | GET `api.polymer.co/v1/hire/organizations/{org}/jobs?page=N` | `meta.is_last` | sem descricao; paginacao so testada com mock |
+| `rippling` | `board` | GET `api.rippling.com/platform/api/ats/v1/board/{board}/jobs` | lista unica | so titulo, local e URL |
+| `hirehive` | `subdomain` | GET `{sub}.hirehive.com/api/v2/jobs?page=N&page_size=100` | `meta.has_next_page` | - |
+| `manatal` | `slug` | GET `api.manatal.com/open/v3/career-page/{slug}/jobs/?page=N` | `next` so como sinal; confere `count` | endpoint nao documentado; salario nao exposto |
+| `workday` | `tenant`, `host` (`wdN`), `site` | POST `{tenant}.{host}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs` | offset/limit (20); `total` so na pagina 1 | sem descricao nem data (so texto relativo) |
+
+Valores de config sao validados por regex (`connectors/_common.py`) para impedir que um
+slug altere o host da requisicao.
+
+### SmartRecruiters: bloqueado
+
+Nao implementado. O `robots.txt` de `api.smartrecruiters.com` tem `User-agent: *` /
+`Disallow: /` e libera apenas o LinkedInBot em `/v1/companies/`. Como o projeto respeita
+robots.txt, a plataforma esta `BLOCKED` em `platforms.json` ate haver acordo/parceria.

@@ -1,0 +1,31 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato da API publica de Rippling. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "2eec5c0f-0000-0000-0000-000000000001",
+      "payload": {
+        "uuid": "2eec5c0f-0000-0000-0000-000000000001",
+        "name": "Financial Analyst",
+        "department": {
+          "id": "Finance",
+          "label": "Finance"
+        },
+        "url": "https://ats.rippling.com/exemplo/jobs/2eec5c0f-0000-0000-0000-000000000001",
+        "workLocation": {
+          "label": "Remote (United States)",
+          "id": "Remote (United States)"
+        }
+      }
+    },
+    {
+      "external_id": "2eec5c0f-0000-0000-0000-000000000002",
+      "payload": {
+        "uuid": "2eec5c0f-0000-0000-0000-000000000002",
+        "name": "Office Manager",
+        "url": "https://ats.rippling.com/exemplo/jobs/2eec5c0f-0000-0000-0000-000000000002",
+        "workLocation": null
+      }
+    }
+  ]
+}

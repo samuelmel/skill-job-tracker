@@ -1,0 +1,57 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato da API publica de Ashby. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "a1000000-0000-0000-0000-000000000001",
+      "payload": {
+        "id": "a1000000-0000-0000-0000-000000000001",
+        "title": "  Backend   Engineer ",
+        "department": "Engineering",
+        "team": "Platform",
+        "employmentType": "FullTime",
+        "location": "Remote (Brazil)",
+        "isListed": true,
+        "isRemote": true,
+        "workplaceType": "Remote",
+        "publishedAt": "2025-02-03T10:00:00.000+00:00",
+        "jobUrl": "https://jobs.ashbyhq.com/exemplo/a1000000-0000-0000-0000-000000000001",
+        "applyUrl": "https://jobs.ashbyhq.com/exemplo/a1000000-0000-0000-0000-000000000001/application",
+        "descriptionHtml": "<p>Texto sintetico.</p>",
+        "compensation": {
+          "summaryComponents": [
+            {
+              "compensationType": "Salary",
+              "interval": "1 YEAR",
+              "currencyCode": "USD",
+              "minValue": 100000,
+              "maxValue": 140000
+            },
+            {
+              "compensationType": "EquityPercentage",
+              "interval": "NONE",
+              "currencyCode": null,
+              "minValue": null,
+              "maxValue": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "external_id": "a1000000-0000-0000-0000-000000000002",
+      "payload": {
+        "id": "a1000000-0000-0000-0000-000000000002",
+        "title": "Estagiario de Dados",
+        "employmentType": "Intern",
+        "location": "Sao Paulo",
+        "isListed": true,
+        "isRemote": null,
+        "workplaceType": null,
+        "publishedAt": null,
+        "jobUrl": "https://jobs.ashbyhq.com/exemplo/a1000000-0000-0000-0000-000000000002",
+        "descriptionHtml": ""
+      }
+    }
+  ]
+}

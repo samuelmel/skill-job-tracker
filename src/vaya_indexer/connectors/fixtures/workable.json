@@ -1,0 +1,43 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato da API publica de Workable. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "AAAA111111",
+      "payload": {
+        "id": 1,
+        "shortcode": "AAAA111111",
+        "title": "Marketing Manager",
+        "remote": false,
+        "location": {
+          "city": "London",
+          "region": "England",
+          "country": "United Kingdom",
+          "countryCode": "GB"
+        },
+        "state": "published",
+        "published": "2025-01-10T00:00:00.000Z",
+        "type": "full",
+        "department": [
+          "Marketing"
+        ],
+        "workplace": "hybrid"
+      }
+    },
+    {
+      "external_id": "BBBB222222",
+      "payload": {
+        "id": 2,
+        "shortcode": "BBBB222222",
+        "title": "Support Agent",
+        "remote": true,
+        "location": {
+          "country": "Brazil",
+          "countryCode": "BR"
+        },
+        "type": "part",
+        "workplace": "remote"
+      }
+    }
+  ]
+}

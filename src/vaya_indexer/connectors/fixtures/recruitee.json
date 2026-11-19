@@ -1,0 +1,52 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato da API publica de Recruitee. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "101",
+      "payload": {
+        "id": 101,
+        "title": "Product Designer",
+        "company_name": "Exemplo BV",
+        "location": "Amsterdam, Netherlands",
+        "city": "Amsterdam",
+        "country": "Netherlands",
+        "remote": false,
+        "hybrid": true,
+        "on_site": false,
+        "employment_type_code": "fulltime_permanent",
+        "description": "<p>Descricao sintetica.</p>",
+        "requirements": "<p>Requisitos.</p>",
+        "salary": {
+          "min": "4000",
+          "max": "5500",
+          "currency": "EUR",
+          "period": "month"
+        },
+        "published_at": "2025-03-04 12:30:00 UTC",
+        "careers_url": "https://exemplo.recruitee.com/o/product-designer",
+        "careers_apply_url": "https://exemplo.recruitee.com/o/product-designer/c/new"
+      }
+    },
+    {
+      "external_id": "102",
+      "payload": {
+        "id": 102,
+        "title": "Suporte",
+        "location": "",
+        "city": null,
+        "country": null,
+        "remote": null,
+        "hybrid": null,
+        "on_site": null,
+        "salary": {
+          "min": null,
+          "max": null,
+          "currency": null,
+          "period": null
+        },
+        "careers_url": "https://exemplo.recruitee.com/o/suporte"
+      }
+    }
+  ]
+}

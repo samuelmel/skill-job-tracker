@@ -23,9 +23,15 @@ def test_catalog_has_78_unique_platforms() -> None:
 
 def test_catalog_statuses() -> None:
     catalog = {e.slug: e for e in build_catalog()}
-    assert catalog["greenhouse"].implementation_status is ImplementationStatus.IMPLEMENTED
-    others = [e for e in catalog.values() if e.slug != "greenhouse"]
-    assert all(e.implementation_status is ImplementationStatus.NOT_STARTED for e in others)
+    implemented = {s for s, e in catalog.items() if e.implementation_status.name == "IMPLEMENTED"}
+    assert "greenhouse" in implemented
+    assert implemented == {s for s, e in catalog.items() if e.connector_type}
+    for slug in implemented:
+        assert catalog[slug].implementation_status is ImplementationStatus.IMPLEMENTED
+    pending = [e for s, e in catalog.items() if s not in implemented]
+    allowed = {ImplementationStatus.NOT_STARTED, ImplementationStatus.BLOCKED}
+    assert all(e.implementation_status in allowed for e in pending)
+    assert catalog["smartrecruiters"].implementation_status is ImplementationStatus.BLOCKED
 
 
 def test_implemented_platforms_have_registered_connector() -> None:

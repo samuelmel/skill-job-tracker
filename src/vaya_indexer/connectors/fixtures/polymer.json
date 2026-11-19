@@ -1,0 +1,33 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato da API publica de Polymer. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "9001",
+      "payload": {
+        "id": 9001,
+        "hash_id": "abc",
+        "title": "Electrical Engineer",
+        "organization_name": "Exemplo Inc",
+        "kind_pretty": "Full-time",
+        "published_at": "2025-06-01T00:10:39.080Z",
+        "display_location": "Mountain View, CA",
+        "job_post_url": "https://jobs.polymer.co/exemplo/9001",
+        "remoteness_pretty": "No remote",
+        "salary_pretty": "170K - 220K USD a year"
+      }
+    },
+    {
+      "external_id": "9002",
+      "payload": {
+        "id": 9002,
+        "title": "Community Manager",
+        "kind_pretty": "Part-time",
+        "display_location": "Remote",
+        "job_post_url": "https://jobs.polymer.co/exemplo/9002",
+        "remoteness_pretty": "Fully remote",
+        "salary_pretty": null
+      }
+    }
+  ]
+}

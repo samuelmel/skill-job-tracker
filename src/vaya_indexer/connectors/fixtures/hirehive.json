@@ -1,0 +1,61 @@
+{
+  "synthetic": true,
+  "note": "FIXTURE SINTETICA no formato da API publica de HireHive. Nao e evidencia de cobertura.",
+  "raw_jobs": [
+    {
+      "external_id": "job_AAA111",
+      "payload": {
+        "id": "job_AAA111",
+        "title": "Support Representative",
+        "location": "Amsterdam",
+        "country": {
+          "name": "Netherlands",
+          "code": "NL"
+        },
+        "salary": null,
+        "description": {
+          "html": "<p>Descricao sintetica.</p>",
+          "text": "Descricao sintetica."
+        },
+        "type": {
+          "type": "FullTime",
+          "name": "Full Time"
+        },
+        "published_date": "2025-07-01T08:00:00.000Z",
+        "created_date": "2025-06-30T08:00:00.000Z",
+        "hosted_url": "https://exemplo.hirehive.com/support",
+        "compensation_tiers": [
+          {
+            "type": "salary",
+            "interval": "year",
+            "currency_code": "EUR",
+            "min_value": 40000,
+            "max_value": 50000
+          }
+        ]
+      }
+    },
+    {
+      "external_id": "job_BBB222",
+      "payload": {
+        "id": "job_BBB222",
+        "title": "Contractor",
+        "location": null,
+        "country": null,
+        "salary": "$50 per hour",
+        "description": null,
+        "type": {
+          "type": "Contract",
+          "name": "Contract"
+        },
+        "hosted_url": "https://exemplo.hirehive.com/contractor",
+        "compensation_tiers": [
+          {
+            "type": "none",
+            "interval": "none"
+          }
+        ]
+      }
+    }
+  ]
+}

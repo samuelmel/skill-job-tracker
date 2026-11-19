@@ -18,11 +18,28 @@
       "research_status": "NOT_STARTED"
     },
     "ashby": {
-      "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "docs_urls": [
+        "https://developers.ashbyhq.com/docs/public-job-posting-api"
+      ],
+      "extraction_strategy": "API JSON publica (api.ashbyhq.com/posting-api/job-board/{org_slug}?includeCompensation=true), sem autenticacao; listagem unica com descricao e remuneracao estruturada.",
+      "connector_type": "ashby",
+      "example_instances": [
+        {
+          "company": "Ramp",
+          "config": {
+            "org_slug": "ramp"
+          }
+        },
+        {
+          "company": "Notion",
+          "config": {
+            "org_slug": "notion"
+          }
+        }
+      ],
+      "limitations": [
+        "Respostas grandes (descricao inline; ate ~14MB em quadros como o da OpenAI). Vagas com isListed=false sao omitidas."
+      ],
       "research_status": "NOT_STARTED"
     },
     "avature": {
@@ -34,11 +51,28 @@
       "research_status": "NOT_STARTED"
     },
     "bamboohr": {
-      "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "docs_urls": [
+        "https://documentation.bamboohr.com/"
+      ],
+      "extraction_strategy": "Endpoint publico da pagina de carreiras ({subdomain}.bamboohr.com/careers/list), sem autenticacao; a API oficial (api.bamboohr.com) exige chave por empresa e nao e usada.",
+      "connector_type": "bamboohr",
+      "example_instances": [
+        {
+          "company": "New York City Ballet",
+          "config": {
+            "subdomain": "nycballet"
+          }
+        },
+        {
+          "company": "Trim Group",
+          "config": {
+            "subdomain": "trimgroup"
+          }
+        }
+      ],
+      "limitations": [
+        "Endpoint nao documentado. Subdominios sem pagina de carreiras respondem 302 para www.bamboohr.com. Sem descricao (so em /careers/{id}/detail, uma requisicao por vaga, nao usado)."
+      ],
       "research_status": "NOT_STARTED"
     },
     "brassring": {
@@ -50,11 +84,34 @@
       "research_status": "NOT_STARTED"
     },
     "breezy-hr": {
-      "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "docs_urls": [
+        "https://breezy.hr/"
+      ],
+      "extraction_strategy": "Feed JSON publico da pagina de vagas ({company}.breezy.hr/json), lista completa sem autenticacao.",
+      "connector_type": "breezy_hr",
+      "example_instances": [
+        {
+          "company": "Breezy HR (demo)",
+          "config": {
+            "company": "breezy-hr"
+          }
+        },
+        {
+          "company": "RhynoCare",
+          "config": {
+            "company": "rhynocare"
+          }
+        },
+        {
+          "company": "Barloworld Equipment",
+          "config": {
+            "company": "barloworldequipment"
+          }
+        }
+      ],
+      "limitations": [
+        "Endpoint nao documentado; nem todo tenant habilita o feed (404). Sem descricao no feed (so na pagina da vaga)."
+      ],
       "research_status": "NOT_STARTED"
     },
     "careerplug": {
@@ -130,11 +187,28 @@
       "research_status": "NOT_STARTED"
     },
     "gem-com": {
-      "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "docs_urls": [
+        "https://help.gem.com/databases/gem-help-center/the-job-board-api"
+      ],
+      "extraction_strategy": "Job Board API publica (api.gem.com/job_board/v0/{board_slug}/job_posts/), lista completa sem autenticacao.",
+      "connector_type": "gem_com",
+      "example_instances": [
+        {
+          "company": "Gem",
+          "config": {
+            "board_slug": "gem"
+          }
+        },
+        {
+          "company": "Nominal",
+          "config": {
+            "board_slug": "nominal"
+          }
+        }
+      ],
+      "limitations": [
+        "Slug inexistente responde 404. Sem campo de salario (so no texto da descricao)."
+      ],
       "research_status": "NOT_STARTED"
     },
     "gohire": {
@@ -199,11 +273,34 @@
       "research_status": "NOT_STARTED"
     },
     "hirehive": {
-      "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "docs_urls": [
+        "https://docs.hirehive.com/website-integration/jobs-api/list"
+      ],
+      "extraction_strategy": "Jobs API v2 publica ({subdomain}.hirehive.com/api/v2/jobs), paginada por page/page_size, sem autenticacao.",
+      "connector_type": "hirehive",
+      "example_instances": [
+        {
+          "company": "Patagonia",
+          "config": {
+            "subdomain": "patagonia"
+          }
+        },
+        {
+          "company": "AMCS Group",
+          "config": {
+            "subdomain": "amcsgroup"
+          }
+        },
+        {
+          "company": "HireHive (conta de teste)",
+          "config": {
+            "subdomain": "hirehive-testing-account"
+          }
+        }
+      ],
+      "limitations": [
+        "Termos de uso do HireHive nao revisados. Salario so quando preenchido pelo anunciante."
+      ],
       "research_status": "NOT_STARTED"
     },
     "hireology": {
@@ -271,19 +368,66 @@
       "research_status": "NOT_STARTED"
     },
     "lever-co": {
-      "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "docs_urls": [
+        "https://github.com/lever/postings-api"
+      ],
+      "extraction_strategy": "Postings API publica (api.lever.co/v0/postings/{company}?mode=json; tenants EU em api.eu.lever.co), listagem completa sem autenticacao.",
+      "connector_type": "lever_co",
+      "example_instances": [
+        {
+          "company": "Spotify",
+          "config": {
+            "company": "spotify"
+          }
+        },
+        {
+          "company": "Palantir",
+          "config": {
+            "company": "palantir"
+          }
+        },
+        {
+          "company": "Lever (EU)",
+          "config": {
+            "company": "lever",
+            "region": "eu"
+          }
+        }
+      ],
+      "limitations": [
+        "A regiao (global|eu) de cada tenant precisa ser conhecida; slug inexistente responde 404. Salario so se a vaga publicar salaryRange."
+      ],
       "research_status": "NOT_STARTED"
     },
     "manatal": {
-      "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "docs_urls": [
+        "https://developers.manatal.com/"
+      ],
+      "extraction_strategy": "API da pagina publica careers-page.com (api.manatal.com/open/v3/career-page/{slug}/jobs/?page=N), 10 por pagina, sem autenticacao.",
+      "connector_type": "manatal",
+      "example_instances": [
+        {
+          "company": "Manatal",
+          "config": {
+            "slug": "manatal"
+          }
+        },
+        {
+          "company": "We Recruit",
+          "config": {
+            "slug": "we-recruit"
+          }
+        },
+        {
+          "company": "Elite Employment",
+          "config": {
+            "slug": "elite-employment"
+          }
+        }
+      ],
+      "limitations": [
+        "Endpoint observado no site publico, nao documentado (a API oficial exige autenticacao). Valor de salario nao exposto. Muitos tenants sao agencias de recrutamento."
+      ],
       "research_status": "NOT_STARTED"
     },
     "oracle-recruiting": {
@@ -351,19 +495,57 @@
       "research_status": "NOT_STARTED"
     },
     "pinpoint": {
-      "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "docs_urls": [
+        "https://developers.pinpointhq.com/"
+      ],
+      "extraction_strategy": "Feed publico {subdomain}.pinpointhq.com/postings.json, lista completa sem autenticacao (robots.txt nao bloqueia).",
+      "connector_type": "pinpoint",
+      "example_instances": [
+        {
+          "company": "Pinpoint",
+          "config": {
+            "subdomain": "workwithus"
+          }
+        },
+        {
+          "company": "Sun King",
+          "config": {
+            "subdomain": "sunking"
+          }
+        }
+      ],
+      "limitations": [
+        "Sem data de publicacao (so deadline_at). Remuneracao so quando compensation_visible=true."
+      ],
       "research_status": "NOT_STARTED"
     },
     "polymer": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "API usada pela pagina jobs.polymer.co (api.polymer.co/v1/hire/organizations/{org}/jobs), paginada por page/meta.is_last, sem autenticacao.",
+      "connector_type": "polymer",
+      "example_instances": [
+        {
+          "company": "Invicta Software",
+          "config": {
+            "org": "invicta-software"
+          }
+        },
+        {
+          "company": "Eli",
+          "config": {
+            "org": "eli"
+          }
+        },
+        {
+          "company": "Rune",
+          "config": {
+            "org": "rune"
+          }
+        }
+      ],
+      "limitations": [
+        "API nao documentada. Sem descricao na listagem (so na pagina da vaga). Paginacao multi-pagina nao observada em instancia real (so mock)."
+      ],
       "research_status": "NOT_STARTED"
     },
     "recooty": {
@@ -375,19 +557,63 @@
       "research_status": "NOT_STARTED"
     },
     "recruitee": {
-      "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "docs_urls": [
+        "https://docs.recruitee.com/reference/intro-to-careers-site-api"
+      ],
+      "extraction_strategy": "Careers Site API publica ({company}.recruitee.com/api/offers/), listagem completa sem autenticacao.",
+      "connector_type": "recruitee",
+      "example_instances": [
+        {
+          "company": "bunq",
+          "config": {
+            "company": "bunq"
+          }
+        },
+        {
+          "company": "Goodwall",
+          "config": {
+            "company": "goodwall"
+          }
+        },
+        {
+          "company": "Miaplaza",
+          "config": {
+            "company": "miaplaza"
+          }
+        }
+      ],
+      "limitations": [
+        "Subdominio inexistente responde 404; quadro vazio devolve offers=[]."
+      ],
       "research_status": "NOT_STARTED"
     },
     "rippling": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "API publica do quadro ats.rippling.com (api.rippling.com/platform/api/ats/v1/board/{board}/jobs), lista completa sem autenticacao.",
+      "connector_type": "rippling",
+      "example_instances": [
+        {
+          "company": "Zaden Technologies",
+          "config": {
+            "board": "zadentech"
+          }
+        },
+        {
+          "company": "LegitScript",
+          "config": {
+            "board": "legitscript-careers"
+          }
+        },
+        {
+          "company": "Futuri",
+          "config": {
+            "board": "futuri-careers"
+          }
+        }
+      ],
+      "limitations": [
+        "API nao documentada. Listagem so com nome, departamento, URL e local: sem descricao, data ou salario."
+      ],
       "research_status": "NOT_STARTED"
     },
     "rival": {
@@ -407,12 +633,16 @@
       "research_status": "NOT_STARTED"
     },
     "smartrecruiters": {
-      "docs_urls": [],
-      "extraction_strategy": null,
+      "docs_urls": [
+        "https://developers.smartrecruiters.com/docs/posting-api"
+      ],
+      "extraction_strategy": "Posting API (api.smartrecruiters.com/v1/companies/{id}/postings?limit=100&offset=N) responde 200 sem autenticacao, mas o robots.txt do host nao permite acesso a agentes genericos.",
       "connector_type": null,
       "example_instances": [],
-      "limitations": [],
-      "research_status": "NOT_STARTED"
+      "limitations": [
+        "BLOCKED por robots.txt: https://api.smartrecruiters.com/robots.txt declara 'User-agent: *' com 'Disallow: /' e libera /v1/companies/ apenas para LinkedInBot. Conector nao implementado ate haver autorizacao explicita ou parceria."
+      ],
+      "research_status": "BLOCKED"
     },
     "talentreef": {
       "docs_urls": [],
@@ -471,19 +701,62 @@
       "research_status": "NOT_STARTED"
     },
     "workable": {
-      "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "docs_urls": [
+        "https://apply.workable.com/"
+      ],
+      "extraction_strategy": "Endpoint publico v3 da pagina de vagas (POST apply.workable.com/api/v3/accounts/{account}/jobs), paginado por cursor nextPage/token.",
+      "connector_type": "workable",
+      "example_instances": [
+        {
+          "company": "Workable",
+          "config": {
+            "account": "careers"
+          }
+        },
+        {
+          "company": "Tiger Analytics",
+          "config": {
+            "account": "tiger-analytics"
+          }
+        },
+        {
+          "company": "Berry Street",
+          "config": {
+            "account": "berry-street"
+          }
+        }
+      ],
+      "limitations": [
+        "Endpoint nao documentado (usado pela SPA). A listagem nao traz descricao nem salario (so o detalhe v2, uma requisicao por vaga, nao usado). robots.txt sem Disallow."
+      ],
       "research_status": "NOT_STARTED"
     },
     "workday": {
       "docs_urls": [],
-      "extraction_strategy": null,
-      "connector_type": null,
-      "example_instances": [],
-      "limitations": [],
+      "extraction_strategy": "Endpoint CXS publico da pagina de carreiras (POST {tenant}.{host}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs, offset/limit=20), sem autenticacao.",
+      "connector_type": "workday",
+      "example_instances": [
+        {
+          "company": "NVIDIA",
+          "config": {
+            "tenant": "nvidia",
+            "host": "wd5",
+            "site": "NVIDIAExternalCareerSite"
+          }
+        },
+        {
+          "company": "Salesforce",
+          "config": {
+            "tenant": "salesforce",
+            "host": "wd12",
+            "site": "External_Career_Site"
+          }
+        }
+      ],
+      "limitations": [
+        "Endpoint interno nao documentado; tenant, host (wdN) e site vem da URL do site de carreiras. Sem descricao nem data exata (postedOn e texto relativo).",
+        "Verify real (NVIDIA, 19/11/2026): run PARTIAL com 2000 vagas e 'listagem incompleta'. O endpoint CXS limita a paginacao a 2000 resultados por consulta sem facetas, entao tenants grandes nao sao listados por inteiro (complete=False, nenhuma vaga e fechada por engano). Nao conta como VERIFIED (exige run SUCCEEDED); precisa de tenant com menos de 2000 vagas ou particionamento por facetas."
+      ],
       "research_status": "NOT_STARTED"
     },
     "zoho-recruit": {
