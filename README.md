@@ -1,176 +1,219 @@
-# Vaya Job Board Indexer
+<div align="center">
 
-Indexador de vagas de emprego em monolito modular. A **Fase 1** entrega a fundacao: schema PostgreSQL,
-cliente HTTP resiliente, contrato de conectores, o conector **Greenhouse**, a ingestao idempotente
-e o catalogo das 78 plataformas (58 ATS + 20 job boards).
+# 📈 Skill Job Tracker
 
-## Arquitetura
+### *Quais skills de tecnologia sobem e descem nos anúncios de vagas, medido todo mês*
 
-```
-src/vaya_indexer/
-  core/          config (pydantic-settings), logging JSON, excecoes tipadas
-  extraction/    http.py: HttpClient (retry, backoff+jitter, Retry-After, rate limit por dominio)
-  connectors/    base.py (contrato), registry.py (@register), greenhouse.py
-  processing/    normalization.py (titulo, empresa, espacos, datas, fingerprints)
-  database/      models SQLAlchemy 2.0 async, session, repositories/
-  ingestion/     service.py: IngestionService.run_source + register_source
-  platforms_catalog.py   as 78 plataformas
-  cli.py         seed-platforms, add-source, fetch, list-jobs
-migrations/      Alembic (0001_initial)
-```
+[![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB.svg)](https://www.python.org/)
+[![DuckDB](https://img.shields.io/badge/DuckDB-2.x-FFF000.svg)](https://duckdb.org/)
+[![dbt](https://img.shields.io/badge/dbt-core%20%2B%20duckdb-FF694B.svg)](https://www.getdbt.com/)
+[![Parquet](https://img.shields.io/badge/Parquet-pyarrow-50ABF1.svg)](https://arrow.apache.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-embutido%20(pgserver)-4169E1.svg)](https://www.postgresql.org/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-carga%20mensal-2088FF.svg)](.github/workflows/monthly.yml)
 
-Fluxo de `run_source`: cria `fetch_run` RUNNING -> conector busca (`RawJob` com payload intacto) ->
-cada registro e normalizado/validado (erro isolado vai para `connector_errors` e `records_failed`) ->
-upsert de `job_sources` por `(source_id, external_job_id)`; vaga nova cria job canonico 1:1; vaga
-existente e comparada por `source_fingerprint` (sha256 dos campos normalizados) para contar
-`updated` x `unchanged` (mudancas ficam em `job_history`) -> `fetch_run` finalizado com metricas.
-Falha total de rede (ex.: `RetryExhausted`) marca a run como `FAILED` sem alterar nenhuma vaga.
+**Pipeline medalhão que coleta vagas de 106 fontes públicas, guarda o raw em JSONL, refina em Bronze, Silver e Gold (Parquet, DuckDB, dbt) e publica um dashboard estático no GitHub Pages. Roda sozinho todo mês no GitHub Actions.**
 
-## Requisitos
+[**Ver o dashboard**](https://samuelmel.github.io/skill-job-tracker/)
 
-- Python >= 3.12 e [uv](https://docs.astral.sh/uv/)
-- PostgreSQL 13+ (usa `gen_random_uuid()`), via Docker **ou** `pgserver` (embutido, dev)
+</div>
 
-## Instalacao
+---
 
-```bash
-uv sync                 # inclui o grupo dev (pytest, ruff, mypy, respx, pgserver)
-cp .env.example .env    # ajuste DATABASE_URL e USER_AGENT
-```
+## 🌟 Principais Funcionalidades
 
-Dependencias alem do exigido: nenhuma. `beautifulsoup4`, `lxml`, `apscheduler` e `starlette` estao
-declaradas para as proximas fases e ainda nao sao usadas. `pgserver` e so dev (Postgres embutido
-para testes e demo sem Docker).
+### 1. 🔌 Coleta de 106 fontes públicas
 
-> Windows: se o cache global do `uv` ficar em outra unidade que o projeto, defina
-> `UV_CACHE_DIR` para uma pasta na mesma unidade (ou `UV_LINK_MODE=copy`).
-> O driver async do psycopg exige `SelectorEventLoop`; a CLI e os testes ja cuidam disso.
+Um conector por plataforma de vagas, todos sobre o mesmo cliente HTTP.
 
-## Banco de dados
+* **106 fontes** em [`catalog/sources.json`](catalog/sources.json), em 44 plataformas (Greenhouse, Lever, Ashby, Workday, entre outras), com conectores em `src/vaya_indexer/connectors/`.
+* **`HttpClient`** com User-Agent identificável, retry com backoff, `Retry-After` e rate limit por domínio. Respeita robots.txt e não contorna login, CAPTCHA nem Cloudflare.
+* **`complete=False`** sempre que a listagem pode estar truncada. Campo ausente vira `None`.
 
-**Docker:**
+### 2. 🗄️ Raw imutável e camadas Bronze, Silver e Gold
 
-```bash
-echo "POSTGRES_PASSWORD=troque-isto" >> .env
-docker compose up -d postgres
-# DATABASE_URL=postgresql+psycopg://vaya:troque-isto@localhost:5432/vaya
-```
+Cada coleta vira arquivos que nunca são reescritos; o resto é derivado deles.
 
-**Sem Docker (pgserver):** `uv run python scripts/demo_phase1.py` sobe um Postgres em `./.pgdata`
-(ignorado no git) e roda a demo inteira. Para um banco novo, apague `./.pgdata`.
+* **Raw:** `jobs.jsonl.gz` e `manifest.json` por fonte e execução. Bronze e warehouse podem ser apagados e reconstruídos.
+* **Bronze** em **Parquet** (`pyarrow`), **Silver** e **Gold** em **DuckDB** via **dbt** (`analytics/models/`), com [136 skills](analytics/seeds/skills.csv) em um dicionário versionado.
+* O Postgres embutido guarda o estado operacional (dedup, `job_history`, `fetch_runs`) e a reconciliação só fecha vagas em coleta completa.
 
-Migracoes:
+### 3. 📐 Regras de tendência que evitam falsa alta
 
-```bash
-uv run alembic upgrade head
-```
+A tendência mensal (`gold_skill_trend.sql`) segue regras fixas.
 
-Observacao: a migration cria a extensao `pg_trgm` e o indice trigram de `jobs.normalized_title`
-apenas se a extensao estiver disponivel no servidor. O Postgres 16 oficial (Docker) a traz; o
-`pgserver` embutido nao inclui contrib, entao nos testes locais esse indice e pulado (com aviso).
+* **Denominador:** só vagas com descrição.
+* **Painel comparável:** só entram fontes com coleta completa nos dois meses comparados. Fonte nova ou run `PARTIAL` fica de fora.
+* **Alta ou queda** exige |z| ≥ 1,96 e variação de pelo menos 0,5 p.p.; abaixo de 30 vagas no denominador a skill é marcada como base pequena.
 
-## CLI
+### 4. 🕰️ Série histórica do Hacker News
 
-```bash
-uv run vaya seed-platforms
-uv run vaya add-source --platform greenhouse --company "GitLab" --config '{"board_token":"gitlab"}'
-uv run vaya fetch --source-id <uuid>
-uv run vaya list-jobs --limit 10
-uv run vaya verify --platform greenhouse      # ou --all [--concurrency N]
-uv run vaya coverage-report                   # gera docs/coverage.md e docs/coverage.json
+Uma série separada, de abr/2011 a nov/2026, a partir das threads "Ask HN: Who is hiring?".
+
+* Carga avulsa (`scripts/load_history_hn.py`) e build próprio (`scripts/build_history.py`), com sha256 conferido por thread.
+* A carga mensal passa pelas fontes de vagas e **não** pelo Hacker News.
+* Nas altas e quedas por mudança de nomenclatura, **JavaScript e TypeScript** são somados em uma linha só.
+
+### 5. 🤖 Carga mensal automatizada
+
+[`monthly.yml`](.github/workflows/monthly.yml) roda com cron `17 6 1 * *` e também sob demanda.
+
+* Restaura o raw de um **repositório privado de dados**, reconstrói Bronze e warehouse, coleta, devolve só o raw novo e publica no **GitHub Pages**.
+* **Gate de cobertura:** com menos de 50% das fontes tentadas em SUCCEEDED/PARTIAL, o dashboard não é refeito e a versão anterior continua no ar.
+* `concurrency` impede duas cargas ao mesmo tempo e `scripts/prepare_site.py` publica só o HTML, barrando caminhos locais e referências a raw.
+
+---
+
+## 🏗️ Arquitetura
+
+```mermaid
+flowchart LR
+    A[106 fontes<br/>de vagas] --> B[fetch-all<br/>conectores]
+    B --> C[Raw JSONL.gz<br/>+ manifest]
+    B --> P[(Postgres embutido<br/>estado e histórico)]
+    C --> D[Bronze<br/>Parquet]
+    H[Hacker News<br/>2011 a 2026] --> C2[Raw HN] --> D
+    D --> E[Silver<br/>DuckDB + dbt]
+    E --> F[Gold<br/>tendência e saúde]
+    F --> G[Dashboard HTML<br/>GitHub Pages]
 ```
 
-`verify` roda a ingestao real e grava evidencia em `platform_verifications` (migration 0003);
-o status da plataforma reflete a ultima verificacao. Conectores que precisam de navegador usam o
-extra opcional `browser` (`uv sync --extra browser`). Para criar conectores, veja
-`docs/connectors.md`.
+O fluxo principal pode ser resumido como:
 
-(`python -m vaya_indexer ...` equivale a `vaya ...`.) `fetch` imprime o resumo da run em JSON e
-retorna codigo 1 se a run falhou. Com Docker: `docker compose run --rm app seed-platforms`.
+**Fontes → Raw → Bronze → Silver → Gold → Dashboard**
 
-## Testes e qualidade
+Plano e decisões de projeto em [`docs/plano-plataforma-dados.md`](docs/plano-plataforma-dados.md).
 
-```bash
-uv run pytest --cov=vaya_indexer      # unit + mocked + integration (sem rede)
-uv run pytest -m live                 # Greenhouse real (rede)
-uv run ruff check . && uv run ruff format --check .
-uv run mypy src
-```
+---
 
-| Pasta | O que cobre |
+## 📊 Resultados
+
+### O dashboard
+
+<div align="center">
+
+<img src="docs/assets/dashboard.jpg" alt="Dashboard Skill Job Tracker com as listas de skills em alta e em queda e o explorador de skills por área" width="850">
+
+<p><em>Topo do dashboard: altas e quedas em pontos percentuais entre 2025 e 2024, com sparkline por skill, e o seletor de skills por área.</em></p>
+
+</div>
+
+Última coleta real conhecida, de novembro de 2026 (uma nova execução estava em andamento ao escrever este README):
+
+| Medida | Coleta de nov/2026 |
 |---|---|
-| `tests/unit` | normalizacao, catalogo de 78 plataformas, registry, config e normalize do Greenhouse |
-| `tests/mocked` | HttpClient (retry 503, Retry-After no 429, 404 sem retry, timeout) e fetch do Greenhouse, com respx |
-| `tests/integration` | Postgres real: migration (incl. 0001<->0002), seed, ingestao, dedup, reconciliacao, reabertura |
-| `tests/live` | marker `live`, ignorado por padrao; API real do Greenhouse |
+| Fontes tentadas | 106 |
+| SUCCEEDED / PARTIAL / FAILED | 90 / 14 / 2 |
+| Vagas coletadas | 13.453 |
 
-Integracao usa `TEST_DATABASE_URL` se definida; caso contrario sobe um Postgres via `pgserver`.
-Os payloads em `tests/fixtures` sao sinteticos (fixtures de teste) e **nao** contam como evidencia
-de cobertura; a evidencia real vem dos testes `live` e da demo.
+Skills com base pequena aparecem com o selo "base pequena" no dashboard, e não há ranking de skill sem o denominador de vagas com descrição.
 
-## Fase 2: identidade, dedup e reconciliacao
+---
 
-**Normalizacao** (`processing/`, funcoes puras): `normalize_location` (+ `location_key`),
-`infer_workplace_type`, `normalize_employment_type`, `parse_salary`, `canonical_url`, `html_to_text`.
-Nada e inferido sem evidencia textual. Salario: nunca converte moeda nem periodo; ambiguo -> `NULL`.
-Convencoes: `$` puro e lido como USD (descartado se houver codigo ISO ou simbolo forte); sem palavra de
-periodo so assume `YEAR` se todos os valores usam sufixo `k` (>= 10k). `jobs.salary_period` guarda o periodo.
-No Greenhouse o salario so vem de metadata de remuneracao e do blurb/titulo de `pay_input_ranges`.
+## ⚡ Quickstart
 
-**Dedup em camadas** (`processing/dedup.py` + `IngestionService.resolve_job_identity`): mesma
-source+external_id; URL canonica (score 1.0); fingerprint; similaridade de titulo; veto por localizacao
-conhecida e divergente (ou nivel de senioridade diferente); Jaccard de shingles da descricao.
-Regras duras: nunca une empresas diferentes, nunca une dois `job_sources` da mesma source, nunca decide
-so pelo titulo. Candidatos: mesma empresa, filtrados por fingerprint / URL canonica / titulo normalizado
-(igual ou prefixo), `LIMIT 200`, com indices; ordenados por evidencia forte (fingerprint/URL), depois
-titulo igual, depois prefixo, excluindo titulo normalizado vazio.
+### 1. Preparar o ambiente
 
-**Concorrencia**: persistencia + reconciliacao rodam sob `pg_try_advisory_xact_lock` por source; se outra
-run da mesma source esta ativa, a run termina `FAILED` ("execucao concorrente em andamento") sem tocar dados.
+```bash
+git clone https://github.com/samuelmel/skill-job-tracker.git
+cd skill-job-tracker
+uv sync --frozen
+```
 
-| Variavel | Padrao | Efeito |
-|---|---|---|
-| `DEDUP_MERGE_THRESHOLD` | 0.90 | score >= limiar e sem veto: o novo `job_source` aponta ao job existente (`dedup_matches` MERGED) |
-| `DEDUP_REVIEW_THRESHOLD` | 0.75 | entre revisao e merge: cria job novo e registra `dedup_matches` REVIEW |
-| `DEDUP_URL_MIN_TITLE_SIMILARITY` | 0.6 | URL canonica so e evidencia forte se for especifica (id/slug da vaga, nao `/careers`, `/apply`) e o titulo for ao menos tao similar, com mesmo nivel |
-| `RECONCILE_MAX_CLOSE_RATIO` | 0.5 | fracao de ausentes acima disso: nada e fechado, run `PARTIAL` |
-| `RECONCILE_MIN_BLOCK_COUNT` | 5 | a guarda de razao so bloqueia se ausentes > max(este piso, razao x abertas); evita bloquear boards pequenos para sempre |
-| `RECONCILE_MISSES_TO_CLOSE` | 2 | ausencias consecutivas para fechar |
-| `RECONCILE_GRACE_HOURS` | 12 | `last_seen_at` precisa ser anterior a esta janela para fechar |
+No Git Bash: `export UV_CACHE_DIR="$PWD/.uvcache"` antes de qualquer `uv`. No Windows, o cache do `uv` precisa ficar na mesma unidade do projeto.
 
-`dedup_matches`: MERGED = `job_id_a` (canonico), `job_id_b` NULL e `job_source_id` do source unido;
-REVIEW = `job_id_a` (existente) e `job_id_b` (novo). Job canonico com varias fontes: a primeira fonte
-manda nos campos, as demais so preenchem NULLs (com `job_history`); `OPEN` se algum `job_source` esta
-`OPEN`, `CLOSED` so se todos estao `CLOSED`.
+### 2. Rodar uma carga reduzida
 
-**Historico**: mudanca de status do job grava `job_history.field_name='status'`; mudanca de status de um
-`job_source` grava `field_name='source_status'`; ambos com `fetch_run_id`. Vaga `CLOSED` que reaparece
-reabre (`OPEN`, `missing_count=0`) e conta como `updated`.
+```bash
+uv run python scripts/run_monthly.py --platform greenhouse --limit 5
+```
 
-**Reconciliacao segura** (`ingestion/reconciliation.py`): so roda sem excecao, com `complete=True` e
-`records_failed=0`. Listagem vazia com vagas abertas -> nada fecha, run `PARTIAL` ("listagem vazia
-suspeita"); fracao de ausentes acima do limite -> nada fecha, `PARTIAL`. Senao ausentes ganham
-`missing_count += 1` e fecham ao atingir o minimo e a janela de graca; vistos zeram o contador. Runs
-`FAILED`/`PARTIAL` nunca mexem em `missing_count`. `jobs_closed` conta jobs canonicos que passaram a `CLOSED`.
+Sobe o Postgres embutido em `.pgdata-lake`, coleta, monta Bronze, roda o dbt e gera `data/reports/index.html`. Faz requisições reais às fontes. Esta forma reduzida não foi executada na redação do README; a carga completa roda no Actions.
 
-**Demo**: `uv run python scripts/demo_phase2.py` sobe Postgres em `./.pgdata-demo2`, recria o schema e
-serve dados de **demonstracao controlados** num servidor HTTP local (config `api_base_url` do Greenhouse).
-Nao e evidencia de cobertura. A demo da Fase 1 (`scripts/demo_phase1.py`) continua valida.
+### 3. Reprocessar sem coletar
 
-## Limitacoes conhecidas
+```bash
+uv run python scripts/run_monthly.py --skip-collect
+```
 
-- Apenas o conector Greenhouse existe; as demais 77 plataformas estao `NOT_STARTED`. Nenhuma esta `VERIFIED`.
-- Greenhouse nao expoe salario estruturado: so texto explicito de metadata/`pay_input_ranges` e interpretado;
-  tipo de contrato e modalidade so com evidencia textual. `original_posted_at` vem de `first_published`.
-- Datas ISO sem fuso sao interpretadas como UTC; datas invalidas viram `NULL`.
-- O fingerprint canonico agora usa `location_key`: dados da Fase 1 geram um `updated` unico na proxima coleta.
-- Tabelas de paises/estados em `location.py` sao pequenas de proposito; texto fora delas fica sem estrutura.
-- Dedup sem `pg_trgm` (indisponivel no pgserver): candidatos por igualdade/prefixo, nao por trigram.
-  Casos REVIEW nao tem fluxo de resolucao ainda.
-- `pg_trgm` depende do servidor (ver acima). `search_vector` usa a configuracao `simple` (multilingue).
-- Sem agendamento, API HTTP ou observabilidade alem de logs JSON.
+### 4. Histórico do Hacker News
 
-## Proximos passos
+```bash
+uv run python scripts/load_history_hn.py    # baixa as threads (rede)
+uv run python scripts/build_history.py      # bronze + modelos dbt com tag history
+```
 
-- Fluxo de resolucao de `REVIEW`, normalizacao de empresas/aliases, novos conectores,
-  agendamento (APScheduler) e API (Starlette).
+O repositório privado de dados com o raw acumulado não faz parte do quickstart. Quem clona começa do zero e gera o próprio raw.
+
+---
+
+## 💻 Exemplos de Uso
+
+Saída real de `uv run vaya --help` e de `uv run vaya lake --help` (trecho):
+
+```text
+{seed-platforms,add-source,fetch,load-catalog,fetch-all,list-jobs,verify,lake,coverage-report}
+    load-catalog        Carrega catalog/sources.json no banco (idempotente)
+    fetch-all           Ingere todas as sources ativas gravando o raw no lake
+    verify              Roda o conector contra instancias reais e grava evidencia de cobertura
+    lake                Pipeline analitico offline (bronze, dbt, dashboard)
+
+{bronze,dbt,dashboard,monthly}
+    monthly             bronze + dbt build + dashboard
+```
+
+Para testar um conector contra instâncias reais, com Postgres embutido:
+
+```bash
+uv run python scripts/verify_local.py --data-dir .pgdata-verify-x ashby lever-co
+```
+
+---
+
+## 🧪 Testes Automatizados
+
+```bash
+uv run ruff check . && uv run ruff format --check . && uv run mypy src && uv run pytest -q
+```
+
+São 330 funções `test_` em `tests/unit`, `tests/mocked`, `tests/contract` e `tests/integration`, e o contrato de cada conector é descoberto a partir de `connectors/fixtures/`. A suíte não foi executada na redação do README, que mudou só documentação. Os testes marcados `live` acessam a rede e ficam fora do padrão (`pytest -m live`).
+
+---
+
+## 🗂️ Estrutura do Repositório
+
+```
+.github/workflows/   monthly.yml: carga mensal e deploy no Pages
+analytics/           projeto dbt: staging, silver, gold, history e seed de skills
+catalog/             sources.json com as 106 fontes
+docs/                plano, guia de conectores, cobertura e pesquisa por plataforma
+migrations/          Alembic (estado operacional no Postgres)
+scripts/             run_monthly, collect_local, build_history, prepare_site, sync_data_repo
+src/vaya_indexer/    conectores, ingestão, lake (raw, bronze, warehouse, dashboard)
+tests/               unit, mocked, contract, integration e live
+```
+
+---
+
+## 📚 Documentação
+
+* [`docs/plano-plataforma-dados.md`](docs/plano-plataforma-dados.md): objetivo, arquitetura alvo e decisões por fase.
+* [`docs/connectors.md`](docs/connectors.md): como adicionar e verificar um conector.
+* [`docs/coverage.md`](docs/coverage.md): cobertura por plataforma, gerada por `vaya coverage-report` (posição de 19/11/2026).
+* [`docs/research/`](docs/research/): endpoints, paginação e campos por plataforma.
+
+## 🚧 Limitações e Próximos Passos
+
+* **Cobertura:** 43 de 78 plataformas do catálogo têm evidência real, segundo o relatório de 19/11/2026. A amostra é de 106 empresas, não do mercado inteiro.
+* **Série mensal curta:** a tendência entre meses de vagas depende de meses acumulados e de painel comparável. Hoje só a série do Hacker News tem profundidade.
+* **Viés do Hacker News:** o histórico representa anúncios de uma comunidade, não o mercado geral.
+* **Skills por texto:** a classificação usa padrões sobre a descrição e não foi medida contra uma amostra rotulada.
+* **Nome do pacote:** o código ainda usa `vaya_indexer` e o comando `vaya`; renomear não foi feito.
+* **Idioma:** não existe versão em inglês deste README.
+
+---
+
+**samuelmel**
+
+Este projeto foi desenvolvido como **portfólio técnico e projeto de estudo**, com foco em engenharia de dados (arquitetura medalhão, dbt e automação).
+
+Dados: páginas públicas de vagas de cada empresa e as threads públicas "Ask HN: Who is hiring?" do Hacker News.
