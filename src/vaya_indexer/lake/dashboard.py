@@ -60,6 +60,20 @@ JSTS_SKILLS = ("JavaScript", "TypeScript")
 JSTS_LABEL = "JavaScript + TypeScript"
 
 
+def tenths(v: float | None) -> int:
+    """Valor em decimos (1 casa), meio para cima, em aritmetica inteira.
+
+    Regra unica de exibicao de % e p.p.: o template JS tem a mesma funcao (`tenths`), e tanto o
+    antes -> depois quanto a variacao saem dela, entao os numeros mostrados nunca se contradizem.
+    """
+    return (round(float(v or 0.0) * 100) + 5) // 10
+
+
+def pp_delta(a: float | None, b: float | None) -> float:
+    """Variacao em p.p. exibida: diferenca dos valores JA arredondados a 1 casa."""
+    return (tenths(b) - tenths(a)) / 10
+
+
 def _mover(
     name: str,
     skills: list[str],
@@ -73,7 +87,8 @@ def _mover(
         "skills": skills,
         "psh": sa,
         "sh": sb,
-        "dp": round(sb - sa, 2),
+        "dp": pp_delta(sa, sb),
+        "dx": round(sb - sa, 4),
         "rel": round(100.0 * (sb - sa) / sa, 1) if sa else None,
         "pn": na,
         "n": nb,
@@ -107,8 +122,8 @@ def _pair_movers(
         items.append(
             _mover(JSTS_LABEL, list(JSTS_SKILLS), (ja["sh"], ja["n"]), (jb["sh"], jb["n"]), trend)
         )
-    ups = sorted((i for i in items if i["dp"] > 0), key=lambda i: (-i["dp"], i["k"]))
-    downs = sorted((i for i in items if i["dp"] < 0), key=lambda i: (i["dp"], i["k"]))
+    ups = sorted((i for i in items if i["dx"] > 0), key=lambda i: (-i["dx"], i["k"]))
+    downs = sorted((i for i in items if i["dx"] < 0), key=lambda i: (i["dx"], i["k"]))
     return ups[:MOVER_TOP], downs[:MOVER_TOP]
 
 

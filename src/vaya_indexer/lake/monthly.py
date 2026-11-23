@@ -9,6 +9,7 @@ import duckdb
 from vaya_indexer.lake.bronze import BronzeResult, build_bronze
 from vaya_indexer.lake.dashboard import write_reports
 from vaya_indexer.lake.transform import run_dbt
+from vaya_indexer.lake.warehouse import compact_quietly
 
 MONTHLY_DBT_ARGS = ["--exclude", "tag:history"]
 _MONTH = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
@@ -58,4 +59,6 @@ def run_monthly(
     if chosen is None:
         raise RuntimeError("nenhum mes com coleta completa no warehouse")
     reports = write_reports(lake, chosen)
+    # Depois do dashboard e com as conexoes fechadas: se falhar, o relatorio ja gerado vale.
+    compact_quietly(warehouse)
     return MonthlyResult(month=chosen, bronze=bronze, reports=reports)

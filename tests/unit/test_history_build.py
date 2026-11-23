@@ -11,7 +11,13 @@ import pytest
 
 from vaya_indexer.lake import history_build as hb
 from vaya_indexer.lake import monthly
-from vaya_indexer.lake.dashboard import build_movers, collect_history, render_html
+from vaya_indexer.lake.dashboard import (
+    build_movers,
+    collect_history,
+    pp_delta,
+    render_html,
+    tenths,
+)
 
 
 def _write_thread(
@@ -267,3 +273,31 @@ def test_movers_pairs_and_degenerate_inputs() -> None:
     assert labels[0] == (2024, 2025) and (2023, 2026) not in labels  # sem 2022 nos dados
     assert (2025, 2026) in labels and out["pairs"][labels.index((2025, 2026))]["mb"] == 11
     assert build_movers(yr, {2025: 12}, jsts, 30) is None
+
+
+def test_rounding_rule_is_single_and_consistent() -> None:
+    # meio para cima em aritmetica inteira (24.35 nao vira 24.3 por erro de ponto flutuante)
+    assert tenths(24.35) == 244
+    assert tenths(8.45) == 85
+    assert tenths(None) == 0
+    # a variacao exibida e a diferenca dos valores exibidos: 21,0 -> 24,4 e +3,4 (nunca +3,3)
+    assert pp_delta(21.01, 24.36) == 3.4
+    assert pp_delta(21.0, 24.35) == 3.4
+    assert pp_delta(5.0, 4.0) == -1.0
+
+
+def test_movers_dp_matches_displayed_values() -> None:
+    yr = [_yr(2024, "Python", 400, 21.01), _yr(2025, "Python", 450, 24.36)]
+    out = build_movers(yr, {2024: 12, 2025: 12}, [], 30)
+    assert out is not None
+    row = out["pairs"][0]["ups"][0]
+    assert row["dp"] == pp_delta(row["psh"], row["sh"]) == 3.4
+
+
+def test_template_formats_pct_and_pp_through_single_functions() -> None:
+    html = (Path(hb.__file__).parent / "dashboard_template.html").read_text(encoding="utf-8")
+    assert "sgn(" not in html
+    assert html.count("var tenths") == 1 and html.count("var pp =") == 1
+    # o explorador calcula a variacao pela mesma regra dos "mais subiram"
+    assert "ppd(o.st.prev, o.st.cur)" in html
+    assert "o.st.cur - o.st.prev" not in html

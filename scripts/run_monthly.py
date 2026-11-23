@@ -101,6 +101,9 @@ def main(argv: list[str] | None = None) -> int:
     print(f"mes: {result.month}")
     for path in result.reports:
         print(f"relatorio: {Path(path)}")
+    wh = Path(lake) / "warehouse.duckdb"
+    if wh.exists():
+        print(f"warehouse: {wh.stat().st_size / 1_048_576:.1f} MiB")
     return 0
 
 

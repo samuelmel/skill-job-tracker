@@ -220,6 +220,7 @@ def run_history_build(lake_dir: Path | str, project_dir: Path | str | None = Non
     uma serie historica com mes faltando em silencio seria enganosa.
     """
     from vaya_indexer.lake.transform import run_dbt
+    from vaya_indexer.lake.warehouse import compact_quietly
 
     lake = Path(lake_dir)
     result = build_history_bronze(lake)
@@ -228,4 +229,6 @@ def run_history_build(lake_dir: Path | str, project_dir: Path | str | None = Non
         raise RuntimeError(f"{len(result.bad)} thread(s) do raw rejeitada(s): {detail}")
     if not (history_root(lake) / "bronze" / "threads").is_dir():
         raise RuntimeError(f"nenhuma thread em {history_root(lake) / 'raw'}: nada para construir")
-    return run_dbt(lake, project_dir, extra_args=HISTORY_DBT_ARGS)
+    warehouse = run_dbt(lake, project_dir, extra_args=HISTORY_DBT_ARGS)
+    compact_quietly(warehouse)
+    return warehouse

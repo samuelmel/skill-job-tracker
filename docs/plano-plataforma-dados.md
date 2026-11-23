@@ -129,6 +129,20 @@ Regras analíticas obrigatórias:
 
 **Pronto quando:** responde às perguntas do objetivo em desktop e celular.
 
+### Fase 4.5: automação mensal e publicação
+
+Nada aqui foi executado. Renomear, criar o remoto, dar push e publicar dependem de aprovação explícita.
+
+1. **Repositório:** escolher o novo nome, porque "Vaya" vem do desafio original. Atualizar pacote, CLI e documentação só se o novo nome justificar. Hoje não há remoto, e a branch local é `master`.
+2. **Antes do primeiro push:** revisar o histórico em busca de segredos e confirmar que `data/`, `.pgdata*` e arquivos de rascunho continuam fora do Git.
+3. **Workflow mensal:** `.github/workflows/monthly.yml` com `schedule` (dia 1, em minuto fora da hora cheia) e `workflow_dispatch`. Roda `scripts/run_monthly.py` com Postgres embutido, `concurrency` para impedir duas cargas juntas, `timeout-minutes` abaixo do limite de 6 horas e `permissions` mínimas por job.
+4. **Estado entre execuções:** o runner é descartável e `data/` não vai para o Git. Raw, Bronze e histórico ficam em armazenamento **privado** (object storage, como R2 ou S3, ou repositório privado de dados). Cache do Actions não serve como fonte de verdade, e Release em repositório público exporia as descrições completas. Credenciais só em GitHub Secrets.
+5. **Portabilidade:** remover o caminho absoluto da view `silver_hn_post` e reconstruir o warehouse a partir do Bronze no CI.
+6. **Publicação:** job separado envia ao GitHub Pages somente o HTML estático agregado. Sem raw, descrição completa, autor ou banco. O bloqueio atual (menos de 50% das fontes com sucesso) impede o deploy e mantém a última versão boa no ar.
+7. **Coleta em datacenter:** medir na primeira execução quais fontes bloqueiam IPs do GitHub. Fonte bloqueada fica registrada como falha, sem contornar robots.txt, Cloudflare ou CAPTCHA. Se a cobertura cair demais, coletar localmente e deixar o Actions só com transformação e publicação.
+
+**Pronto quando:** um disparo manual e uma execução agendada publicam o dashboard no Pages, o mês aparece na série e uma falha simulada não derruba a versão publicada.
+
 ### Fase 5: portfólio
 
 - README com arquitetura, decisões, trade-offs e métricas reais.
@@ -147,6 +161,9 @@ Regras analíticas obrigatórias:
 | Computador desligado cria buracos na série | Registrar dias sem coleta; migrar para uma VPS pequena se virar rotina |
 | Sites mudam e conectores quebram | `mart_source_health`, alertas e contract tests |
 | Viés: a amostra não representa o mercado inteiro | Publicar a composição das fontes e falar em "vagas monitoradas" |
+| Sites bloqueiam IPs do GitHub Actions | Medir a cobertura no CI, respeitar o bloqueio e, se preciso, manter a coleta local |
+| GitHub desativa `schedule` após 60 dias sem atividade em repositório público | Monitorar a execução mensal e manter `workflow_dispatch` para rodar manualmente |
+| Dados brutos expostos ao publicar | Estado em armazenamento privado; Pages recebe só o HTML agregado |
 | Raw cresce sem controle | Compressão e política de retenção depois de medir o volume da Fase 0 |
 | Termos de uso e dados pessoais | Respeitar robots.txt, não coletar dados de candidatos, não republicar descrições |
 | Complexidade maior que o valor | Cada fase precisa entregar algo utilizável antes da próxima |

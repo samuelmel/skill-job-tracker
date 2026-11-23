@@ -63,6 +63,7 @@ def main(argv: list[str] | None = None) -> int:
         con.close()
     bronze = history_root(lake) / "bronze"
     print(f"bronze em disco: {_disk_bytes(bronze) / 1_048_576:.1f} MiB em {bronze}")
+    print(f"warehouse: {Path(warehouse).stat().st_size / 1_048_576:.1f} MiB")
     return 0
 
 

@@ -273,8 +273,12 @@ footer { margin-top: 1.5rem; color: var(--muted); font-size: .82rem; display: fl
   var $ = function (id) { return document.getElementById(id); };
   var nf = function (d) { return {minimumFractionDigits: d, maximumFractionDigits: d}; };
   var fmt = function (n) { return n == null ? "-" : Number(n).toLocaleString("pt-BR"); };
-  var pct = function (v) { return v == null ? "-" : Number(v).toLocaleString("pt-BR", nf(1)) + "%"; };
-  var sgn = function (v, d) { return (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(Number(v)).toLocaleString("pt-BR", nf(d)); };
+  /* Regra unica de arredondamento (espelha tenths/pp_delta em dashboard.py): tudo em decimos, inteiro. */
+  var tenths = function (v) { return Math.floor((Math.round(Number(v || 0) * 100) + 5) / 10); };
+  var dec1 = function (t) { return (t / 10).toLocaleString("pt-BR", nf(1)); };
+  var pct = function (v) { return v == null ? "-" : dec1(tenths(v)) + "%"; };
+  var ppd = function (a, b) { return (tenths(b) - tenths(a)) / 10; };
+  var pp = function (d) { return (d > 0 ? "+" : d < 0 ? "−" : "") + Math.abs(Number(d)).toLocaleString("pt-BR", nf(1)); };
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]; }); }
 
   var catOf = {};
@@ -313,7 +317,7 @@ footer { margin-top: 1.5rem; color: var(--muted); font-size: .82rem; display: fl
     var Y = function (v) { return Hh - 3 - (Hh - 6) * v / max; };
     var d = t.map(function (v, i) { return (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1); }).join(" ");
     var ia = years.indexOf(pair.a), ib = years.indexOf(pair.b);
-    var cls = item.dp > 0 ? "up" : "down";
+    var cls = item.dx > 0 ? "up" : "down";
     return '<svg class="sp" viewBox="0 0 ' + W + " " + Hh + '" aria-hidden="true" focusable="false"><path d="' + d + '"/>' +
       (ia >= 0 ? '<circle class="a" cx="' + X(ia).toFixed(1) + '" cy="' + Y(t[ia]).toFixed(1) + '" r="3"/>' : "") +
       (ib >= 0 ? '<circle class="b ' + cls + '" cx="' + X(ib).toFixed(1) + '" cy="' + Y(t[ib]).toFixed(1) + '" r="3.4"/>' : "") + "</svg>";
@@ -321,10 +325,10 @@ footer { margin-top: 1.5rem; color: var(--muted); font-size: .82rem; display: fl
   function moverList(id, items, pair, kind) {
     $(id).innerHTML = items.map(function (r) {
       var flags = (r.small ? '<span class="tag" title="Menos de ' + H.movers.small_base + ' posts em ' + pair.a + '">base pequena</span>' : "") + (r.new ? '<span class="tag">novo</span>' : "");
-      var title = r.k + ": " + r.psh.toLocaleString("pt-BR", nf(2)) + "% em " + pair.a + " para " + r.sh.toLocaleString("pt-BR", nf(2)) + "% em " + pair.b + " (" + fmt(r.pn) + " e " + fmt(r.n) + " posts)";
+      var title = r.k + ": " + pct(r.psh) + " em " + pair.a + " para " + pct(r.sh) + " em " + pair.b + " (" + fmt(r.pn) + " e " + fmt(r.n) + " posts)";
       return '<li><button type="button" class="mv" data-skills="' + esc(r.skills.join("|")) + '" title="' + esc(title) + ". Clique para ver no gráfico." + '" aria-label="' + esc(title + ". Adicionar ao gráfico.") + '">' +
         '<span class="nm">' + esc(r.k) + flags + "</span>" + spark(r, pair) +
-        '<span class="vals num">' + pct(r.psh) + " → <b>" + pct(r.sh) + '</b></span><span class="dl num ' + kind + '">' + sgn(r.dp, 1) + " p.p.</span></button></li>";
+        '<span class="vals num">' + pct(r.psh) + " → <b>" + pct(r.sh) + '</b></span><span class="dl num ' + kind + '">' + pp(r.dp) + " p.p.</span></button></li>";
     }).join("") || '<li class="empty">Nenhuma skill com amostra suficiente.</li>';
   }
   function name(it, kind) { return '<span class="k ' + kind + '">' + esc(it.k) + "</span>"; }
@@ -397,10 +401,10 @@ footer { margin-top: 1.5rem; color: var(--muted); font-size: .82rem; display: fl
     $("pick-count").textContent = rows.length + " de " + ordered.length + " skills";
     $("pick-cols").textContent = refPair ? "% em " + refYear + " · variação vs. " + refPair.a : "% em " + refYear;
     $("pick").innerHTML = rows.map(function (o) {
-      var d = refPair && o.st.has ? o.st.cur - o.st.prev : null;
+      var d = refPair && o.st.has ? ppd(o.st.prev, o.st.cur) : null;
       return '<li><label class="sk' + (o.has ? "" : " dis") + '" data-k="' + esc(o.k) + '"><input type="checkbox" value="' + esc(o.k) + '"' + (o.has ? "" : " disabled") + ">" +
         '<i class="sw"></i><span class="nm" title="' + esc(o.k + (o.has ? "" : " - sem dados no histórico")) + '">' + esc(o.k) + "</span>" +
-        '<span class="pc num">' + (o.has ? pct(o.st.cur) : "sem dados") + '</span><span class="dd num ' + (d > 0 ? "up" : d < 0 ? "down" : "muted") + '">' + (d == null ? "" : sgn(d, 1)) + "</span></label></li>";
+        '<span class="pc num">' + (o.has ? pct(o.st.cur) : "sem dados") + '</span><span class="dd num ' + (d > 0 ? "up" : d < 0 ? "down" : "muted") + '">' + (d == null ? "" : pp(d)) + "</span></label></li>";
     }).join("") || '<li class="empty" style="padding:.6rem">Nenhuma skill neste filtro.</li>';
     syncList();
   }
@@ -553,7 +557,7 @@ footer { margin-top: 1.5rem; color: var(--muted); font-size: .82rem; display: fl
       var tr = D.tr.filter(function (r) { return r.m === cs.month && r.s === cs.scope; });
       var one = function (st, title, kind) {
         var s = tr.filter(function (r) { return r.st === st; }).sort(function (a, b) { return kind === "up" ? b.dp - a.dp : a.dp - b.dp; }).slice(0, 8);
-        return "<h3>" + title + "</h3>" + (s.map(function (r) { return '<div class="tr"><span>' + esc(r.k) + '<span class="tag">' + fmt(r.n) + "/" + fmt(r.d) + " vs " + fmt(r.pn) + "/" + fmt(r.pd) + '</span></span><span class="num ' + kind + '"><b>' + sgn(r.dp, 2) + " p.p.</b></span><span></span></div>"; }).join("") || '<div class="empty">Nenhuma skill com variação relevante.</div>');
+        return "<h3>" + title + "</h3>" + (s.map(function (r) { return '<div class="tr"><span>' + esc(r.k) + '<span class="tag">' + fmt(r.n) + "/" + fmt(r.d) + " vs " + fmt(r.pn) + "/" + fmt(r.pd) + '</span></span><span class="num ' + kind + '"><b>' + pp(r.dp) + " p.p.</b></span><span></span></div>"; }).join("") || '<div class="empty">Nenhuma skill com variação relevante.</div>');
       };
       box.innerHTML = one("rising", "Em alta vs. mês anterior", "up") + '<div style="height:1rem"></div>' + one("falling", "Em queda vs. mês anterior", "down");
     }
