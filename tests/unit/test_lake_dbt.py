@@ -1,5 +1,6 @@
 """Silver/gold via dbt sobre um lake sintetico em tmp_path (bronze escrito direto). Sem rede."""
 
+import csv
 import uuid
 from collections.abc import Iterator
 from datetime import datetime
@@ -12,7 +13,13 @@ import pyarrow.parquet as pq
 import pytest
 
 from vaya_indexer.lake.bronze import JOBS_SCHEMA, RUNS_SCHEMA, bronze_paths
-from vaya_indexer.lake.dashboard import collect_data, render_html
+from vaya_indexer.lake.dashboard import (
+    FALLBACK_PLACE,
+    PLACES,
+    build_areas,
+    collect_data,
+    render_html,
+)
 from vaya_indexer.lake.monthly import MONTHLY_DBT_ARGS
 from vaya_indexer.lake.transform import run_dbt
 
@@ -200,6 +207,35 @@ def test_dashboard_data_and_html(trend_lake: Path) -> None:
     assert "__DATA__" not in html
     assert "<script src" not in html
     assert "https://" not in html
+    # Marca e escopo: sem "Vaya", sem recorte de vagas de dados, favicon embutido e ajuda do JS+TS.
+    assert "vaya" not in html.lower()
+    assert "data_roles" not in html
+    assert "Vagas de dados" not in html
+    assert 'rel="icon" href="data:' in html
+    assert "jsts-note" not in html
+    assert "Skill Job Tracker" in html
+    assert set(data["den"]) == {"all"}
+
+
+def test_dashboard_areas_cover_every_skill(trend_lake: Path) -> None:
+    data = collect_data(trend_lake / "warehouse.duckdb")
+    in_areas = [s for a in data["areas"] for g in a["groups"] for s in g["skills"]]
+    names = {s["skill"] for s in data["skills"]}
+    assert names <= set(in_areas)
+    assert set(in_areas) <= names
+    assert [a["id"] for a in data["areas"]][0] == "lang"
+    assert all(a["groups"] for a in data["areas"])
+
+
+def test_dashboard_areas_real_seed_has_no_dumping_ground() -> None:
+    seed = Path(__file__).resolve().parents[2] / "analytics" / "seeds" / "skills.csv"
+    with seed.open(encoding="utf-8", newline="") as f:
+        names = [r["skill"] for r in csv.DictReader(f)]
+    assert not [n for n in names if n not in PLACES], "skill sem area explicita"
+    areas = build_areas([{"skill": n} for n in names])
+    assert FALLBACK_PLACE[0] not in {a["id"] for a in areas}
+    for a in areas:
+        assert sum(len(g["skills"]) for g in a["groups"]) <= 30, a["id"]
 
 
 @pytest.fixture(scope="module")

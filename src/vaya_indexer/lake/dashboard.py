@@ -30,6 +30,185 @@ CATEGORY_LABELS = {
 }
 
 
+# Areas do seletor de skills (so agrupamento visual; nao muda numero nem ordenacao). Cada skill do
+# dicionario tem lugar explicito em PLACES: (area, subgrupo). `ALSO_IN` repete a skill em outra
+# area (Kotlin, Swift, JavaScript e TypeScript tambem aparecem em Mobile/Frontend). Skill sem
+# lugar cai em "Outros", e um teste garante que nenhuma skill do dicionario fica la.
+AREAS: tuple[tuple[str, str], ...] = (
+    ("lang", "Linguagens"),
+    ("front", "Frontend"),
+    ("back", "Backend"),
+    ("mobile", "Mobile"),
+    ("db", "Bancos de dados"),
+    ("dw", "Data warehouse"),
+    ("pipe", "Pipelines"),
+    ("bi", "Análise e BI"),
+    ("cloud", "Cloud e DevOps"),
+    ("ai", "IA e ML"),
+    ("other", "Outros"),
+)
+_PLACE_GROUPS: dict[tuple[str, str], tuple[str, ...]] = {
+    ("lang", "Uso geral"): (
+        "Python",
+        "Java",
+        "JavaScript",
+        "TypeScript",
+        "C++",
+        "C#",
+        "Go",
+        "Rust",
+        "Scala",
+        "Kotlin",
+        "Swift",
+        "Ruby",
+        "PHP",
+        "Perl",
+    ),
+    ("lang", "Dados e ciência"): ("SQL", "R", "Julia", "MATLAB", "SAS"),
+    ("lang", "Scripts"): ("Bash/Shell", "PowerShell"),
+    ("front", "Frameworks"): ("React", "Angular", "Vue"),
+    ("back", "Frameworks e APIs"): (
+        "Node.js",
+        "Django",
+        "Flask",
+        "FastAPI",
+        "Spring Boot",
+        ".NET",
+        "GraphQL",
+        "REST APIs",
+    ),
+    ("db", "Relacionais"): ("PostgreSQL", "MySQL", "SQL Server", "Oracle DB", "SQLite"),
+    ("db", "NoSQL e busca"): (
+        "MongoDB",
+        "Redis",
+        "Cassandra",
+        "DynamoDB",
+        "Cosmos DB",
+        "Elasticsearch",
+        "Neo4j",
+    ),
+    ("dw", "Warehouses"): (
+        "Snowflake",
+        "BigQuery",
+        "Redshift",
+        "Databricks",
+        "Azure Synapse",
+        "ClickHouse",
+        "Teradata",
+        "DuckDB",
+        "Trino/Presto",
+        "Data Warehouse",
+    ),
+    ("dw", "Lakehouse"): (
+        "Data Lake/Lakehouse",
+        "Delta Lake",
+        "Apache Iceberg",
+        "Apache Hudi",
+    ),
+    ("dw", "Processamento"): ("Apache Spark", "Hadoop", "Apache Hive"),
+    ("pipe", "Orquestração e ETL"): (
+        "Airflow",
+        "dbt",
+        "Dagster",
+        "Prefect",
+        "Azure Data Factory",
+        "AWS Glue",
+        "Argo Workflows",
+        "Fivetran",
+        "Airbyte",
+        "Informatica",
+        "Talend",
+        "SSIS",
+        "ETL/ELT",
+    ),
+    ("pipe", "Streaming e mensageria"): (
+        "Kafka",
+        "Kinesis",
+        "Flink",
+        "Spark Streaming",
+        "Pulsar",
+        "RabbitMQ",
+        "Pub/Sub",
+        "Debezium/CDC",
+        "Confluent",
+        "Apache Beam",
+        "Event Hubs",
+    ),
+    ("bi", "BI e dashboards"): (
+        "Tableau",
+        "Power BI",
+        "Looker",
+        "Looker Studio",
+        "Metabase",
+        "Superset",
+        "Qlik",
+        "MicroStrategy",
+        "Cognos",
+        "SSRS",
+        "Domo",
+        "Redash",
+        "Sisense",
+        "ThoughtSpot",
+    ),
+    ("bi", "Análise"): ("Excel", "Pandas", "NumPy", "A/B Testing"),
+    ("cloud", "Cloud"): ("AWS", "Azure", "GCP", "S3", "EC2"),
+    ("cloud", "DevOps"): (
+        "Kubernetes",
+        "Docker",
+        "Terraform",
+        "Ansible",
+        "Jenkins",
+        "CI/CD",
+        "Grafana/Prometheus",
+    ),
+    ("cloud", "Sistema e versionamento"): ("Git", "Linux"),
+    ("ai", "Fundamentos"): (
+        "Machine Learning",
+        "Deep Learning",
+        "NLP",
+        "Computer Vision",
+    ),
+    ("ai", "Frameworks"): ("TensorFlow", "PyTorch", "scikit-learn", "Keras", "XGBoost/LightGBM"),
+    ("ai", "IA generativa"): ("LLM", "IA Generativa", "Hugging Face", "LangChain", "RAG"),
+    ("ai", "MLOps e plataformas"): ("MLflow", "Kubeflow", "SageMaker", "Vertex AI", "MLOps"),
+}
+PLACES: dict[str, tuple[str, str]] = {
+    skill: place for place, skills in _PLACE_GROUPS.items() for skill in skills
+}
+ALSO_IN: dict[str, tuple[str, str]] = {
+    "Kotlin": ("mobile", "Linguagens"),
+    "Swift": ("mobile", "Linguagens"),
+    "JavaScript": ("front", "Linguagens"),
+    "TypeScript": ("front", "Linguagens"),
+}
+FALLBACK_PLACE = ("other", "Outros")
+
+
+def build_areas(skills: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Agrupa as skills em areas e subgrupos so para o seletor; nao muda nenhum numero."""
+    groups: dict[str, dict[str, list[str]]] = {a: {} for a, _ in AREAS}
+    for area, group in _PLACE_GROUPS:  # fixa a ordem dos subgrupos
+        groups[area][group] = []
+
+    def put(place: tuple[str, str], skill: str) -> None:
+        groups[place[0]].setdefault(place[1], []).append(skill)
+
+    for s in skills:
+        name = s["skill"]
+        put(PLACES.get(name, FALLBACK_PLACE), name)
+        if name in ALSO_IN:
+            put(ALSO_IN[name], name)
+    return [
+        {
+            "id": a,
+            "label": label,
+            "groups": [{"label": g, "skills": v} for g, v in groups[a].items() if v],
+        }
+        for a, label in AREAS
+        if any(groups[a].values())
+    ]
+
+
 HISTORY_TABLES = (
     "gold_history_skill_month",
     "gold_history_skill_year",
@@ -266,11 +445,11 @@ def collect_data(warehouse: Path) -> dict[str, Any]:
         if not months:
             raise NoDataError("nenhum mes com coleta completa")
         skills = _rows(con, "select skill, category from skills order by skill")
-        den: dict[str, dict[str, Any]] = {"all": {}, "data_roles": {}}
+        den: dict[str, dict[str, Any]] = {"all": {}}
         for r in _rows(
             con,
             "select distinct month, scope, denominator, n_jobs, n_sources, low_sample "
-            "from gold_skill_month",
+            "from gold_skill_month where scope = 'all'",
         ):
             den[r["scope"]][r["month"]] = {
                 "denominator": r["denominator"],
@@ -290,7 +469,9 @@ def collect_data(warehouse: Path) -> dict[str, Any]:
                 "lw": r["low_sample"],
             }
             for r in _rows(
-                con, "select * from gold_skill_month where n > 0 order by month, scope, rank"
+                con,
+                "select * from gold_skill_month where n > 0 and scope = 'all' "
+                "order by month, scope, rank",
             )
         ]
         tr = [
@@ -308,7 +489,8 @@ def collect_data(warehouse: Path) -> dict[str, Any]:
             }
             for r in _rows(
                 con,
-                "select * from gold_skill_trend where n > 0 or prev_n > 0 order by month, scope",
+                "select * from gold_skill_trend where scope = 'all' and (n > 0 or prev_n > 0) "
+                "order by month, scope",
             )
         ]
         hist = collect_history(con)
@@ -345,6 +527,7 @@ def collect_data(warehouse: Path) -> dict[str, Any]:
         "coverage": coverage,
         "skills": skills,
         "cats": cats,
+        "areas": build_areas(skills),
         "cat_labels": CATEGORY_LABELS,
         "hist": hist,
         "den": den,
