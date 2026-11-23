@@ -3,6 +3,7 @@
 import gzip
 import hashlib
 import json
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -133,10 +134,12 @@ def hist_lake(tmp_path_factory: pytest.TempPathFactory) -> Path:
 def _skills_of(lake: Path, text_prefix: str) -> set[str]:
     con = duckdb.connect(str(lake / "warehouse.duckdb"), read_only=True)
     try:
+        # silver_hn_post e ephemeral (nao fica no warehouse): o texto vem do bronze.
+        glob = (lake / "history" / "hn" / "bronze" / "posts" / "**" / "*.parquet").as_posix()
         rows = con.execute(
-            "select s.skill from silver_hn_post p join silver_hn_post_skill s using (post_id) "
-            "where p.text like ?",
-            [text_prefix + "%"],
+            "select s.skill from read_parquet(?, hive_partitioning = false) p "
+            "join silver_hn_post_skill s using (post_id) where p.text like ?",
+            [glob, text_prefix + "%"],
         ).fetchall()
     finally:
         con.close()
@@ -301,3 +304,50 @@ def test_template_formats_pct_and_pp_through_single_functions() -> None:
     # o explorador calcula a variacao pela mesma regra dos "mais subiram"
     assert "ppd(o.st.prev, o.st.cur)" in html
     assert "o.st.cur - o.st.prev" not in html
+
+
+def test_warehouse_has_no_absolute_path_nor_view_over_files(hist_lake: Path) -> None:
+    """silver_hn_post e ephemeral: nada de view sobre read_parquet nem copia do texto."""
+    con = duckdb.connect(str(hist_lake / "warehouse.duckdb"), read_only=True)
+    try:
+        names = {
+            r[0] for r in con.execute("select table_name from information_schema.tables").fetchall()
+        }
+        views = con.execute(
+            "select view_name, sql from duckdb_views() where not internal"
+        ).fetchall()
+    finally:
+        con.close()
+    assert "silver_hn_post" not in names
+    lake_posix = hist_lake.resolve().as_posix()
+    for name, sql in views:
+        assert "read_parquet" not in sql and lake_posix not in sql, f"view {name} embute caminho"
+    raw = (hist_lake / "warehouse.duckdb").read_bytes()
+    assert lake_posix.encode() not in raw and str(hist_lake.resolve()).encode() not in raw
+
+
+def test_rebuild_from_raw_in_new_dir_matches_original(hist_lake: Path, tmp_path: Path) -> None:
+    """Copia so o raw para outro diretorio, reconstroi e compara; o bronze novo pode sumir."""
+    new = tmp_path / "outro" / "lake"
+    shutil.copytree(hist_lake / "history" / "hn" / "raw", new / "history" / "hn" / "raw")
+    hb.run_history_build(new)
+    queries = [
+        "select * from gold_history_skill_month order by 1, 2, 3",
+        "select * from gold_history_coverage_month order by 1",
+        "select count(*) from silver_hn_post_skill",
+    ]
+    results = []
+    for lake in (hist_lake, new):
+        con = duckdb.connect(str(lake / "warehouse.duckdb"), read_only=True)
+        try:
+            results.append([con.execute(q).fetchall() for q in queries])
+        finally:
+            con.close()
+    assert results[0] == results[1]
+    # Sem o bronze, o warehouse novo continua legivel (nada aponta para fora dele).
+    shutil.rmtree(new / "history" / "hn" / "bronze")
+    con = duckdb.connect(str(new / "warehouse.duckdb"), read_only=True)
+    try:
+        assert con.execute("select count(*) from gold_history_skill_month").fetchone()
+    finally:
+        con.close()

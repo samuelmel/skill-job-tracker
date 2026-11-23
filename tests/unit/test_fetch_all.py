@@ -30,7 +30,7 @@ async def test_one_source_failure_is_isolated() -> None:
         FetchRunStatus.FAILED,
         FetchRunStatus.SUCCEEDED,
     ]
-    assert "RuntimeError: boom" in (report.outcomes[1].error or "")
+    assert report.outcomes[1].error == "RuntimeError"  # so o tipo: a mensagem pode ter dados
     assert report.jobs_found == 10
     assert report.exit_code == 0
 

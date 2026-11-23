@@ -17,6 +17,8 @@ from dbt.adapters.duckdb.connections import DuckDBConnectionManager
 from dbt.adapters.factory import reset_adapters
 from dbt.cli.main import dbtRunner
 
+from vaya_indexer.lake.failed_months import read_failed_months
+
 DEFAULT_PROJECT_DIR = Path(__file__).resolve().parents[3] / "analytics"
 
 
@@ -65,6 +67,8 @@ def run_dbt(
         "VAYA_BRONZE_RUNS": (lake / "bronze" / "runs" / "*" / "*.parquet").as_posix(),
         "VAYA_HN_POSTS": (lake / "history/hn/bronze/posts/*/*.parquet").as_posix(),
         "VAYA_HN_THREADS": (lake / "history/hn/bronze/threads/*/*.parquet").as_posix(),
+        # Meses reprovados no gate: o raw fica, mas o staging os filtra (ver stg_bronze_*).
+        "VAYA_FAILED_MONTHS": ",".join(read_failed_months(lake)),
     }
     args = [
         command,

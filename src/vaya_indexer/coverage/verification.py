@@ -28,7 +28,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from vaya_indexer import __version__
 from vaya_indexer.connectors.base import BaseConnector, RawJob
 from vaya_indexer.connectors.registry import get_connector_class
-from vaya_indexer.core.exceptions import ConnectorNotFound, VayaError
+from vaya_indexer.core.exceptions import ConnectorNotFound, VayaError, safe_error
 from vaya_indexer.coverage.metadata import ExampleInstance, PlatformMetadata, load_platform_metadata
 from vaya_indexer.database.models import (
     FetchRunStatus,
@@ -201,8 +201,10 @@ class VerificationService:
                 out.source_id = source.id
             summary = await self._ingestion.run_source(out.source_id)
         except Exception as exc:  # falha isolada por instancia; vira evidencia negativa
-            logger.exception("verify_instance_failed", extra={"platform": slug})
-            out.error = f"{type(exc).__name__}: {exc}"
+            logger.error(
+                "verify_instance_failed", extra={"platform": slug, "error": safe_error(exc)}
+            )
+            out.error = safe_error(exc)
             out.transient = isinstance(exc, VayaError) and is_transient(out.error)
             return out
         out.run_id = summary.run_id

@@ -1,5 +1,8 @@
-{{ config(materialized='view') }}
--- View sobre o Parquet do bronze: o texto dos posts nao e copiado para o warehouse.
+{{ config(materialized='ephemeral') }}
+-- Ephemeral (CTE nos modelos que dependem dele): nao cria view nem tabela. Uma view sobre
+-- read_parquet grava o caminho absoluto do bronze no warehouse (quebra ao mudar de diretorio ou
+-- SO) e uma tabela copiaria o texto dos posts de novo (+110 MiB). Assim o warehouse so guarda o
+-- que os modelos derivados materializam e nenhum caminho.
 -- Posts de nivel superior das threads "Who is hiring" (HN), um por post_id. Sem autor. O raw ja
 -- exclui deleted/dead/vazios; o filtro abaixo garante o mesmo aqui (denominador = posts validos).
 select

@@ -5,6 +5,17 @@ class VayaError(Exception):
     """Base de todas as excecoes do projeto."""
 
 
+def safe_error(exc: BaseException) -> str:
+    """Texto de erro seguro para log/stdout publico: so o tipo, salvo erros de rede do projeto.
+
+    A mensagem de excecoes de banco, validacao ou normalizacao pode carregar conteudo de vaga
+    (descricao, e-mail); so `FetchError` (URL e status) tem mensagem sem conteudo de vaga.
+    """
+    if isinstance(exc, FetchError):
+        return f"{type(exc).__name__}: {exc}"
+    return type(exc).__name__
+
+
 class FetchError(VayaError):
     """Falha ao buscar dados de uma fonte externa."""
 

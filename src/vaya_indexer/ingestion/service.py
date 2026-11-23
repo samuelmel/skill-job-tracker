@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from vaya_indexer.connectors.base import BaseConnector, FetchResult, NormalizedJob, RawJob
 from vaya_indexer.connectors.registry import create_connector, get_connector_class
 from vaya_indexer.core.config import ProcessingPolicy
-from vaya_indexer.core.exceptions import ConnectorNotFound, SourceNotFound
+from vaya_indexer.core.exceptions import ConnectorNotFound, SourceNotFound, safe_error
 from vaya_indexer.database.models import (
     Company,
     DedupDecision,
@@ -67,6 +67,17 @@ _TRACKED_FIELDS = (
     "original_posted_at",
 )
 _CHUNK = 5000
+
+
+def strip_nul(value: Any) -> Any:
+    """Remove NUL (0x00) das strings de um JSON; o JSONB do PostgreSQL rejeita esse caractere."""
+    if isinstance(value, str):
+        return value.replace(chr(0), "")
+    if isinstance(value, list):
+        return [strip_nul(v) for v in value]
+    if isinstance(value, dict):
+        return {strip_nul(k): strip_nul(v) for k, v in value.items()}
+    return value
 
 
 class FetchRunSummary(BaseModel):
@@ -320,9 +331,13 @@ class IngestionService:
             summary.status = FetchRunStatus.FAILED
             summary.error_message = str(exc)
         except Exception as exc:
-            logger.exception("fetch_failed", extra={"source_id": str(source_id)})
+            # Sem traceback nem mensagem: o log e publico e a mensagem pode ter conteudo de vaga.
+            logger.error(
+                "fetch_failed",
+                extra={"source_id": str(source_id), "error": safe_error(exc)},
+            )
             summary.status = FetchRunStatus.FAILED
-            summary.error_message = f"{type(exc).__name__}: {exc}"
+            summary.error_message = safe_error(exc)
         summary.duration_ms = round((time.monotonic() - started) * 1000)
         await self._finalize(summary)
         logger.info("fetch_finished", extra=summary.model_dump(mode="json"))
@@ -355,10 +370,9 @@ class IngestionService:
             )
             summary.raw_path = written.path
         except Exception as exc:
-            summary.raw_error = f"{type(exc).__name__}: {exc}"
+            summary.raw_error = safe_error(exc)
             logger.error(
                 "raw_write_failed",
-                exc_info=True,
                 extra={
                     "source_id": str(summary.source_id),
                     "run_id": str(summary.run_id),
@@ -454,14 +468,14 @@ class IngestionService:
             except Exception as exc:
                 logger.warning(
                     "record_failed",
-                    extra={"external_id": raw.external_id, "error": f"{type(exc).__name__}: {exc}"},
+                    extra={"external_id": raw.external_id, "error": safe_error(exc)},
                 )
                 runs_repo.add_error(
                     run_id,
                     external_job_id=raw.external_id,
                     error_type=type(exc).__name__,
                     message=str(exc)[:2000],
-                    payload=raw.payload,
+                    payload=strip_nul(raw.payload),
                 )
                 counts.failed += 1
         await self._touch_seen(session, seen_unchanged, now)
@@ -560,7 +574,7 @@ class IngestionService:
             application_url=normalized.application_url,
             canonical_url=_canon(normalized.original_url),
             canonical_application_url=_canon(normalized.application_url),
-            raw_data=raw.payload,
+            raw_data=strip_nul(raw.payload),
             source_fingerprint=fingerprint,
             first_seen_at=now,
             last_seen_at=now,
@@ -660,7 +674,7 @@ class IngestionService:
         job_source.application_url = normalized.application_url
         job_source.canonical_url = _canon(normalized.original_url)
         job_source.canonical_application_url = _canon(normalized.application_url)
-        job_source.raw_data = raw.payload
+        job_source.raw_data = strip_nul(raw.payload)
         job_source.source_fingerprint = fingerprint
         job_source.last_seen_at = job_source.last_checked_at = now
         job_source.missing_count = 0

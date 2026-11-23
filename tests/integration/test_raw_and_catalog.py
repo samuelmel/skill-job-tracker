@@ -85,7 +85,7 @@ async def test_raw_failure_does_not_block_ingestion(
     assert summary.status is FetchRunStatus.SUCCEEDED
     assert summary.jobs_inserted == 3
     assert summary.raw_path is None
-    assert summary.raw_error == "OSError: disco cheio"
+    assert summary.raw_error == "OSError"  # so o tipo, nunca a mensagem
     async with session_factory() as session:
         assert await session.scalar(select(func.count()).select_from(Job)) == 3
     record = next(r for r in caplog.records if r.message == "raw_write_failed")

@@ -23,3 +23,8 @@ analytics/target/
 analytics/logs/
 analytics/dbt_packages/
 analytics/.user.yml
+p.out
+r.html
+r2.html
+.data-repo/
+_site/

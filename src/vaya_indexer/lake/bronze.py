@@ -24,7 +24,7 @@ import pyarrow.parquet as pq
 
 from vaya_indexer.connectors.base import BaseConnector, NormalizedJob, RawJob
 from vaya_indexer.connectors.registry import get_connector_class
-from vaya_indexer.core.exceptions import ConnectorNotFound
+from vaya_indexer.core.exceptions import ConnectorNotFound, safe_error
 from vaya_indexer.extraction.http import HttpClient
 from vaya_indexer.lake.raw import MANIFEST_FILE, RawManifest, _sha256_file
 from vaya_indexer.source_catalog import DEFAULT_CATALOG_PATH, read_catalog
@@ -156,7 +156,7 @@ def _float(value: Any) -> float | None:
 
 
 def _error(exc: Exception) -> str:
-    return f"{type(exc).__name__}: {exc}"[:500]
+    return safe_error(exc)[:500]
 
 
 def _row(

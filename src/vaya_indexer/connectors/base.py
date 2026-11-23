@@ -6,7 +6,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, ClassVar
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 from vaya_indexer.core.exceptions import ConnectorConfigError
 from vaya_indexer.extraction.browser import BrowserFetcher
@@ -36,6 +36,18 @@ class NormalizedJob(BaseModel):
     employment_type: str | None = None
     workplace_type: str | None = None
     original_posted_at: datetime | None = None
+
+    @field_validator("*", mode="after")
+    @classmethod
+    def _strip_nul(cls, value: Any) -> Any:
+        """PostgreSQL rejeita NUL (0x00) em texto: remove, sem perder a vaga."""
+        return value.replace("\x00", "") if isinstance(value, str) else value
+
+    @field_validator("employment_type", mode="after")
+    @classmethod
+    def _cap_employment_type(cls, value: str | None) -> str | None:
+        """A coluna e String(60); valor maior e truncado em vez de derrubar a vaga."""
+        return value[:60] if value is not None else None
 
 
 class FetchResult(BaseModel):

@@ -302,3 +302,53 @@ def test_job_family_and_seniority_use_word_boundaries(skill_lake: Path) -> None:
     assert by_id["t1"][0] == "operations_trades"  # "retail" nao vira "etl"
     assert by_id["t2"][0] == "data_engineer"
     assert by_id["t3"] == ("data_engineer", "senior")
+
+
+def test_failed_month_is_excluded_from_site_and_trend_baseline(tmp_path: Path) -> None:
+    """Mes reprovado no gate: raw/bronze ficam, mas nao entram em silver, tendencia nem site."""
+    from vaya_indexer.lake.failed_months import mark_failed, read_failed_months
+
+    dec = datetime(2026, 12, 10, 12, 0)
+    # Out boa; nov coletada pela metade (reprovada); dez boa.
+    _write_run(tmp_path, "A", OCT, True, _jobs("a", 40, 4, title="Data Engineer"))
+    _write_run(tmp_path, "A", NOV, True, _jobs("a", 40, 40, title="Data Engineer"))
+    _write_run(tmp_path, "A", dec, True, _jobs("a", 40, 8, title="Data Engineer"))
+    mark_failed(tmp_path, "2026-11")
+    assert read_failed_months(tmp_path) == ["2026-11"]
+    run_dbt(tmp_path, extra_args=MONTHLY_DBT_ARGS)
+
+    data = collect_data(tmp_path / "warehouse.duckdb")
+    assert data["months"] == ["2026-10", "2026-12"]
+    assert '"2026-11"' not in render_html(data, "2026-12", "")
+    con = duckdb.connect(str(tmp_path / "warehouse.duckdb"), read_only=True)
+    try:
+        assert _one(con, "select count(*) from gold_month_coverage where month = '2026-11'") == (0,)
+        assert _one(con, "select count(*) from silver_run where fetched_month = '2026-11'") == (0,)
+        # A base de comparacao de dez e outubro, nunca novembro.
+        assert _one(
+            con,
+            "select distinct prev_month from gold_skill_trend where month = '2026-12'",
+        ) == ("2026-10",)
+        # Python: out 4/40 -> dez 8/40 (e nao 40/40 -> 8/40 de nov).
+        assert _one(
+            con,
+            "select prev_n, n from gold_skill_trend "
+            "where month = '2026-12' and scope = 'all' and skill = 'Python'",
+        ) == (4, 8)
+    finally:
+        con.close()
+    assert (tmp_path / "bronze" / "runs" / "month=2026-11").is_dir()  # derivado preservado
+
+
+def test_failed_months_registry_roundtrip_and_validation(tmp_path: Path) -> None:
+    from vaya_indexer.lake.failed_months import clear_failed, mark_failed, read_failed_months
+
+    assert read_failed_months(tmp_path) == []
+    assert mark_failed(tmp_path, "2026-11") == ["2026-11"]
+    assert mark_failed(tmp_path, "2026-11") == ["2026-11"]  # idempotente
+    assert clear_failed(tmp_path, "2026-11") == []
+    with pytest.raises(ValueError):
+        mark_failed(tmp_path, "2026-13")
+    (tmp_path / "failed-months.json").write_text("{nao e json", encoding="utf-8")
+    with pytest.raises(ValueError):
+        read_failed_months(tmp_path)

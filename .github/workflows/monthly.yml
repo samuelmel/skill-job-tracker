@@ -1,0 +1,152 @@
+name: monthly
+
+# Carga mensal: restaura raw + manifesto do repositorio privado de dados, reconstroi bronze e
+# warehouse, coleta, grava de volta so o raw novo e publica o dashboard no GitHub Pages.
+# Bronze, warehouse e .pgdata sao derivados e nunca saem do runner.
+on:
+  schedule:
+    - cron: "17 6 1 * *"
+  workflow_dispatch:
+
+# Nunca duas cargas ao mesmo tempo; a segunda espera a primeira terminar.
+concurrency:
+  group: monthly
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  DATA_REPO_NAME: skill-job-tracker-data
+  # Contato publico (URL do repositorio); nenhum e-mail pessoal.
+  USER_AGENT: VayaJobIndexer/0.1 (+https://github.com/${{ github.repository }})
+  LOG_LEVEL: WARNING
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Checkout do repositorio privado de dados
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.repository_owner }}/skill-job-tracker-data
+          ssh-key: ${{ secrets.DATA_REPO_SSH_KEY }}
+          path: .data-repo
+          # A chave serve so para clonar; nao fica gravada em .git/config nem em disco depois.
+          persist-credentials: false
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+
+      - name: Instalar dependencias
+        run: uv sync --frozen
+
+      - name: Restaurar raw e manifesto
+        id: restore
+        run: uv run --no-sync python scripts/sync_data_repo.py restore --repo-dir .data-repo --lake-dir data
+
+      - name: Reconstruir bronze e warehouse do historico Hacker News
+        run: uv run --no-sync python scripts/build_history.py --lake-dir data
+
+      # continue-on-error: o raw gravado precisa voltar ao repositorio mesmo se o gate de
+      # cobertura reprovar. O job falha no ultimo passo, o que impede a publicacao.
+      - name: Coletar, reconstruir bronze/warehouse e gerar dashboard
+        id: monthly
+        continue-on-error: true
+        timeout-minutes: 300
+        run: uv run --no-sync python scripts/run_monthly.py --data-dir .pgdata-lake --lake-dir data
+
+      # Mes que reprovou no gate (ou nao terminou) fica registrado no repositorio de dados: o raw
+      # e mantido, mas silver, tendencia e dashboards dos meses seguintes o ignoram. Uma nova
+      # execucao do mesmo mes que passe no gate limpa o registro.
+      - name: Registrar resultado do mes
+        if: ${{ !cancelled() && steps.restore.outcome == 'success' }}
+        env:
+          MONTHLY_OUTCOME: ${{ steps.monthly.outcome }}
+        run: |
+          if [ "$MONTHLY_OUTCOME" = "success" ]; then
+            uv run --no-sync python scripts/failed_months.py clear --lake-dir data
+          else
+            uv run --no-sync python scripts/failed_months.py mark --lake-dir data
+          fi
+
+      # Sem segredos: so copia o raw e faz o commit local (hooks desligados).
+      - name: Preparar commit do raw no repositorio de dados
+        id: stage
+        if: ${{ !cancelled() && steps.restore.outcome == 'success' }}
+        run: |
+          uv run --no-sync python scripts/sync_data_repo.py export --repo-dir .data-repo --lake-dir data
+          cd .data-repo
+          # Lista fechada: raw + manifesto + registro de meses reprovados; nunca bronze,
+          # warehouse ou .pgdata.
+          # Cada caminho so entra se existir: `git add` aborta com pathspec ausente.
+          for path in raw history/hn/raw failed-months.json; do
+            if [ -e "$path" ]; then
+              git -c core.hooksPath=/dev/null add -A -- "$path"
+            fi
+          done
+          if git diff --cached --quiet; then
+            echo "Sem mudancas no raw: nada a commitar."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git -c core.hooksPath=/dev/null \
+            -c user.name="github-actions[bot]" \
+            -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "chore(raw): coleta ${GITHUB_RUN_ID} ($(date -u +%Y-%m-%d))"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      # Unico passo com a chave de deploy: ssh-agent em memoria, host do GitHub fixado.
+      - name: Enviar commit ao repositorio de dados
+        if: ${{ !cancelled() && steps.stage.outputs.changed == 'true' }}
+        env:
+          DATA_REPO_SSH_KEY: ${{ secrets.DATA_REPO_SSH_KEY }}
+          DATA_REPO_SLUG: ${{ github.repository_owner }}/skill-job-tracker-data
+        run: |
+          install -d -m 700 "$RUNNER_TEMP/ssh"
+          # Chave publica ed25519 do github.com (https://docs.github.com/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints)
+          echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > "$RUNNER_TEMP/ssh/known_hosts"
+          export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=$RUNNER_TEMP/ssh/known_hosts -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes"
+          eval "$(ssh-agent -s)" > /dev/null
+          trap 'ssh-agent -k > /dev/null' EXIT
+          printf '%s\n' "$DATA_REPO_SSH_KEY" | ssh-add - 2> /dev/null
+          cd .data-repo
+          git -c core.hooksPath=/dev/null push "git@github.com:${DATA_REPO_SLUG}.git" HEAD
+
+      - name: Gate de cobertura
+        if: ${{ !cancelled() && steps.monthly.outcome != 'success' }}
+        run: |
+          echo "::error::coleta ou gate de cobertura falhou; dashboard nao publicado (a versao anterior continua no ar)"
+          exit 1
+
+      - name: Montar site (so HTML do dashboard)
+        run: uv run --no-sync python scripts/prepare_site.py --reports data/reports --out _site
+
+      - name: Empacotar para o Pages
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    # Roda so se `collect` terminou com sucesso, ou seja, com o gate de cobertura aprovado.
+    needs: collect
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

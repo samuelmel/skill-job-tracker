@@ -19,7 +19,6 @@ from vaya_indexer.lake.history_build import build_history_bronze, history_root, 
 
 ROOT = Path(__file__).resolve().parents[1]
 TABLES = [
-    "silver_hn_post",
     "silver_hn_post_skill",
     "gold_history_skill_month",
     "gold_history_skill_year",

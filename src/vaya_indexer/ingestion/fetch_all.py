@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from vaya_indexer.core.exceptions import safe_error
 from vaya_indexer.database.models import FetchRunStatus, Platform, Source
 from vaya_indexer.ingestion.service import FetchRunSummary
 
@@ -107,14 +108,18 @@ async def fetch_all(
             try:
                 summary = await run_source(target.source_id)
             except Exception as exc:
-                logger.exception(
+                logger.error(
                     "fetch_all_source_failed",
-                    extra={"source_id": str(target.source_id), "platform": target.platform},
+                    extra={
+                        "source_id": str(target.source_id),
+                        "platform": target.platform,
+                        "error": safe_error(exc),
+                    },
                 )
                 return SourceOutcome(
                     target=target,
                     status=FetchRunStatus.FAILED,
-                    error=f"{type(exc).__name__}: {exc}",
+                    error=safe_error(exc),
                 )
         return SourceOutcome(
             target=target,
