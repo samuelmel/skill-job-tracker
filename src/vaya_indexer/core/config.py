@@ -35,6 +35,8 @@ class Settings(BaseSettings):
     per_domain_concurrency: int = Field(default=4, ge=1)
     per_domain_min_interval: float = Field(default=0.2, ge=0)
     log_level: str = "INFO"
+    lake_dir: str = "data"
+    fetch_concurrency: int = Field(default=8, ge=1)
     dedup_merge_threshold: float = Field(default=0.90, ge=0, le=1)
     dedup_review_threshold: float = Field(default=0.75, ge=0, le=1)
     dedup_candidate_limit: int = Field(default=200, ge=1)

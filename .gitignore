@@ -17,3 +17,5 @@ dist/
 .pgdata-demo/
 .pgdata-verify/
 .pgdata-verify-*/
+data/
+.pgdata-lake/

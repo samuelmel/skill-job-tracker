@@ -1,4 +1,5 @@
-"""CLI: seed-platforms, add-source, fetch, list-jobs, verify, coverage-report.
+"""CLI: seed-platforms, add-source, load-catalog, fetch, fetch-all, list-jobs, verify,
+coverage-report.
 
 Migrations: use `alembic upgrade head`.
 """
@@ -16,13 +17,17 @@ from vaya_indexer.core.config import get_settings
 from vaya_indexer.core.logging import configure_logging
 from vaya_indexer.coverage.report import build_report, write_report
 from vaya_indexer.coverage.verification import PlatformResult, VerificationService
+from vaya_indexer.database.models import FetchRunStatus
 from vaya_indexer.database.repositories.jobs import JobRepository
 from vaya_indexer.database.repositories.platforms import PlatformRepository
 from vaya_indexer.database.session import create_engine, create_session_factory
 from vaya_indexer.extraction.browser import BrowserFetcher
 from vaya_indexer.extraction.http import HttpClient
+from vaya_indexer.ingestion.fetch_all import fetch_all, list_active_targets
 from vaya_indexer.ingestion.service import IngestionService, register_source
+from vaya_indexer.lake.raw import RawLakeWriter
 from vaya_indexer.platforms_catalog import build_catalog
+from vaya_indexer.source_catalog import DEFAULT_CATALOG_PATH, load_catalog, read_catalog
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -39,6 +44,19 @@ def build_parser() -> argparse.ArgumentParser:
 
     fetch = sub.add_parser("fetch", help="Executa a ingestao de uma fonte")
     fetch.add_argument("--source-id", required=True, type=uuid.UUID)
+
+    catalog = sub.add_parser(
+        "load-catalog", help="Carrega catalog/sources.json no banco (idempotente)"
+    )
+    catalog.add_argument("--path", type=Path, default=DEFAULT_CATALOG_PATH)
+
+    fetch_all_cmd = sub.add_parser(
+        "fetch-all", help="Ingere todas as sources ativas gravando o raw no lake"
+    )
+    fetch_all_cmd.add_argument("--platform", help="so esta plataforma (slug)")
+    fetch_all_cmd.add_argument("--limit", type=int, help="no maximo N sources")
+    fetch_all_cmd.add_argument("--concurrency", type=int, help="sources em paralelo (global)")
+    fetch_all_cmd.add_argument("--lake-dir", help="raiz do lake (padrao: LAKE_DIR ou ./data)")
 
     listing = sub.add_parser("list-jobs", help="Lista vagas recentes")
     listing.add_argument("--limit", type=int, default=20)
@@ -106,6 +124,70 @@ async def _fetch(source_id: uuid.UUID) -> int:
             summary = await service.run_source(source_id)
         print(summary.model_dump_json(indent=2))
         return 0 if summary.status.value != "FAILED" else 1
+    finally:
+        await browser.aclose()
+        await engine.dispose()
+
+
+async def _load_catalog(path: Path) -> int:
+    engine = create_engine(get_settings().database_url)
+    try:
+        async with create_session_factory(engine)() as session:
+            result = await load_catalog(session, read_catalog(path))
+        print(
+            f"catalogo: {result.total} entradas, {result.created} criadas, "
+            f"{result.existing} ja existiam, {len(result.errors)} com erro"
+        )
+        for error in result.errors:
+            print(f"  ERRO {error}")
+        return 1 if result.errors else 0
+    finally:
+        await engine.dispose()
+
+
+async def _fetch_all(args: argparse.Namespace) -> int:
+    settings = get_settings()
+    engine = create_engine(settings.database_url)
+    browser = BrowserFetcher(user_agent=settings.user_agent, timeout=settings.http_timeout)
+    try:
+        factory = create_session_factory(engine)
+        targets = await list_active_targets(factory, platform=args.platform, limit=args.limit)
+        async with HttpClient(
+            user_agent=settings.user_agent,
+            timeout=settings.http_timeout,
+            max_retries=settings.http_max_retries,
+            per_domain_concurrency=settings.per_domain_concurrency,
+            min_interval=settings.per_domain_min_interval,
+        ) as http:
+            service = IngestionService(
+                factory,
+                http,
+                settings.policy(),
+                browser,
+                raw_writer=RawLakeWriter(args.lake_dir or settings.lake_dir),
+            )
+            report = await fetch_all(
+                service.run_source,
+                targets,
+                concurrency=args.concurrency or settings.fetch_concurrency,
+            )
+        for outcome in report.outcomes:
+            t = outcome.target
+            note = outcome.error or ""
+            if outcome.raw_error:
+                note = f"{note} RAW FALHOU: {outcome.raw_error}".strip()
+            print(
+                f"{outcome.status.value:9} {t.platform}/{t.external_id} "
+                f"jobs={outcome.jobs_found} {note}".rstrip()
+            )
+        print(
+            f"{len(report.outcomes)} sources: "
+            f"{report.count(FetchRunStatus.SUCCEEDED)} SUCCEEDED, "
+            f"{report.count(FetchRunStatus.PARTIAL)} PARTIAL, "
+            f"{report.count(FetchRunStatus.FAILED)} FAILED; "
+            f"{report.jobs_found} vagas; {report.raw_failures} falhas de raw"
+        )
+        return report.exit_code
     finally:
         await browser.aclose()
         await engine.dispose()
@@ -190,6 +272,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             return run_async(_seed_platforms())
         case "add-source":
             return run_async(_add_source(args))
+        case "load-catalog":
+            return run_async(_load_catalog(args.path))
+        case "fetch-all":
+            return run_async(_fetch_all(args))
         case "fetch":
             return run_async(_fetch(args.source_id))
         case "list-jobs":

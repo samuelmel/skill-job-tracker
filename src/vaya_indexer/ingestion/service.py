@@ -1,5 +1,6 @@
 """Servico de ingestao: busca em uma source, normaliza e persiste de forma idempotente."""
 
+import asyncio
 import logging
 import time
 import uuid
@@ -12,7 +13,7 @@ from pydantic import BaseModel
 from sqlalchemy import text, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from vaya_indexer.connectors.base import BaseConnector, NormalizedJob, RawJob
+from vaya_indexer.connectors.base import BaseConnector, FetchResult, NormalizedJob, RawJob
 from vaya_indexer.connectors.registry import create_connector, get_connector_class
 from vaya_indexer.core.config import ProcessingPolicy
 from vaya_indexer.core.exceptions import ConnectorNotFound, SourceNotFound
@@ -34,6 +35,7 @@ from vaya_indexer.extraction.browser import BrowserFetcher
 from vaya_indexer.extraction.http import HttpClient
 from vaya_indexer.ingestion.job_status import refresh_job_status
 from vaya_indexer.ingestion.reconciliation import ReconcileOutcome, apply_reconciliation
+from vaya_indexer.lake.raw import RawWriter
 from vaya_indexer.processing.dedup import (
     DedupAction,
     JobProfile,
@@ -79,6 +81,8 @@ class FetchRunSummary(BaseModel):
     records_failed: int = 0
     error_message: str | None = None
     duration_ms: int = 0
+    raw_path: str | None = None
+    raw_error: str | None = None
 
 
 @dataclass
@@ -235,10 +239,12 @@ class IngestionService:
         http: HttpClient,
         policy: ProcessingPolicy | None = None,
         browser: BrowserFetcher | None = None,
+        raw_writer: RawWriter | None = None,
     ) -> None:
         self._session_factory = session_factory
         self._http = http
         self._browser = browser
+        self._raw_writer = raw_writer
         self._policy = policy or ProcessingPolicy()
 
     async def run_source(self, source_id: uuid.UUID) -> FetchRunSummary:
@@ -256,6 +262,8 @@ class IngestionService:
             await session.commit()
             run_id = run.id
             connector_type = platform.connector_type
+            platform_slug = platform.slug
+            source_external_id = source.external_id
             config = dict(source.configuration)
             company_id = source.company_id
             company_name = source_company.name if source_company else None
@@ -266,7 +274,16 @@ class IngestionService:
                 raise ConnectorNotFound(f"Plataforma '{platform.slug}' sem conector")
             connector = create_connector(connector_type, config, self._http, self._browser)
             result = await connector.fetch_jobs()
+            fetched_at = datetime.now(UTC)
             summary.jobs_found = len(result.jobs)
+            await self._write_raw(
+                summary,
+                connector,
+                platform_slug=platform_slug,
+                source_external_id=source_external_id,
+                fetched_at=fetched_at,
+                result=result,
+            )
             async with self._session_factory() as session:
                 if not await _try_source_lock(session, source_id):
                     raise ConcurrentRunError(CONCURRENT_MESSAGE)
@@ -310,6 +327,47 @@ class IngestionService:
         await self._finalize(summary)
         logger.info("fetch_finished", extra=summary.model_dump(mode="json"))
         return summary
+
+    async def _write_raw(
+        self,
+        summary: FetchRunSummary,
+        connector: BaseConnector,
+        *,
+        platform_slug: str,
+        source_external_id: str,
+        fetched_at: datetime,
+        result: FetchResult,
+    ) -> None:
+        """Grava o raw antes da persistencia; falha aqui e registrada mas nunca bloqueia."""
+        if self._raw_writer is None:
+            return
+        try:
+            written = await asyncio.to_thread(
+                self._raw_writer.write,
+                platform=platform_slug,
+                source_external_id=source_external_id,
+                source_id=summary.source_id,
+                run_id=summary.run_id,
+                fetched_at=fetched_at,
+                complete=result.complete,
+                jobs=result.jobs,
+                connector=type(connector).__name__,
+            )
+            summary.raw_path = written.path
+        except Exception as exc:
+            summary.raw_error = f"{type(exc).__name__}: {exc}"
+            logger.error(
+                "raw_write_failed",
+                exc_info=True,
+                extra={
+                    "source_id": str(summary.source_id),
+                    "run_id": str(summary.run_id),
+                    "platform": platform_slug,
+                    "source_external_id": source_external_id,
+                    "jobs_found": summary.jobs_found,
+                    "error": summary.raw_error,
+                },
+            )
 
     async def _finalize(self, summary: FetchRunSummary) -> None:
         async with self._session_factory() as session:

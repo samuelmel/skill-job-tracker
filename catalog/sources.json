@@ -1,0 +1,781 @@
+{
+ "sources": [
+  {
+   "company": "Turner Industries",
+   "config": {
+    "domain_id": 3218,
+    "subdomain": "turnerindustries"
+   },
+   "platform": "applicantpro"
+  },
+  {
+   "company": "VetCo Clinics",
+   "config": {
+    "domain_id": 2693,
+    "subdomain": "vetcoclinics"
+   },
+   "platform": "applicantpro"
+  },
+  {
+   "company": "YMCA of Richmond",
+   "config": {
+    "domain_id": 2863,
+    "subdomain": "ymcarichmond"
+   },
+   "platform": "applicantpro"
+  },
+  {
+   "company": "Notion",
+   "config": {
+    "org_slug": "notion"
+   },
+   "platform": "ashby"
+  },
+  {
+   "company": "Ramp",
+   "config": {
+    "org_slug": "ramp"
+   },
+   "platform": "ashby"
+  },
+  {
+   "company": "Bloomberg",
+   "config": {
+    "host": "bloomberg.avature.net",
+    "path": "careers"
+   },
+   "platform": "avature"
+  },
+  {
+   "company": "Avature",
+   "config": {
+    "host": "careers.avature.net",
+    "path": "en_US/main"
+   },
+   "platform": "avature"
+  },
+  {
+   "company": "New York City Ballet",
+   "config": {
+    "subdomain": "nycballet"
+   },
+   "platform": "bamboohr"
+  },
+  {
+   "company": "Trim Group",
+   "config": {
+    "subdomain": "trimgroup"
+   },
+   "platform": "bamboohr"
+  },
+  {
+   "company": "Barloworld Equipment",
+   "config": {
+    "company": "barloworldequipment"
+   },
+   "platform": "breezy-hr"
+  },
+  {
+   "company": "Breezy HR (demo)",
+   "config": {
+    "company": "breezy-hr"
+   },
+   "platform": "breezy-hr"
+  },
+  {
+   "company": "RhynoCare",
+   "config": {
+    "company": "rhynocare"
+   },
+   "platform": "breezy-hr"
+  },
+  {
+   "company": "Sport Clips",
+   "config": {
+    "subdomain": "sportclips"
+   },
+   "platform": "careerplug"
+  },
+  {
+   "company": "Evinced",
+   "config": {
+    "careers_url": "https://www.evinced.com/careers",
+    "company_uid": "28.000"
+   },
+   "platform": "comeet"
+  },
+  {
+   "company": "VAST Data",
+   "config": {
+    "careers_url": "https://www.vastdata.com/careers",
+    "company_uid": "43.001"
+   },
+   "platform": "comeet"
+  },
+  {
+   "company": "NetApp",
+   "config": {
+    "domain": "netapp.com",
+    "tenant": "netapp"
+   },
+   "platform": "eightfold-ai"
+  },
+  {
+   "company": "Gem",
+   "config": {
+    "board_slug": "gem"
+   },
+   "platform": "gem-com"
+  },
+  {
+   "company": "Nominal",
+   "config": {
+    "board_slug": "nominal"
+   },
+   "platform": "gem-com"
+  },
+  {
+   "company": "Airbnb",
+   "config": {
+    "api_base_url": null,
+    "board_token": "airbnb"
+   },
+   "platform": "greenhouse"
+  },
+  {
+   "company": "Discord",
+   "config": {
+    "api_base_url": null,
+    "board_token": "discord"
+   },
+   "platform": "greenhouse"
+  },
+  {
+   "company": "GitLab",
+   "config": {
+    "api_base_url": null,
+    "board_token": "gitlab"
+   },
+   "platform": "greenhouse"
+  },
+  {
+   "company": "Stripe",
+   "config": {
+    "api_base_url": null,
+    "board_token": "stripe"
+   },
+   "platform": "greenhouse"
+  },
+  {
+   "company": "AMCS Group",
+   "config": {
+    "subdomain": "amcsgroup"
+   },
+   "platform": "hirehive"
+  },
+  {
+   "company": "HireHive (conta de teste)",
+   "config": {
+    "subdomain": "hirehive-testing-account"
+   },
+   "platform": "hirehive"
+  },
+  {
+   "company": "Patagonia",
+   "config": {
+    "subdomain": "patagonia"
+   },
+   "platform": "hirehive"
+  },
+  {
+   "company": "BigTime",
+   "config": {
+    "slug": "bigtime"
+   },
+   "platform": "hireology"
+  },
+  {
+   "company": "Companion Health Services",
+   "config": {
+    "slug": "companionhealthservices"
+   },
+   "platform": "hireology"
+  },
+  {
+   "company": "Sylvan Learning",
+   "config": {
+    "slug": "sylvanlearning"
+   },
+   "platform": "hireology"
+  },
+  {
+   "company": "Franklin Companies",
+   "config": {
+    "subdomain": "franklin-companies"
+   },
+   "platform": "hiringthing"
+  },
+  {
+   "company": "Pinnacle",
+   "config": {
+    "subdomain": "pinnacle"
+   },
+   "platform": "hiringthing"
+  },
+  {
+   "company": "Vision Spark",
+   "config": {
+    "subdomain": "visionspark1"
+   },
+   "platform": "hiringthing"
+  },
+  {
+   "company": "Community Medical Centers",
+   "config": {
+    "host": "careers-communitymedical.icims.com"
+   },
+   "platform": "icims"
+  },
+  {
+   "company": "Emory University",
+   "config": {
+    "host": "staff-emory.icims.com"
+   },
+   "platform": "icims"
+  },
+  {
+   "company": "Halvik",
+   "config": {
+    "subdomain": "halvik"
+   },
+   "platform": "isolvedhire"
+  },
+  {
+   "company": "HCSC",
+   "config": {
+    "subdomain": "hcsc"
+   },
+   "platform": "isolvedhire"
+  },
+  {
+   "company": "isolved",
+   "config": {
+    "subdomain": "isolved"
+   },
+   "platform": "isolvedhire"
+  },
+  {
+   "company": "DTEX Systems",
+   "config": {
+    "subdomain": "dtexsystems"
+   },
+   "platform": "jazzhr"
+  },
+  {
+   "company": "NRO",
+   "config": {
+    "subdomain": "nro"
+   },
+   "platform": "jazzhr"
+  },
+  {
+   "company": "Nuclear Jobs Canada",
+   "config": {
+    "board_domain": "nuclearjobscanada.ca"
+   },
+   "platform": "jboard-io"
+  },
+  {
+   "company": "AACC Jobs",
+   "config": {
+    "board_domain": "jobs.aacc.nche.edu"
+   },
+   "platform": "jobboard-io"
+  },
+  {
+   "company": "City & State New York Jobs",
+   "config": {
+    "board_domain": "jobs.cityandstateny.com"
+   },
+   "platform": "jobboard-io"
+  },
+  {
+   "company": "RMetS Jobs",
+   "config": {
+    "board_domain": "jobs.rmets.org"
+   },
+   "platform": "jobboard-io"
+  },
+  {
+   "company": "MACS List",
+   "config": {
+    "board_domain": "jobs.macslist.org"
+   },
+   "platform": "jobboardhq"
+  },
+  {
+   "company": "NJ School Jobs",
+   "config": {
+    "board_domain": "njschooljobs.com"
+   },
+   "platform": "jobboardhq"
+  },
+  {
+   "company": "Estate Jobs",
+   "config": {
+    "board_domain": "www.estatejobs.com"
+   },
+   "platform": "jobboardhq"
+  },
+  {
+   "company": "ETCareers",
+   "config": {
+    "board_domain": "etcareers.com"
+   },
+   "platform": "jobboardly"
+  },
+  {
+   "company": "Jobs in Devon",
+   "config": {
+    "board_domain": "jobsindevon.uk"
+   },
+   "platform": "jobboardly"
+  },
+  {
+   "company": "Medical Courier Jobs",
+   "config": {
+    "board_domain": "medicalcourierjobs.com"
+   },
+   "platform": "jobboardly"
+  },
+  {
+   "company": "Miami Jobs",
+   "config": {
+    "board_domain": "www.miamijobs.com"
+   },
+   "platform": "jobiqo"
+  },
+  {
+   "company": "nLight",
+   "config": {
+    "company": "nlight"
+   },
+   "platform": "jobvite"
+  },
+  {
+   "company": "Uplight",
+   "config": {
+    "company": "uplight"
+   },
+   "platform": "jobvite"
+  },
+  {
+   "company": "Clark",
+   "config": {
+    "company": "clark"
+   },
+   "platform": "join-com"
+  },
+  {
+   "company": "JOIN",
+   "config": {
+    "company": "join"
+   },
+   "platform": "join-com"
+  },
+  {
+   "company": "Lever (EU)",
+   "config": {
+    "company": "lever",
+    "region": "eu"
+   },
+   "platform": "lever-co"
+  },
+  {
+   "company": "Palantir",
+   "config": {
+    "company": "palantir",
+    "region": "global"
+   },
+   "platform": "lever-co"
+  },
+  {
+   "company": "Spotify",
+   "config": {
+    "company": "spotify",
+    "region": "global"
+   },
+   "platform": "lever-co"
+  },
+  {
+   "company": "Elite Employment",
+   "config": {
+    "slug": "elite-employment"
+   },
+   "platform": "manatal"
+  },
+  {
+   "company": "Manatal",
+   "config": {
+    "slug": "manatal"
+   },
+   "platform": "manatal"
+  },
+  {
+   "company": "We Recruit",
+   "config": {
+    "slug": "we-recruit"
+   },
+   "platform": "manatal"
+  },
+  {
+   "company": "AIA Colorado",
+   "config": {
+    "board_domain": "jobs.aiacolorado.org"
+   },
+   "platform": "niceboard"
+  },
+  {
+   "company": "AICAD",
+   "config": {
+    "board_domain": "jobs.aicad.org"
+   },
+   "platform": "niceboard"
+  },
+  {
+   "company": "Oracle CX ebxr (CX_1)",
+   "config": {
+    "host": "ebxr.fa.us2.oraclecloud.com",
+    "site_number": "CX_1"
+   },
+   "platform": "oracle-recruiting"
+  },
+  {
+   "company": "Oracle CX hccz (CX_2)",
+   "config": {
+    "host": "hccz.fa.em3.oraclecloud.com",
+    "site_number": "CX_2"
+   },
+   "platform": "oracle-recruiting"
+  },
+  {
+   "company": "PageUp 1145",
+   "config": {
+    "client_id": "1145",
+    "lang": "en"
+   },
+   "platform": "pageup"
+  },
+  {
+   "company": "PageUp 887",
+   "config": {
+    "client_id": "887",
+    "lang": "en"
+   },
+   "platform": "pageup"
+  },
+  {
+   "company": "PageUp 917",
+   "config": {
+    "client_id": "917",
+    "lang": "en"
+   },
+   "platform": "pageup"
+  },
+  {
+   "company": "Purple Cow",
+   "config": {
+    "guid": "a8060c7d-f792-49d3-a6c4-e276b1e54ddd"
+   },
+   "platform": "paylocity"
+  },
+  {
+   "company": "OCHIN",
+   "config": {
+    "guid": "cab4161a-b9de-40e7-85e8-27920748af9d"
+   },
+   "platform": "paylocity"
+  },
+  {
+   "company": "Personio",
+   "config": {
+    "account": "personio",
+    "language": "en",
+    "tld": "de"
+   },
+   "platform": "personio"
+  },
+  {
+   "company": "Stark",
+   "config": {
+    "account": "stark",
+    "language": "en",
+    "tld": "com"
+   },
+   "platform": "personio"
+  },
+  {
+   "company": "Freedom Mortgage",
+   "config": {
+    "country": "us",
+    "domain": "careers.freedommortgage.com",
+    "lang": "en_us",
+    "page_id": "page11"
+   },
+   "platform": "phenom-people"
+  },
+  {
+   "company": "Synovus",
+   "config": {
+    "country": "us",
+    "domain": "careers.synovus.com",
+    "lang": "en_us",
+    "page_id": "page11"
+   },
+   "platform": "phenom-people"
+  },
+  {
+   "company": "Sun King",
+   "config": {
+    "subdomain": "sunking"
+   },
+   "platform": "pinpoint"
+  },
+  {
+   "company": "Pinpoint",
+   "config": {
+    "subdomain": "workwithus"
+   },
+   "platform": "pinpoint"
+  },
+  {
+   "company": "Eli",
+   "config": {
+    "org": "eli"
+   },
+   "platform": "polymer"
+  },
+  {
+   "company": "Invicta Software",
+   "config": {
+    "org": "invicta-software"
+   },
+   "platform": "polymer"
+  },
+  {
+   "company": "Rune",
+   "config": {
+    "org": "rune"
+   },
+   "platform": "polymer"
+  },
+  {
+   "company": "Atom",
+   "config": {
+    "company": "atom-com"
+   },
+   "platform": "recooty"
+  },
+  {
+   "company": "bunq",
+   "config": {
+    "company": "bunq"
+   },
+   "platform": "recruitee"
+  },
+  {
+   "company": "Goodwall",
+   "config": {
+    "company": "goodwall"
+   },
+   "platform": "recruitee"
+  },
+  {
+   "company": "Miaplaza",
+   "config": {
+    "company": "miaplaza"
+   },
+   "platform": "recruitee"
+  },
+  {
+   "company": "Futuri",
+   "config": {
+    "board": "futuri-careers"
+   },
+   "platform": "rippling"
+  },
+  {
+   "company": "LegitScript",
+   "config": {
+    "board": "legitscript-careers"
+   },
+   "platform": "rippling"
+  },
+  {
+   "company": "Zaden Technologies",
+   "config": {
+    "board": "zadentech"
+   },
+   "platform": "rippling"
+  },
+  {
+   "company": "EnvironmentalCareer.com",
+   "config": {
+    "board_domain": "environmentalcareer.com"
+   },
+   "platform": "smartjobboard"
+  },
+  {
+   "company": "ACEM Jobs",
+   "config": {
+    "board_domain": "jobs.acem.org.au"
+   },
+   "platform": "smartjobboard"
+  },
+  {
+   "company": "DataCareer.de",
+   "config": {
+    "board_domain": "www.datacareer.de"
+   },
+   "platform": "smartjobboard"
+  },
+  {
+   "company": "Jobs in Childcare",
+   "config": {
+    "board_domain": "www.jobsinchildcare.com"
+   },
+   "platform": "smartjobboard"
+  },
+  {
+   "company": "Career",
+   "config": {
+    "company": "career"
+   },
+   "platform": "teamtailor"
+  },
+  {
+   "company": "IQM",
+   "config": {
+    "company": "iqm"
+   },
+   "platform": "teamtailor"
+  },
+  {
+   "company": "Resourcify",
+   "config": {
+    "company": "resourcify"
+   },
+   "platform": "teamtailor"
+  },
+  {
+   "company": "ECI",
+   "config": {
+    "company": "eciusa"
+   },
+   "platform": "trakstar"
+  },
+  {
+   "company": "FutureRecruit",
+   "config": {
+    "company": "futurerecruit"
+   },
+   "platform": "trakstar"
+  },
+  {
+   "company": "Credo",
+   "config": {
+    "company": "1083383-credo"
+   },
+   "platform": "trinet"
+  },
+  {
+   "company": "IONNA",
+   "config": {
+    "company": "324552-ionna-llc"
+   },
+   "platform": "trinet"
+  },
+  {
+   "company": "Berry Street",
+   "config": {
+    "account": "berry-street"
+   },
+   "platform": "workable"
+  },
+  {
+   "company": "Workable",
+   "config": {
+    "account": "careers"
+   },
+   "platform": "workable"
+  },
+  {
+   "company": "Tiger Analytics",
+   "config": {
+    "account": "tiger-analytics"
+   },
+   "platform": "workable"
+  },
+  {
+   "company": "NVIDIA",
+   "config": {
+    "host": "wd5",
+    "site": "NVIDIAExternalCareerSite",
+    "tenant": "nvidia"
+   },
+   "platform": "workday"
+  },
+  {
+   "company": "Salesforce",
+   "config": {
+    "host": "wd12",
+    "site": "External_Career_Site",
+    "tenant": "salesforce"
+   },
+   "platform": "workday"
+  },
+  {
+   "company": "Jobicy",
+   "config": {
+    "base_url": "https://jobicy.com"
+   },
+   "platform": "wp-job-manager"
+  },
+  {
+   "company": "jobs.blog (Automattic)",
+   "config": {
+    "base_url": "https://jobs.blog"
+   },
+   "platform": "wp-job-manager"
+  },
+  {
+   "company": "A.CRE Job Board",
+   "config": {
+    "base_url": "https://www.adventuresincre.com/acrejobs"
+   },
+   "platform": "wp-job-manager"
+  },
+  {
+   "company": "Execo",
+   "config": {
+    "company": "execo"
+   },
+   "platform": "zoho-recruit"
+  },
+  {
+   "company": "Koantek",
+   "config": {
+    "company": "koantek"
+   },
+   "platform": "zoho-recruit"
+  },
+  {
+   "company": "RMSI",
+   "config": {
+    "company": "rmsi"
+   },
+   "platform": "zoho-recruit"
+  }
+ ],
+ "version": 1
+}
