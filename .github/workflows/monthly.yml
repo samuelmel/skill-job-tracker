@@ -114,12 +114,16 @@ jobs:
           install -d -m 700 "$RUNNER_TEMP/ssh"
           # Chave publica ed25519 do github.com (https://docs.github.com/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints)
           echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > "$RUNNER_TEMP/ssh/known_hosts"
-          export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=$RUNNER_TEMP/ssh/known_hosts -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes"
+          export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=$RUNNER_TEMP/ssh/known_hosts -o StrictHostKeyChecking=yes -o BatchMode=yes"
           eval "$(ssh-agent -s)" > /dev/null
           trap 'ssh-agent -k > /dev/null' EXIT
-          printf '%s\n' "$DATA_REPO_SSH_KEY" | ssh-add - 2> /dev/null
+          # Falha do ssh-add interrompe o passo; a saida dele nunca e exibida (nao vaza a chave).
+          if ! printf '%s\n' "$DATA_REPO_SSH_KEY" | ssh-add - > /dev/null 2>&1; then
+            echo "::error::ssh-add recusou a chave de deploy (DATA_REPO_SSH_KEY ausente ou invalida)"
+            exit 1
+          fi
           cd .data-repo
-          git -c core.hooksPath=/dev/null push "git@github.com:${DATA_REPO_SLUG}.git" HEAD
+          git -c core.hooksPath=/dev/null push "git@github.com:${DATA_REPO_SLUG}.git" HEAD:refs/heads/main
 
       - name: Gate de cobertura
         if: ${{ !cancelled() && steps.monthly.outcome != 'success' }}

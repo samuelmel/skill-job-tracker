@@ -89,6 +89,10 @@ def test_deploy_key_is_isolated_in_the_push_step(wf: dict[str, Any]) -> None:
     run = push["run"]
     assert "ssh-agent" in run and "ssh-add" in run
     assert "StrictHostKeyChecking=yes" in run and "UserKnownHostsFile" in run
+    assert "BatchMode=yes" in run
+    assert "IdentitiesOnly" not in run  # sem IdentityFile, esconderia a chave do ssh-agent
+    assert "ssh-add - > /dev/null 2>&1; then" in run and "exit 1" in run  # falha nao e engolida
+    assert "HEAD:refs/heads/main" in run  # checkout deixa HEAD destacado
     assert re.search(r"github\.com ssh-ed25519 AAAA\w+", run)
     assert "core.hooksPath=/dev/null" in run
     # Export, add e commit rodam num passo sem segredos (nem no env nem nos comandos).
@@ -100,6 +104,38 @@ def test_deploy_key_is_isolated_in_the_push_step(wf: dict[str, Any]) -> None:
     assert "env" not in wf["jobs"]["collect"]
     assert "secrets." not in yaml.safe_dump(wf["env"])
     assert text.count("secrets.DATA_REPO_SSH_KEY") == 2
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="git")
+def test_push_refspec_from_yaml_updates_main_from_detached_head(
+    wf: dict[str, Any], tmp_path: Path
+) -> None:
+    push = next(s for s in _steps(wf) if s.get("name") == "Enviar commit ao repositorio de dados")
+    line = next(ln for ln in push["run"].splitlines() if " push " in ln)
+    refspec = line.split()[-1]
+    bare = tmp_path / "data.git"
+    work = tmp_path / "work"
+    subprocess.run(["git", "init", "-q", "--bare", str(bare)], check=True)
+    subprocess.run(["git", "init", "-q", str(work)], check=True)
+
+    def git(*args: str) -> str:
+        res = subprocess.run(
+            ["git", "-C", str(work), "-c", "user.name=t", "-c", "user.email=t@example.org", *args],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return res.stdout.strip()
+
+    (work / "a.txt").write_text("1", encoding="utf-8")
+    git("add", "a.txt")
+    git("commit", "-q", "-m", "c")
+    git("checkout", "-q", "--detach")  # como o actions/checkout deixa o repo de dados
+    git("-c", "core.hooksPath=/dev/null", "push", "-q", str(bare), refspec)
+    pushed = subprocess.run(
+        ["git", "-C", str(bare), "rev-parse", "refs/heads/main"], capture_output=True, text=True
+    )
+    assert pushed.stdout.strip() == git("rev-parse", "HEAD")
 
 
 def test_raw_never_goes_through_actions_artifacts(wf: dict[str, Any]) -> None:
