@@ -5,9 +5,11 @@ Uso: uv run python scripts/collect_local.py --data-dir .pgdata-lake [--lake-dir 
 """
 
 import argparse
+import json
 import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pgserver
@@ -16,16 +18,20 @@ from sqlalchemy.engine import make_url
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--data-dir", default=".pgdata-lake")
-    parser.add_argument("--lake-dir", default="data")
-    parser.add_argument("--limit", type=int)
-    parser.add_argument("--platform")
-    parser.add_argument("--concurrency", type=int)
-    args = parser.parse_args()
+def collect(
+    data_dir: str,
+    lake_dir: str,
+    *,
+    limit: int | None = None,
+    platform: str | None = None,
+    concurrency: int | None = None,
+) -> tuple[int, dict[str, int] | None]:
+    """Postgres embutido + migrations + seed + catalogo + fetch-all.
 
-    server = pgserver.get_server(ROOT / args.data_dir, cleanup_mode="stop")
+    Devolve (codigo de saida do fetch-all, contagens). As contagens sao None quando o
+    fetch-all nao chegou a gravar o resumo.
+    """
+    server = pgserver.get_server(ROOT / data_dir, cleanup_mode="stop")
     url = make_url(server.get_uri()).set(drivername="postgresql+psycopg")
     env = {
         **os.environ,
@@ -43,14 +49,44 @@ def main() -> int:
     )
     vaya("seed-platforms")
     vaya("load-catalog")
-    fetch = ["fetch-all", "--lake-dir", str((ROOT / args.lake_dir).resolve())]
-    if args.limit:
-        fetch += ["--limit", str(args.limit)]
-    if args.platform:
-        fetch += ["--platform", args.platform]
-    if args.concurrency:
-        fetch += ["--concurrency", str(args.concurrency)]
-    return vaya(*fetch, check=False)
+    with tempfile.TemporaryDirectory() as tmp:
+        summary_path = Path(tmp) / "fetch_summary.json"
+        fetch = [
+            "fetch-all",
+            "--lake-dir",
+            str((ROOT / lake_dir).resolve()),
+            "--summary-json",
+            str(summary_path),
+        ]
+        if limit:
+            fetch += ["--limit", str(limit)]
+        if platform:
+            fetch += ["--platform", platform]
+        if concurrency:
+            fetch += ["--concurrency", str(concurrency)]
+        code = vaya(*fetch, check=False)
+        summary = (
+            json.loads(summary_path.read_text(encoding="utf-8")) if summary_path.exists() else None
+        )
+    return code, summary
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data-dir", default=".pgdata-lake")
+    parser.add_argument("--lake-dir", default="data")
+    parser.add_argument("--limit", type=int)
+    parser.add_argument("--platform")
+    parser.add_argument("--concurrency", type=int)
+    args = parser.parse_args()
+    code, _ = collect(
+        args.data_dir,
+        args.lake_dir,
+        limit=args.limit,
+        platform=args.platform,
+        concurrency=args.concurrency,
+    )
+    return code
 
 
 if __name__ == "__main__":

@@ -47,6 +47,17 @@ class FetchAllReport(BaseModel):
     def raw_failures(self) -> int:
         return sum(1 for o in self.outcomes if o.raw_error)
 
+    def summary(self) -> dict[str, int]:
+        """Contagens legiveis por maquina (`fetch-all --summary-json`)."""
+        return {
+            "attempted": len(self.outcomes),
+            "succeeded": self.count(FetchRunStatus.SUCCEEDED),
+            "partial": self.count(FetchRunStatus.PARTIAL),
+            "failed": self.count(FetchRunStatus.FAILED),
+            "jobs_found": self.jobs_found,
+            "raw_failures": self.raw_failures,
+        }
+
     @property
     def exit_code(self) -> int:
         """Nao-zero so quando toda source falhou (e havia ao menos uma)."""

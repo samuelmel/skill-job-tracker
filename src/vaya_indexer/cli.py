@@ -59,6 +59,9 @@ def build_parser() -> argparse.ArgumentParser:
     fetch_all_cmd.add_argument("--limit", type=int, help="no maximo N sources")
     fetch_all_cmd.add_argument("--concurrency", type=int, help="sources em paralelo (global)")
     fetch_all_cmd.add_argument("--lake-dir", help="raiz do lake (padrao: LAKE_DIR ou ./data)")
+    fetch_all_cmd.add_argument(
+        "--summary-json", type=Path, help="grava as contagens da coleta neste JSON"
+    )
 
     listing = sub.add_parser("list-jobs", help="Lista vagas recentes")
     listing.add_argument("--limit", type=int, default=20)
@@ -207,6 +210,8 @@ async def _fetch_all(args: argparse.Namespace) -> int:
             f"{report.count(FetchRunStatus.FAILED)} FAILED; "
             f"{report.jobs_found} vagas; {report.raw_failures} falhas de raw"
         )
+        if args.summary_json:
+            args.summary_json.write_text(json.dumps(report.summary()), encoding="utf-8")
         return report.exit_code
     finally:
         await browser.aclose()

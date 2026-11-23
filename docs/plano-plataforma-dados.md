@@ -83,6 +83,7 @@ Histórico perdido não se recupera, então esta fase vem antes de qualquer ferr
 - Falha ao gravar raw não bloqueia a ingestão, mas fica registrada e gera alerta.
 - Criar `vaya fetch-all`, com concorrência limitada por plataforma e sem interromper tudo quando uma fonte falha.
 - Agendar uma coleta diária simples com cron no WSL. O Airflow assume na Fase 3.
+- Carga mensal manual em um comando (coleta todas as fontes e depois bronze + dbt + dashboard): `uv run python scripts/run_monthly.py [--limit N] [--platform slug] [--skip-collect]`. Não refaz o dashboard se menos de 50% das fontes tentadas terminarem SUCCEEDED/PARTIAL.
 
 **Pronto quando:** 7 dias seguidos de coleta, cada fonte com raw e `fetch_run`, e reconciliação sem fechamento em massa.
 
