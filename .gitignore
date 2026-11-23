@@ -19,3 +19,7 @@ dist/
 .pgdata-verify-*/
 data/
 .pgdata-lake/
+analytics/target/
+analytics/logs/
+analytics/dbt_packages/
+analytics/.user.yml

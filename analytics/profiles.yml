@@ -1,0 +1,12 @@
+# Sem segredos. Caminhos vem de variaveis de ambiente definidas por `vaya lake`;
+# o padrao relativo vale para rodar `dbt build` manualmente de dentro de analytics/.
+vaya:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('VAYA_WAREHOUSE', '../data/warehouse.duckdb') }}"
+      threads: 4
+config:
+  send_anonymous_usage_stats: false
+  use_colors: false

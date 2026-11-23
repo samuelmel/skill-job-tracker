@@ -1,0 +1,36 @@
+name: vaya_analytics
+version: "1.0.0"
+config-version: 2
+profile: vaya
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # Amostra minima (vagas COM descricao no denominador) para classificar rising/falling.
+  min_sample: 30
+  # Variacao minima em pontos percentuais e |z| minimo para dizer que uma skill subiu/caiu.
+  min_delta_pp: 0.5
+  z_threshold: 1.96
+
+models:
+  vaya_analytics:
+    staging:
+      +materialized: view
+    silver:
+      +materialized: table
+    gold:
+      +materialized: table
+
+seeds:
+  vaya_analytics:
+    skills:
+      +column_types:
+        skill: varchar
+        category: varchar
+        pattern: varchar
+        case_sensitive: boolean
+        exclude_pattern: varchar

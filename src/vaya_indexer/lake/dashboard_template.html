@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vaya - tendência mensal de skills</title>
+<style>
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --surface-2: #eef0f4; --text: #14181f; --muted: #5a6475;
+  --line: #d9dde5; --accent: #1f5fd1; --up: #0d7a4e; --down: #b3361f; --warn: #8a5a00;
+  --warn-bg: #fff4d6; --bar: #7aa2e8;
+  --s1: #1f5fd1; --s2: #c4531b; --s3: #0d7a4e; --s4: #8a3fc0; --s5: #b08a00; --s6: #0b8a9e;
+  --s7: #c23a6b; --s8: #5a6475;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1218; --surface: #181c25; --surface-2: #222836; --text: #e8ebf2; --muted: #9aa4b8;
+    --line: #2c3344; --accent: #6ea0ff; --up: #4fd39a; --down: #ff8a70; --warn: #f2c14e;
+    --warn-bg: #3a2f10; --bar: #3f6cc0;
+    --s1: #6ea0ff; --s2: #ff9a62; --s3: #4fd39a; --s4: #c391f0; --s5: #e6c04a; --s6: #4cc9dc;
+    --s7: #ff7fa8; --s8: #9aa4b8;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1218; --surface: #181c25; --surface-2: #222836; --text: #e8ebf2; --muted: #9aa4b8;
+  --line: #2c3344; --accent: #6ea0ff; --up: #4fd39a; --down: #ff8a70; --warn: #f2c14e;
+  --warn-bg: #3a2f10; --bar: #3f6cc0;
+  --s1: #6ea0ff; --s2: #ff9a62; --s3: #4fd39a; --s4: #c391f0; --s5: #e6c04a; --s6: #4cc9dc;
+  --s7: #ff7fa8; --s8: #9aa4b8;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.wrap { width: min(100% - 2*clamp(1rem, 2.6vw, 3rem), 120rem); margin-inline: auto; padding-block: 1.25rem 3rem; }
+header.top { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: flex-end; justify-content: space-between; margin-bottom: 1rem; }
+h1 { margin: 0; font-size: clamp(1.4rem, 2.2vw, 2rem); letter-spacing: -0.01em; }
+.sub { color: var(--muted); margin: .15rem 0 0; }
+.controls { display: flex; flex-wrap: wrap; gap: .75rem 1rem; align-items: end; }
+.controls label { display: grid; gap: .2rem; font-size: .8rem; color: var(--muted); }
+select, input[type=search], button {
+  font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--line);
+  border-radius: .5rem; padding: .4rem .65rem; min-height: 2.2rem;
+}
+button { cursor: pointer; }
+button:hover, select:hover { border-color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: .5rem; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; background: var(--surface); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.banner { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn); border-radius: .6rem; padding: .7rem 1rem; margin-bottom: 1rem; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .75rem; margin-bottom: 1rem; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: .7rem; padding: .7rem .9rem; }
+.kpi .v { font-size: 1.6rem; font-weight: 650; font-variant-numeric: tabular-nums; }
+.kpi .l { color: var(--muted); font-size: .8rem; }
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1rem; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: .8rem; padding: 1rem 1.1rem; min-width: 0; }
+.card h2 { margin: 0 0 .15rem; font-size: 1.05rem; }
+.card .note { color: var(--muted); font-size: .82rem; margin: 0 0 .7rem; }
+.s4 { grid-column: span 4; } .s5 { grid-column: span 5; } .s3 { grid-column: span 3; }
+.s7 { grid-column: span 7; } .s8 { grid-column: span 8; } .s9 { grid-column: span 9; } .s12 { grid-column: span 12; }
+@media (max-width: 1280px) { .s4, .s5, .s3, .s7, .s8, .s9 { grid-column: span 6; } }
+@media (max-width: 760px) { .grid > * { grid-column: span 12 !important; } }
+.rows { display: grid; gap: .3rem; }
+.row { display: grid; grid-template-columns: 2rem minmax(7rem, 11rem) 1fr auto; gap: .5rem; align-items: center; font-size: .9rem; }
+.row .rk { color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .bar { height: .7rem; background: var(--surface-2); border-radius: .35rem; overflow: hidden; }
+.row .bar i { display: block; height: 100%; background: var(--bar); }
+.row .val { font-variant-numeric: tabular-nums; color: var(--muted); font-size: .82rem; white-space: nowrap; }
+.row .val b { color: var(--text); font-weight: 600; }
+.tr { display: grid; grid-template-columns: minmax(7rem, 1fr) auto auto; gap: .6rem; align-items: baseline; padding: .3rem 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
+.tr:last-child { border-bottom: 0; }
+.up { color: var(--up); font-weight: 650; } .down { color: var(--down); font-weight: 650; }
+.muted { color: var(--muted); }
+.tag { display: inline-block; font-size: .72rem; border: 1px solid var(--line); border-radius: 1rem; padding: 0 .45rem; color: var(--muted); }
+.empty { color: var(--muted); padding: .6rem 0; }
+.lines { display: grid; grid-template-columns: minmax(13rem, 1fr) 3fr; gap: 1rem; }
+@media (max-width: 900px) { .lines { grid-template-columns: 1fr; } }
+.picker { display: grid; gap: .4rem; align-content: start; }
+.picklist { max-height: 22rem; overflow: auto; border: 1px solid var(--line); border-radius: .5rem; padding: .3rem .5rem; }
+.picklist label { display: flex; gap: .45rem; align-items: center; font-size: .88rem; padding: .1rem 0; }
+.chart svg { width: 100%; height: auto; display: block; }
+.chart text { fill: var(--muted); font-size: 11px; }
+.legend { display: flex; flex-wrap: wrap; gap: .3rem 1rem; margin-top: .5rem; font-size: .85rem; }
+.legend i { display: inline-block; width: .8rem; height: .8rem; border-radius: .2rem; margin-right: .35rem; vertical-align: -1px; }
+table { border-collapse: collapse; width: 100%; font-size: .86rem; }
+th, td { text-align: left; padding: .35rem .5rem; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 600; position: sticky; top: 0; background: var(--surface); }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.tbl { max-height: 26rem; overflow: auto; }
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .6rem; }
+.chip { border: 1px solid var(--line); border-radius: 1rem; padding: .1rem .6rem; font-size: .82rem; background: var(--surface-2); }
+.meth ul { margin: .3rem 0 0; padding-left: 1.1rem; }
+.meth li { margin-bottom: .35rem; font-size: .88rem; }
+footer { margin-top: 1.5rem; color: var(--muted); font-size: .82rem; display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; }
+footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Tendência mensal de skills</h1>
+      <p class="sub">Vagas coletadas das fontes públicas do Vaya. Dados lidos só do lake (gold). <span id="gen"></span></p>
+    </div>
+    <div class="controls">
+      <label>Mês <select id="month"></select></label>
+      <label>Escopo
+        <span class="seg" role="group" aria-label="Escopo">
+          <button type="button" data-scope="all" aria-pressed="true">Todas as vagas</button>
+          <button type="button" data-scope="data_roles" aria-pressed="false">Vagas de dados</button>
+        </span>
+      </label>
+      <label>Categoria <select id="cat"></select></label>
+      <button type="button" id="theme" aria-label="Alternar tema claro/escuro">Tema</button>
+    </div>
+  </header>
+
+  <div id="banner"></div>
+  <section class="kpis" id="kpis" aria-label="Cobertura do mês"></section>
+
+  <div class="grid">
+    <section class="card s4" aria-labelledby="h-rank">
+      <h2 id="h-rank">Ranking de skills</h2>
+      <p class="note" id="rank-note"></p>
+      <div class="rows" id="rank"></div>
+    </section>
+    <section class="card s4" aria-labelledby="h-up">
+      <h2 id="h-up">Skills em alta</h2>
+      <p class="note">Variação em pontos percentuais vs. mês anterior, no painel comparável.</p>
+      <div id="up"></div>
+    </section>
+    <section class="card s4" aria-labelledby="h-down">
+      <h2 id="h-down">Skills em queda</h2>
+      <p class="note">Variação em pontos percentuais vs. mês anterior, no painel comparável.</p>
+      <div id="down"></div>
+    </section>
+
+    <section class="card s12" aria-labelledby="h-lines">
+      <h2 id="h-lines">Skills ao longo do tempo</h2>
+      <p class="note">Participação entre vagas com descrição. A composição de fontes pode variar entre meses; veja a cobertura de cada mês.</p>
+      <div class="lines">
+        <div class="picker">
+          <input type="search" id="q" placeholder="Buscar skill" aria-label="Buscar skill">
+          <div class="picklist" id="pick"></div>
+          <button type="button" id="reset">Voltar ao top 5 do mês</button>
+        </div>
+        <div class="chart" id="chart"></div>
+      </div>
+    </section>
+
+    <section class="card s8" aria-labelledby="h-health">
+      <h2 id="h-health">Saúde das fontes</h2>
+      <p class="note">Estado das fontes ao longo de todo o lake (não só do mês selecionado).</p>
+      <div class="chips" id="chips"></div>
+      <label class="muted" style="font-size:.8rem">Filtrar
+        <select id="hfilter"></select>
+      </label>
+      <div class="tbl" id="health"></div>
+    </section>
+
+    <section class="card s4 meth" aria-labelledby="h-meth">
+      <h2 id="h-meth">Metodologia</h2>
+      <ul>
+        <li><b>Denominador:</b> a participação de uma skill usa só vagas com descrição (a skill é buscada no título e na descrição). Cada linha mostra n e denominador.</li>
+        <li><b>Painel comparável:</b> variações mês a mês usam apenas fontes com coleta completa nos dois meses. Fonte nova não vira "crescimento do mercado". Coletas PARTIAL nunca entram na tendência.</li>
+        <li><b>Amostra mínima:</b> denominador abaixo de <span id="minsample">30</span> vagas é marcado como amostra pequena e não é classificado como alta ou queda.</li>
+        <li><b>Alta/queda:</b> exige variação de pelo menos 0,5 p.p. e |z| ≥ 1,96 (teste de duas proporções). É uma aproximação: as vagas de uma mesma empresa não são independentes.</li>
+        <li><b>Primeiro mês:</b> é linha de base, sem variações. A tendência começa no mês seguinte.</li>
+        <li><b>Skills:</b> dicionário versionado com limites de palavra; termos ambíguos (R, Go, Scala, Spark) exigem contexto. Há falsos negativos por desenho.</li>
+        <li><b>Vagas de dados:</b> classificadas pelo título (engenharia, ciência, análise, arquitetura de dados e ML).</li>
+      </ul>
+    </section>
+  </div>
+
+  <footer>
+    <span>Relatórios mensais:</span><span id="links">__REPORT_LINKS__</span>
+  </footer>
+</div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function () {
+  "use strict";
+  var D = JSON.parse(document.getElementById("data").textContent);
+  var DEFAULT_MONTH = "__DEFAULT_MONTH__";
+  var COLORS = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--s5)", "var(--s6)", "var(--s7)", "var(--s8)"];
+  var HEALTH_LABEL = {ok: "ok", sem_run_completa: "sem run completa", ultima_run_parcial: "última run parcial", vazia: "vazia", erros_normalizacao: "erros de normalização"};
+  var state = {month: DEFAULT_MONTH, scope: "all", cat: "", picked: null, q: "", hfilter: "problemas"};
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (n) { return n == null ? "-" : Number(n).toLocaleString("pt-BR"); };
+  var pct = function (v) { return v == null ? "-" : Number(v).toLocaleString("pt-BR", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + "%"; };
+  var sgn = function (v, d) { return (v > 0 ? "+" : "") + Number(v).toLocaleString("pt-BR", {minimumFractionDigits: d, maximumFractionDigits: d}); };
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]; }); }
+  var catOf = {};
+  D.skills.forEach(function (s) { catOf[s.skill] = s.category; });
+  if (D.months.indexOf(state.month) < 0) state.month = D.months[D.months.length - 1];
+  $("minsample").textContent = D.min_sample;
+  $("gen").textContent = "Gerado em " + D.generated_at + ".";
+
+  function inCat(skill) { return !state.cat || catOf[skill] === state.cat; }
+  function denOf(month, scope) { return (D.den[scope] || {})[month] || null; }
+  function monthRows(month, scope) {
+    return D.sm.filter(function (r) { return r.m === month && r.s === scope && inCat(r.k); }).sort(function (a, b) { return b.n - a.n || a.k.localeCompare(b.k); });
+  }
+  function trendRows(month, scope) {
+    return D.tr.filter(function (r) { return r.m === month && r.s === scope && inCat(r.k); });
+  }
+
+  function renderControls() {
+    $("month").innerHTML = D.months.slice().reverse().map(function (m) { return '<option value="' + m + '"' + (m === state.month ? " selected" : "") + ">" + m + "</option>"; }).join("");
+    var cats = [""].concat(D.cats);
+    $("cat").innerHTML = cats.map(function (c) { return '<option value="' + esc(c) + '"' + (c === state.cat ? " selected" : "") + ">" + (c ? esc(D.cat_labels[c] || c) : "Todas") + "</option>"; }).join("");
+    document.querySelectorAll("[data-scope]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.scope === state.scope)); });
+  }
+
+  function renderKpis() {
+    var c = D.coverage[state.month];
+    var den = denOf(state.month, state.scope);
+    if (!c) { $("kpis").innerHTML = ""; return; }
+    var items = [
+      [fmt(c.n_sources_complete), "fontes com coleta completa (de " + fmt(c.n_sources_seen) + " vistas)"],
+      [fmt(c.n_platforms), "plataformas"],
+      [fmt(state.scope === "all" ? c.n_jobs : c.n_data_role_jobs), state.scope === "all" ? "vagas (coletas completas)" : "vagas de dados (coletas completas)"],
+      [fmt(den ? den.denominator : 0), "vagas com descrição (denominador)"],
+      [pct(c.pct_with_description), "das vagas têm descrição"],
+      [fmt(c.panel_sources), c.is_baseline ? "painel comparável: linha de base" : "fontes no painel comparável"],
+      [fmt(c.n_runs_partial), "coletas PARTIAL (fora da tendência)"]
+    ];
+    $("kpis").innerHTML = items.map(function (i) { return '<div class="kpi"><div class="v">' + i[0] + '</div><div class="l">' + esc(i[1]) + "</div></div>"; }).join("");
+  }
+
+  function renderBanner() {
+    var c = D.coverage[state.month], html = "";
+    if (c && c.is_baseline) {
+      html = "Linha de base (" + esc(state.month) + "): tendência a partir do próximo mês. Este mês só tem participação por skill; não há variação a mostrar.";
+    } else if (c && !c.trend_available) {
+      html = "Sem painel comparável com o mês anterior (nenhuma fonte com coleta completa nos dois meses). Variações indisponíveis.";
+    }
+    $("banner").innerHTML = html ? '<div class="banner" role="status">' + html + "</div>" : "";
+  }
+
+  function renderRank() {
+    var den = denOf(state.month, state.scope), rows = monthRows(state.month, state.scope).slice(0, 25);
+    $("rank-note").textContent = den ? "Participação entre " + fmt(den.denominator) + " vagas com descrição" + (den.low ? " (amostra pequena: interpretar com cautela)" : "") + "." : "";
+    if (!rows.length) { $("rank").innerHTML = '<div class="empty">Sem skills detectadas neste filtro.</div>'; return; }
+    var max = Math.max.apply(null, rows.map(function (r) { return r.sh; })) || 1;
+    $("rank").innerHTML = rows.map(function (r, i) {
+      return '<div class="row"><span class="rk">' + (r.rk || i + 1) + '</span><span class="nm" title="' + esc(r.k) + '">' + esc(r.k) + '</span><span class="bar"><i style="width:' + (100 * r.sh / max).toFixed(1) + '%"></i></span><span class="val"><b>' + pct(r.sh) + "</b> " + fmt(r.n) + "/" + fmt(r.d) + "</span></div>";
+    }).join("");
+  }
+
+  function trendList(kind) {
+    var c = D.coverage[state.month], el = $(kind);
+    if (c && c.is_baseline) { el.innerHTML = '<div class="empty">Linha de base, tendência a partir do próximo mês.</div>'; return; }
+    var rows = trendRows(state.month, state.scope);
+    if (!rows.length || (c && !c.trend_available)) { el.innerHTML = '<div class="empty">Sem painel comparável com o mês anterior.</div>'; return; }
+    var sel = rows.filter(function (r) { return r.st === (kind === "up" ? "rising" : "falling"); });
+    sel.sort(function (a, b) { return kind === "up" ? b.dp - a.dp : a.dp - b.dp; });
+    var low = rows.filter(function (r) { return r.st === "low_sample"; }).length;
+    var html = sel.slice(0, 12).map(function (r) {
+      var rc = r.rc == null ? "" : (r.rc > 0 ? "▲" + r.rc : r.rc < 0 ? "▼" + (-r.rc) : "=") + " posições";
+      return '<div class="tr"><span>' + esc(r.k) + ' <span class="tag">' + fmt(r.n) + "/" + fmt(r.d) + " vs " + fmt(r.pn) + "/" + fmt(r.pd) + '</span></span><span class="' + (kind === "up" ? "up" : "down") + '">' + sgn(r.dp, 2) + ' p.p.</span><span class="muted">' + rc + "</span></div>";
+    }).join("");
+    if (!sel.length) html = '<div class="empty">Nenhuma skill com variação estatisticamente relevante' + (low ? "; " + fmt(low) + " em amostra pequena não classificadas" : "") + ".</div>";
+    else if (low) html += '<div class="empty">' + fmt(low) + " skills em amostra pequena (denominador abaixo de " + D.min_sample + ") não foram classificadas.</div>";
+    el.innerHTML = html;
+  }
+
+  function defaultPicks() {
+    return monthRows(state.month, state.scope).slice(0, 5).map(function (r) { return r.k; });
+  }
+  function renderPicker() {
+    var picked = state.picked || defaultPicks();
+    var q = state.q.toLowerCase();
+    var list = D.skills.filter(function (s) { return inCat(s.skill) && (!q || s.skill.toLowerCase().indexOf(q) >= 0); });
+    $("pick").innerHTML = list.map(function (s) {
+      return '<label><input type="checkbox" value="' + esc(s.skill) + '"' + (picked.indexOf(s.skill) >= 0 ? " checked" : "") + "> " + esc(s.skill) + "</label>";
+    }).join("") || '<div class="empty">Nenhuma skill.</div>';
+  }
+
+  function renderChart() {
+    var picked = (state.picked || defaultPicks()).filter(inCat);
+    var months = D.months, el = $("chart");
+    if (months.length < 2) {
+      var den = denOf(state.month, state.scope);
+      var rows = picked.map(function (k) {
+        var r = D.sm.filter(function (x) { return x.m === state.month && x.s === state.scope && x.k === k; })[0];
+        return "<tr><td>" + esc(k) + '</td><td class="n">' + (r ? pct(r.sh) : "0,0%") + '</td><td class="n">' + (r ? fmt(r.n) : 0) + "/" + fmt(den ? den.denominator : 0) + "</td></tr>";
+      }).join("");
+      el.innerHTML = '<div class="banner" role="status">Linha de base (' + esc(months[0]) + "): tendência a partir do próximo mês. O gráfico de linhas aparece quando houver pelo menos dois meses de coleta completa.</div>" +
+        (rows ? '<table><thead><tr><th>Skill</th><th class="n">Participação</th><th class="n">n/denominador</th></tr></thead><tbody>' + rows + "</tbody></table>" : "");
+      return;
+    }
+    if (!picked.length) { el.innerHTML = '<div class="empty">Escolha ao menos uma skill.</div>'; return; }
+    var W = 900, H = 340, L = 44, R = 16, T = 12, B = 30, series = [], ymax = 1;
+    picked.forEach(function (k, i) {
+      var pts = months.map(function (m) {
+        var den = denOf(m, state.scope);
+        var r = D.sm.filter(function (x) { return x.m === m && x.s === state.scope && x.k === k; })[0];
+        if (!den || !den.denominator) return {m: m, v: null};
+        return {m: m, v: r ? r.sh : 0, n: r ? r.n : 0, d: den.denominator, low: den.low};
+      });
+      pts.forEach(function (p) { if (p.v != null && p.v > ymax) ymax = p.v; });
+      series.push({k: k, color: COLORS[i % COLORS.length], pts: pts});
+    });
+    ymax = Math.ceil(ymax / 10) * 10 || 10;
+    var x = function (i) { return L + (W - L - R) * i / (months.length - 1); };
+    var y = function (v) { return T + (H - T - B) * (1 - v / ymax); };
+    var g = "";
+    for (var t = 0; t <= 4; t++) {
+      var v = ymax * t / 4;
+      g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="var(--line)"/><text x="' + (L - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + Math.round(v) + "%</text>";
+    }
+    months.forEach(function (m, i) { g += '<text x="' + x(i) + '" y="' + (H - 8) + '" text-anchor="middle">' + m + "</text>"; });
+    series.forEach(function (s) {
+      var d = "", pen = false, dots = "";
+      s.pts.forEach(function (p, i) {
+        if (p.v == null) { pen = false; return; }
+        d += (pen ? "L" : "M") + x(i).toFixed(1) + " " + y(p.v).toFixed(1) + " "; pen = true;
+        dots += '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(p.v).toFixed(1) + '" r="4" fill="' + (p.low ? "var(--surface)" : s.color) + '" stroke="' + s.color + '" stroke-width="2"><title>' + esc(s.k) + " em " + p.m + ": " + pct(p.v) + " (" + fmt(p.n) + "/" + fmt(p.d) + ")" + (p.low ? " - amostra pequena" : "") + "</title></circle>";
+      });
+      g += '<path d="' + d + '" fill="none" stroke="' + s.color + '" stroke-width="2.2"/>' + dots;
+    });
+    el.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Participação das skills selecionadas por mês">' + g + "</svg>" +
+      '<div class="legend">' + series.map(function (s) { return '<span><i style="background:' + s.color + '"></i>' + esc(s.k) + "</span>"; }).join("") + '<span class="muted">círculo vazio: amostra pequena</span></div>';
+  }
+
+  function renderHealth() {
+    var h = D.health, chips = Object.keys(h.summary).sort().map(function (k) { return '<span class="chip">' + esc(HEALTH_LABEL[k] || k) + ": <b>" + fmt(h.summary[k]) + "</b></span>"; }).join("");
+    $("chips").innerHTML = chips + '<span class="chip">total: <b>' + fmt(h.total) + "</b></span>";
+    var opts = ["problemas", "todas"].concat(Object.keys(h.summary).filter(function (k) { return k !== "ok"; }));
+    $("hfilter").innerHTML = opts.map(function (o) { return '<option value="' + o + '"' + (o === state.hfilter ? " selected" : "") + ">" + esc(o === "problemas" ? "só problemas" : o === "todas" ? "amostra geral" : HEALTH_LABEL[o] || o) + "</option>"; }).join("");
+    var rows = h.rows.filter(function (r) {
+      if (state.hfilter === "todas") return true;
+      if (state.hfilter === "problemas") return r.health !== "ok";
+      return r.health === state.hfilter;
+    });
+    $("health").innerHTML = rows.length ? '<table><thead><tr><th>Fonte</th><th>Plataforma</th><th class="n">Runs (compl./parc.)</th><th>Última coleta</th><th class="n">Vagas</th><th class="n">% c/ descrição</th><th>Estado</th></tr></thead><tbody>' +
+      rows.map(function (r) { return "<tr><td>" + esc(r.source_key) + "</td><td>" + esc(r.platform) + '</td><td class="n">' + r.nc + "/" + r.np + "</td><td>" + esc(r.last) + '</td><td class="n">' + fmt(r.jobs) + '</td><td class="n">' + pct(r.pd) + "</td><td>" + esc(HEALTH_LABEL[r.health] || r.health) + "</td></tr>"; }).join("") +
+      "</tbody></table>" + (h.truncated ? '<p class="note">Mostrando as primeiras ' + h.rows.length + " de " + fmt(h.total) + " fontes.</p>" : "")
+      : '<div class="empty">Nenhuma fonte neste filtro.</div>';
+  }
+
+  function renderAll() { renderControls(); renderBanner(); renderKpis(); renderRank(); trendList("up"); trendList("down"); renderPicker(); renderChart(); renderHealth(); }
+
+  document.addEventListener("change", function (e) {
+    var t = e.target;
+    if (t.id === "month") { state.month = t.value; state.picked = null; renderAll(); }
+    else if (t.id === "cat") { state.cat = t.value; renderAll(); }
+    else if (t.id === "hfilter") { state.hfilter = t.value; renderHealth(); }
+    else if (t.closest && t.closest("#pick")) {
+      var cur = (state.picked || defaultPicks()).slice();
+      var i = cur.indexOf(t.value);
+      if (t.checked && i < 0) cur.push(t.value); else if (!t.checked && i >= 0) cur.splice(i, 1);
+      state.picked = cur; renderChart();
+    }
+  });
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("button") : null;
+    if (!b) return;
+    if (b.dataset.scope) { state.scope = b.dataset.scope; state.picked = null; renderAll(); }
+    else if (b.id === "reset") { state.picked = null; renderPicker(); renderChart(); }
+    else if (b.id === "theme") {
+      var cur = document.documentElement.getAttribute("data-theme") || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      var next = cur === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      try { localStorage.setItem("vaya-theme", next); } catch (err) { /* sem storage */ }
+    }
+  });
+  $("q").addEventListener("input", function () { state.q = this.value; renderPicker(); });
+  try { var th = localStorage.getItem("vaya-theme"); if (th) document.documentElement.setAttribute("data-theme", th); } catch (err) { /* sem storage */ }
+  renderAll();
+})();
+</script>
+</body>
+</html>

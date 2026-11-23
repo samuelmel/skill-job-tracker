@@ -7,6 +7,8 @@ Migrations: use `alembic upgrade head`.
 import argparse
 import asyncio
 import json
+import logging
+import os
 import sys
 import uuid
 from collections.abc import Coroutine, Sequence
@@ -68,6 +70,24 @@ def build_parser() -> argparse.ArgumentParser:
     target.add_argument("--platform", help="slug da plataforma, ex.: greenhouse")
     target.add_argument("--all", action="store_true", help="todas com conector")
     verify.add_argument("--concurrency", type=int, default=3, help="instancias em paralelo")
+
+    lake = sub.add_parser("lake", help="Pipeline analitico offline (bronze, dbt, dashboard)")
+    lake_sub = lake.add_subparsers(dest="lake_command", required=True)
+    for name, text in (
+        ("bronze", "raw JSONL -> Parquet normalizado (idempotente)"),
+        ("dbt", "dbt build (silver + gold) sobre o bronze"),
+        ("dashboard", "gera os HTMLs a partir do gold"),
+        ("monthly", "bronze + dbt build + dashboard"),
+    ):
+        cmd = lake_sub.add_parser(name, help=text)
+        cmd.add_argument("--lake-dir", help="raiz do lake (padrao: LAKE_DIR ou ./data)")
+        if name in ("bronze", "monthly"):
+            cmd.add_argument("--catalog", type=Path, help="catalogo de fontes (config offline)")
+            cmd.add_argument(
+                "--reprocess", action="store_true", help="refaz o bronze de todas as runs"
+            )
+        if name in ("dashboard", "monthly"):
+            cmd.add_argument("--month", help="mes YYYY-MM do index (padrao: ultimo com dados)")
 
     report = sub.add_parser("coverage-report", help="Gera docs/coverage.md e docs/coverage.json")
     report.add_argument("--output-dir", type=Path, default=Path("docs"))
@@ -259,6 +279,47 @@ async def _coverage_report(output_dir: Path) -> int:
     return 0
 
 
+def _lake(args: argparse.Namespace) -> int:
+    from vaya_indexer.lake.bronze import build_bronze
+    from vaya_indexer.lake.dashboard import write_reports
+    from vaya_indexer.lake.monthly import latest_month_with_data, run_monthly
+    from vaya_indexer.lake.transform import run_dbt
+
+    lake_dir = Path(args.lake_dir or os.environ.get("LAKE_DIR") or "data")
+    match args.lake_command:
+        case "bronze":
+            res = build_bronze(lake_dir, args.catalog, args.reprocess)
+            print(
+                f"bronze: {len(res.processed)} runs novas, {len(res.skipped)} ja processadas, "
+                f"{len(res.bad)} rejeitadas, {res.rows} linhas, "
+                f"{res.normalize_errors} com normalize_error"
+            )
+            for bad in res.bad:
+                print(f"  REJEITADA {bad.path}: {bad.reason}")
+            for warning in res.warnings:
+                print(f"  AVISO {warning}")
+            return 1 if res.bad else 0
+        case "dbt":
+            print(run_dbt(lake_dir))
+            return 0
+        case "dashboard":
+            month = args.month or latest_month_with_data(lake_dir / "warehouse.duckdb")
+            for path in write_reports(lake_dir, month):
+                print(path)
+            return 0
+        case _:
+            monthly = run_monthly(lake_dir, args.month, args.catalog, reprocess=args.reprocess)
+            print(
+                f"mes {monthly.month}: {len(monthly.bronze.processed)} runs novas no bronze, "
+                f"{len(monthly.bronze.bad)} rejeitadas"
+            )
+            for bad in monthly.bronze.bad:
+                print(f"  REJEITADA {bad.path}: {bad.reason}")
+            for path in monthly.reports:
+                print(path)
+            return 0
+
+
 def run_async[T](coro: Coroutine[Any, Any, T]) -> T:
     # psycopg async nao funciona com o ProactorEventLoop (padrao no Windows).
     return asyncio.run(coro, loop_factory=asyncio.SelectorEventLoop)
@@ -266,6 +327,9 @@ def run_async[T](coro: Coroutine[Any, Any, T]) -> T:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "lake":  # offline: nao exige DATABASE_URL
+        logging.basicConfig(level=logging.WARNING, format="%(levelname)s %(message)s")
+        return _lake(args)
     configure_logging(get_settings().log_level)
     match args.command:
         case "seed-platforms":

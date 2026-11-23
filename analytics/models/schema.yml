@@ -1,0 +1,80 @@
+version: 2
+
+seeds:
+  - name: skills
+    columns:
+      - name: skill
+        data_tests: [unique, not_null]
+      - name: category
+        data_tests: [not_null]
+      - name: pattern
+        data_tests: [not_null]
+
+models:
+  - name: silver_run
+    columns:
+      - name: run_id
+        data_tests: [unique, not_null]
+      - name: source_key
+        data_tests: [not_null]
+      - name: complete
+        data_tests: [not_null]
+  - name: silver_job_observation
+    columns:
+      - name: observation_key
+        data_tests: [unique, not_null]
+      - name: run_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('silver_run')
+                field: run_id
+  - name: silver_job_month
+    columns:
+      - name: job_month_key
+        data_tests: [unique, not_null]
+      - name: job_family
+        data_tests: [not_null]
+      - name: seniority
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [intern, director, manager, staff_principal, lead, senior, junior, unspecified]
+  - name: silver_source_month
+    columns:
+      - name: source_key
+        data_tests: [not_null]
+  - name: silver_job_skill
+    columns:
+      - name: skill
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('skills')
+                field: skill
+  - name: gold_skill_month
+    columns:
+      - name: skill
+        data_tests: [not_null]
+      - name: scope
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [all, data_roles]
+  - name: gold_skill_trend
+    columns:
+      - name: status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [baseline, no_panel, low_sample, absent, rising, falling, stable]
+  - name: gold_month_coverage
+    columns:
+      - name: month
+        data_tests: [unique, not_null]
+  - name: gold_source_health
+    columns:
+      - name: source_key
+        data_tests: [unique, not_null]
