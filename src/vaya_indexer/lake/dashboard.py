@@ -30,6 +30,13 @@ CATEGORY_LABELS = {
 }
 
 
+HISTORY_TABLES = (
+    "gold_history_skill_month",
+    "gold_history_skill_year",
+    "gold_history_coverage_month",
+)
+
+
 class NoDataError(RuntimeError):
     """O warehouse nao tem nenhum mes com coleta completa."""
 
@@ -42,6 +49,192 @@ def _rows(con: duckdb.DuckDBPyConnection, sql: str) -> list[dict[str, Any]]:
 
 def _num(value: Any) -> Any:
     return float(value) if isinstance(value, Decimal) else value
+
+
+SMALL_BASE_POSTS = 50
+MOVER_TOP = 8
+SPAN_YEARS = 4  # comparacao de prazo mais longo: 2026 vs 2022
+# JavaScript e TypeScript sao um so movimento (o vocabulario migrou de um para o outro): nunca
+# aparecem sozinhos em altas/quedas; entram como uma linha combinada, contada por post.
+JSTS_SKILLS = ("JavaScript", "TypeScript")
+JSTS_LABEL = "JavaScript + TypeScript"
+
+
+def _mover(
+    name: str,
+    skills: list[str],
+    a: tuple[float, int],
+    b: tuple[float, int],
+    trend: list[float],
+) -> dict[str, Any]:
+    (sa, na), (sb, nb) = a, b
+    return {
+        "k": name,
+        "skills": skills,
+        "psh": sa,
+        "sh": sb,
+        "dp": round(sb - sa, 2),
+        "rel": round(100.0 * (sb - sa) / sa, 1) if sa else None,
+        "pn": na,
+        "n": nb,
+        "small": 0 < na < SMALL_BASE_POSTS,
+        "new": na == 0,
+        "t": trend,
+    }
+
+
+def _pair_movers(
+    yidx: dict[int, dict[str, dict[str, Any]]],
+    jidx: dict[int, dict[str, Any]],
+    years: list[int],
+    a: int,
+    b: int,
+    min_sample: int,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    items: list[dict[str, Any]] = []
+    names = {k for y in (a, b) for k in yidx.get(y, {})}
+    for skill in sorted(names - set(JSTS_SKILLS)):
+        ra, rb = yidx.get(a, {}).get(skill), yidx.get(b, {}).get(skill)
+        pa = (ra["sh"] or 0.0, ra["n"]) if ra else (0.0, 0)
+        pb = (rb["sh"] or 0.0, rb["n"]) if rb else (0.0, 0)
+        if max(pa[1], pb[1]) < min_sample:
+            continue
+        trend = [(yidx.get(y, {}).get(skill) or {}).get("sh") or 0.0 for y in years]
+        items.append(_mover(skill, [skill], pa, pb, trend))
+    ja, jb = jidx.get(a), jidx.get(b)
+    if ja and jb and max(ja["n"], jb["n"]) >= min_sample:
+        trend = [(jidx.get(y) or {}).get("sh") or 0.0 for y in years]
+        items.append(
+            _mover(JSTS_LABEL, list(JSTS_SKILLS), (ja["sh"], ja["n"]), (jb["sh"], jb["n"]), trend)
+        )
+    ups = sorted((i for i in items if i["dp"] > 0), key=lambda i: (-i["dp"], i["k"]))
+    downs = sorted((i for i in items if i["dp"] < 0), key=lambda i: (i["dp"], i["k"]))
+    return ups[:MOVER_TOP], downs[:MOVER_TOP]
+
+
+def build_movers(
+    yr: list[dict[str, Any]],
+    months_by_year: dict[int, int],
+    jsts: list[dict[str, Any]],
+    min_sample: int,
+) -> dict[str, Any] | None:
+    """Altas e quedas por par de anos, com JavaScript/TypeScript tratados em um unico lugar.
+
+    O par 0 e o ultimo ano COMPLETO vs. o anterior (nunca ano parcial como base de manchete);
+    depois vem o prazo longo (ano final vs. ano final - 4) e os demais anos consecutivos.
+    Entram skills com n >= min_sample posts em um dos dois anos.
+    """
+    years = sorted(months_by_year)
+    if len(years) < 2:
+        return None
+    yidx: dict[int, dict[str, dict[str, Any]]] = {}
+    for r in yr:
+        yidx.setdefault(r["y"], {})[r["k"]] = r
+    jidx = {r["y"]: r for r in jsts}
+    consecutive = [(y - 1, y) for y in years if (y - 1) in months_by_year]
+    complete = [b for _, b in consecutive if months_by_year[b] >= 12]
+    head = (max(complete) - 1, max(complete)) if complete else consecutive[-1]
+    pairs_ab = [head]
+    last = years[-1]
+    if (last - SPAN_YEARS) in months_by_year and (last - SPAN_YEARS, last) != head:
+        pairs_ab.append((last - SPAN_YEARS, last))
+    pairs_ab += [p for p in reversed(consecutive) if p not in pairs_ab]
+    pairs = []
+    for a, b in pairs_ab:
+        ups, downs = _pair_movers(yidx, jidx, years, a, b, min_sample)
+        pairs.append(
+            {
+                "a": a,
+                "b": b,
+                "span": b - a > 1,
+                "ma": months_by_year[a],
+                "mb": months_by_year[b],
+                "ups": ups,
+                "downs": downs,
+            }
+        )
+    return {
+        "years": years,
+        "pairs": pairs,
+        "small_base": SMALL_BASE_POSTS,
+        "min_sample": min_sample,
+    }
+
+
+def collect_history(con: duckdb.DuckDBPyConnection) -> dict[str, Any] | None:
+    """Serie do Hacker News (tag history), separada da coleta atual. None se nao existir.
+
+    Sem autor e sem texto de post: so contagens e participacoes por mes/ano.
+    """
+    have = {
+        r[0]
+        for r in con.execute(
+            "select table_name from information_schema.tables where table_schema = 'main'"
+        ).fetchall()
+    }
+    if not set(HISTORY_TABLES) <= have:
+        return None
+    coverage_rows = _rows(con, "select * from gold_history_coverage_month order by month")
+    if not coverage_rows:
+        return None
+    coverage = {
+        r["month"]: {k: (None if v is None else _num(v)) for k, v in r.items()}
+        for r in coverage_rows
+    }
+    sm = [
+        {"m": r["month"], "k": r["skill"], "n": r["n"], "d": r["denominator"], "sh": r["share_pct"]}
+        for r in _rows(
+            con,
+            "select month, skill, n, denominator, share_pct from gold_history_skill_month "
+            "where n > 0 order by month, n desc, skill",
+        )
+    ]
+    yr = [
+        {
+            "y": r["year"],
+            "k": r["skill"],
+            "n": r["n"],
+            "d": r["denominator"],
+            "mo": r["months_covered"],
+            "sh": _num(r["mean_month_share_pct"]),
+            "pn": r["prev_n"],
+            "dp": _num(r["delta_pp"]),
+            "sg": r["has_signal"],
+        }
+        for r in _rows(
+            con,
+            "select * from gold_history_skill_year where n > 0 or coalesce(prev_n, 0) > 0 "
+            "order by year, skill",
+        )
+    ]
+    jsts: list[dict[str, Any]] = []
+    if "silver_hn_post_skill" in have:
+        # Posts com JavaScript OU TypeScript (cada post conta uma vez; nada de somar percentuais).
+        jsts = [
+            {"y": r["year"], "n": r["n"], "d": r["d"], "mo": r["mo"], "sh": _num(r["sh"])}
+            for r in _rows(
+                con,
+                "select c.year, sum(coalesce(w.n, 0)) as n, sum(c.n_posts) as d, count(*) as mo, "
+                "round(avg(100.0 * coalesce(w.n, 0) / c.n_posts), 2) as sh "
+                "from gold_history_coverage_month c left join ("
+                "select month, count(distinct post_id) as n from silver_hn_post_skill "
+                "where skill in ('JavaScript', 'TypeScript') group by month"
+                ") w on w.month = c.month group by c.year order by c.year",
+            )
+        ]
+    months_by_year: dict[int, int] = {}
+    for r in coverage_rows:
+        months_by_year[r["year"]] = months_by_year.get(r["year"], 0) + 1
+    return {
+        "movers": build_movers(yr, months_by_year, jsts, MIN_SAMPLE),
+        "jsts": jsts,
+        "months": [r["month"] for r in coverage_rows],
+        "years": sorted({r["year"] for r in coverage_rows}),
+        "coverage": coverage,
+        "sm": sm,
+        "yr": yr,
+        "min_sample": MIN_SAMPLE,
+    }
 
 
 def collect_data(warehouse: Path) -> dict[str, Any]:
@@ -103,6 +296,7 @@ def collect_data(warehouse: Path) -> dict[str, Any]:
                 "select * from gold_skill_trend where n > 0 or prev_n > 0 order by month, scope",
             )
         ]
+        hist = collect_history(con)
         summary = {
             r["health"]: r["n"]
             for r in _rows(con, "select health, count(*) as n from gold_source_health group by 1")
@@ -137,6 +331,7 @@ def collect_data(warehouse: Path) -> dict[str, Any]:
         "skills": skills,
         "cats": cats,
         "cat_labels": CATEGORY_LABELS,
+        "hist": hist,
         "den": den,
         "sm": sm,
         "tr": tr,

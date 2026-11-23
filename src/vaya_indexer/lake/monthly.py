@@ -10,6 +10,7 @@ from vaya_indexer.lake.bronze import BronzeResult, build_bronze
 from vaya_indexer.lake.dashboard import write_reports
 from vaya_indexer.lake.transform import run_dbt
 
+MONTHLY_DBT_ARGS = ["--exclude", "tag:history"]
 _MONTH = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 
 
@@ -51,7 +52,8 @@ def run_monthly(
     bronze = build_bronze(lake, catalog_path, reprocess)
     if not (lake / "bronze" / "runs").is_dir():
         raise RuntimeError(f"nenhum raw processado em {lake / 'raw'}: nada para analisar")
-    warehouse = run_dbt(lake, project_dir)
+    # Historico (tag history) tem build proprio: o mensal nao o recria nem le o disco dele.
+    warehouse = run_dbt(lake, project_dir, extra_args=MONTHLY_DBT_ARGS)
     chosen = month or latest_month_with_data(warehouse)
     if chosen is None:
         raise RuntimeError("nenhum mes com coleta completa no warehouse")

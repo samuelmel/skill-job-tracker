@@ -211,3 +211,49 @@ def test_clean_text_empty(raw: str | None) -> None:
 def test_redaction_of_truncated_and_odd_emails() -> None:
     for raw in ["me at jfeala@_.com, ok", "mail alex.b@clou... now", "x hello_@_moby.gg y"]:
         assert "@" not in hn.clean_text(raw)
+
+
+def test_allowlist_accepts_other_author_only_for_listed_id_and_month() -> None:
+    allowed = {2719028: "2011-07"}
+    hits = [
+        _hit(2719028, "Ask HN: Who is hiring? (July 2011)", author="Aloisius"),
+        _hit(777, "Ask HN: Who is hiring? (July 2011)", author="Aloisius"),  # id fora da lista
+        _hit(2719028, "Ask HN: Who is hiring? (July 2011)", author="Aloisius"),  # duplicado
+    ]
+    found = hn.select_threads(hits, allowed_ids=allowed)
+    assert [(t.thread_id, t.month) for t in found.threads] == [(2719028, "2011-07")]
+    assert not found.duplicate_months
+    wrong = hn.select_threads(
+        [_hit(2719028, "Ask HN: Who is hiring? (August 2011)", author="Aloisius")],
+        allowed_ids=allowed,
+    )
+    assert wrong.threads == []
+
+
+def test_allowlist_ids_are_the_three_missing_months() -> None:
+    assert hn.ALLOWED_THREAD_IDS == {
+        2719028: "2011-07",
+        3300290: "2011-12",
+        9303396: "2015-04",
+        9471287: "2015-05",
+    }
+
+
+def test_broken_bot_thread_2011_12_is_excluded_and_real_one_selected() -> None:
+    hits = [
+        {
+            "objectID": "3300371",
+            "title": "Ask HN: Who is Hiring? (December 2011)",
+            "author": "whoishiring",
+            "created_at": "2011-12-01T16:57:50Z",
+        },
+        {
+            "objectID": "3300290",
+            "title": "Ask HN: Who is Hiring? (December 2011)",
+            "author": "lpolovets",
+            "created_at": "2011-12-01T16:38:08Z",
+        },
+    ]
+    found = hn.select_threads(hits)
+    assert [(t.thread_id, t.month) for t in found.threads] == [(3300290, "2011-12")]
+    assert not found.duplicate_months

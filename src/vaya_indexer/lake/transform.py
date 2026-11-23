@@ -1,5 +1,8 @@
 """Execucao do projeto dbt (silver + gold) sobre o bronze, sem Postgres.
 
+Modelos com tag `history` (Hacker News) tem rotina propria (`scripts/build_history.py`); o fluxo
+mensal os exclui com `--exclude tag:history` e as tabelas continuam no warehouse.
+
 Os caminhos chegam ao dbt por variaveis de ambiente (ver analytics/profiles.yml); target e logs
 do dbt ficam dentro do lake para nao sujar o repositorio.
 """
@@ -60,6 +63,8 @@ def run_dbt(
         "VAYA_WAREHOUSE": warehouse.as_posix(),
         "VAYA_BRONZE_JOBS": (lake / "bronze" / "jobs" / "*" / "*.parquet").as_posix(),
         "VAYA_BRONZE_RUNS": (lake / "bronze" / "runs" / "*" / "*.parquet").as_posix(),
+        "VAYA_HN_POSTS": (lake / "history/hn/bronze/posts/*/*.parquet").as_posix(),
+        "VAYA_HN_THREADS": (lake / "history/hn/bronze/threads/*/*.parquet").as_posix(),
     }
     args = [
         command,

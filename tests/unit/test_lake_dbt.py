@@ -13,6 +13,7 @@ import pytest
 
 from vaya_indexer.lake.bronze import JOBS_SCHEMA, RUNS_SCHEMA, bronze_paths
 from vaya_indexer.lake.dashboard import collect_data, render_html
+from vaya_indexer.lake.monthly import MONTHLY_DBT_ARGS
 from vaya_indexer.lake.transform import run_dbt
 
 OCT = datetime(2026, 10, 10, 12, 0)
@@ -99,7 +100,7 @@ def trend_lake(tmp_path_factory: pytest.TempPathFactory) -> Path:
     _write_run(lake, "B", NOV, True, _jobs("b", 10, 0, no_description=5))
     _write_run(lake, "C", NOV, True, _jobs("c", 40, 40))
     _write_run(lake, "D", NOV, True, _jobs("d", 40, 40))
-    run_dbt(lake)
+    run_dbt(lake, extra_args=MONTHLY_DBT_ARGS)
     return lake
 
 
@@ -207,7 +208,7 @@ def low_sample_lake(tmp_path_factory: pytest.TempPathFactory) -> Path:
     # 20 vagas com descricao por mes: abaixo de 30, mesmo com salto grande de Python.
     _write_run(lake, "A", OCT, True, _jobs("a", 20, 2))
     _write_run(lake, "A", NOV, True, _jobs("a", 20, 18))
-    run_dbt(lake)
+    run_dbt(lake, extra_args=MONTHLY_DBT_ARGS)
     return lake
 
 
@@ -268,7 +269,7 @@ def skill_lake(tmp_path_factory: pytest.TempPathFactory) -> Path:
         {"id": "t3", "title": "Senior Data Engineer", "description": "x"},
     ]
     _write_run(lake, "A", OCT, True, jobs)
-    run_dbt(lake)
+    run_dbt(lake, extra_args=MONTHLY_DBT_ARGS)
     return lake
 
 

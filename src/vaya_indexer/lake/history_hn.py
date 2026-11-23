@@ -24,7 +24,7 @@ import os
 import re
 import shutil
 import uuid
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -39,6 +39,17 @@ SOURCE = "hn_algolia+firebase"
 POSTS_FILE = "posts.jsonl.gz"
 MANIFEST_FILE = "manifest.json"
 AUTHOR = "whoishiring"
+# Threads reais de vagas postadas por outras contas (o bot `whoishiring` nao as criou). Aceitas
+# por id explicito (id -> mes esperado); o titulo ainda precisa casar com o mes da lista.
+ALLOWED_THREAD_IDS: dict[int, str] = {
+    2719028: "2011-07",
+    3300290: "2011-12",  # lpolovets, 251 comentarios: o script do bot quebrou naquele dia
+    9303396: "2015-04",
+    9471287: "2015-05",
+}
+# Threads do bot que existem mas sao a tentativa quebrada (nao a thread de vagas do mes).
+# 3300371 (dezembro de 2011): so 4 comentarios, o bot falhou; a real e a 3300290.
+EXCLUDED_THREAD_IDS: frozenset[int] = frozenset({3300371})
 ALGOLIA_SEARCH = "https://hn.algolia.com/api/v1/search_by_date"
 ALGOLIA_ITEM = "https://hn.algolia.com/api/v1/items/{id}"
 FIREBASE_ITEM = "https://hacker-news.firebaseio.com/v0/item/{id}.json"
@@ -160,19 +171,33 @@ class Discovery:
     duplicate_months: dict[str, list[int]] = field(default_factory=dict)
 
 
-def select_threads(hits: Iterable[dict[str, Any]]) -> Discovery:
-    """Filtra hits do Algolia: so autor whoishiring e titulo exato `Who is hiring? (Mes AAAA)`."""
+def select_threads(
+    hits: Iterable[dict[str, Any]], allowed_ids: dict[int, str] | None = None
+) -> Discovery:
+    """Filtra hits: autor whoishiring (ou id da allowlist) e titulo `Who is hiring? (Mes AAAA)`.
+
+    Id da allowlist so vale se o mes do titulo for o mes registrado para ele.
+    """
+    allowed = ALLOWED_THREAD_IDS if allowed_ids is None else allowed_ids
     found: list[Thread] = []
     skipped: list[str] = []
+    seen: set[int] = set()
     for hit in hits:
         title = str(hit.get("title") or "")
-        if hit.get("author") != AUTHOR:
+        object_id = int(hit["objectID"])
+        if object_id in EXCLUDED_THREAD_IDS:
+            continue
+        listed = object_id in allowed
+        if hit.get("author") != AUTHOR and not listed:
             continue
         month = parse_month(title)
-        if month is None:
+        if month is None or (listed and allowed[object_id] != month):
             if "hiring" in title.lower() and "hired" not in title.lower():
                 skipped.append(title)
             continue
+        if object_id in seen:
+            continue
+        seen.add(object_id)
         found.append(Thread(int(hit["objectID"]), title.strip(), month, str(hit["created_at"])))
     found.sort(key=lambda t: (t.month, t.thread_id))
     by_month: dict[str, list[int]] = {}
@@ -182,7 +207,26 @@ def select_threads(hits: Iterable[dict[str, Any]]) -> Discovery:
     return Discovery(found, skipped, dups)
 
 
-async def discover_threads(http: Fetcher) -> Discovery:
+async def _allowlisted_hits(http: Fetcher, ids: Iterable[int]) -> list[dict[str, Any]]:
+    """Hits sinteticos das threads da allowlist, lidos da API oficial (so story com titulo)."""
+    hits: list[dict[str, Any]] = []
+    for thread_id in ids:
+        item = await http.get_json(FIREBASE_ITEM.format(id=thread_id))
+        if not isinstance(item, dict) or item.get("type") != "story" or not item.get("title"):
+            continue
+        created = datetime.fromtimestamp(int(item["time"]), UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+        hits.append(
+            {
+                "objectID": str(thread_id),
+                "title": item["title"],
+                "author": str(item.get("by") or ""),
+                "created_at": created,
+            }
+        )
+    return hits
+
+
+async def discover_threads(http: Fetcher, extra_ids: Iterable[int] = ()) -> Discovery:
     hits: list[dict[str, Any]] = []
     page = 0
     while True:
@@ -198,6 +242,7 @@ async def discover_threads(http: Fetcher) -> Discovery:
         page += 1
         if page >= int(data.get("nbPages", 1)):
             break
+    hits.extend(await _allowlisted_hits(http, extra_ids))
     return select_threads(hits)
 
 
@@ -412,17 +457,26 @@ async def load_history(
     start: str | None = None,
     end: str | None = None,
     now: datetime | None = None,
+    extra_ids: Iterable[int] = (),
+    only_ids: Collection[int] | None = None,
 ) -> LoadSummary:
-    """Carrega os meses no intervalo. Pula meses ja completos, exceto o mais novo (cresce)."""
+    """Carrega os meses no intervalo. Pula meses ja completos, exceto o mais novo (cresce).
+
+    `extra_ids`: threads da allowlist a descobrir alem das do bot. `only_ids`: baixa so estas.
+    """
     lake = Path(lake_dir)
-    discovery = await discover_threads(http)
+    discovery = await discover_threads(http, extra_ids)
     summary = LoadSummary(
         discovered=[t.month for t in discovery.threads],
         missing_months=missing_months(t.month for t in discovery.threads),
         duplicate_months=discovery.duplicate_months,
         skipped_titles=discovery.skipped_titles,
     )
-    selected = [t for t in discovery.threads if _in_range(t.month, start, end)]
+    selected = [
+        t
+        for t in discovery.threads
+        if _in_range(t.month, start, end) and (only_ids is None or t.thread_id in only_ids)
+    ]
     newest = max((t.month for t in selected), default=None)
     for thread in selected:
         directory = month_dir(lake, thread)

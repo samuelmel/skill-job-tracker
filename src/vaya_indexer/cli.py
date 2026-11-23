@@ -287,7 +287,7 @@ async def _coverage_report(output_dir: Path) -> int:
 def _lake(args: argparse.Namespace) -> int:
     from vaya_indexer.lake.bronze import build_bronze
     from vaya_indexer.lake.dashboard import write_reports
-    from vaya_indexer.lake.monthly import latest_month_with_data, run_monthly
+    from vaya_indexer.lake.monthly import MONTHLY_DBT_ARGS, latest_month_with_data, run_monthly
     from vaya_indexer.lake.transform import run_dbt
 
     lake_dir = Path(args.lake_dir or os.environ.get("LAKE_DIR") or "data")
@@ -305,7 +305,7 @@ def _lake(args: argparse.Namespace) -> int:
                 print(f"  AVISO {warning}")
             return 1 if res.bad else 0
         case "dbt":
-            print(run_dbt(lake_dir))
+            print(run_dbt(lake_dir, extra_args=MONTHLY_DBT_ARGS))
             return 0
         case "dashboard":
             month = args.month or latest_month_with_data(lake_dir / "warehouse.duckdb")

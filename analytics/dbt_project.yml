@@ -24,6 +24,11 @@ models:
       +materialized: table
     gold:
       +materialized: table
+    # Hacker News "Who is hiring": serie separada, build avulso (scripts/build_history.py).
+    # O fluxo mensal roda com `--exclude tag:history`.
+    history:
+      +materialized: table
+      +tags: ["history"]
 
 seeds:
   vaya_analytics:

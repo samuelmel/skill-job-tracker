@@ -121,7 +121,7 @@ def test_pipeline_never_touches_hn_history() -> None:
         *sorted((SCRIPTS.parent / "src" / "vaya_indexer" / "lake").glob("*.py")),
     ]
     for path in roots:
-        if path.name == "history_hn.py":
+        if path.name in ("history_hn.py", "history_build.py"):
             continue
         tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
@@ -130,6 +130,8 @@ def test_pipeline_never_touches_hn_history() -> None:
                 names = [a.name for a in node.names]
             elif isinstance(node, ast.ImportFrom):
                 names = [node.module or "", *[a.name for a in node.names]]
-            assert not any("history_hn" in n or "load_history_hn" in n for n in names), path
+            assert not any(
+                "history_hn" in n or "load_history_hn" in n or "history_build" in n for n in names
+            ), path
     for path in roots[:2]:
         assert "history" not in path.read_text(encoding="utf-8")

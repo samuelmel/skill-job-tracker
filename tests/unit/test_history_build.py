@@ -1,0 +1,269 @@
+"""Bronze do historico HN e modelos dbt `history` em lake sintetico (tmp_path). Sem rede."""
+
+import gzip
+import hashlib
+import json
+from pathlib import Path
+from typing import Any
+
+import duckdb
+import pytest
+
+from vaya_indexer.lake import history_build as hb
+from vaya_indexer.lake import monthly
+from vaya_indexer.lake.dashboard import build_movers, collect_history, render_html
+
+
+def _write_thread(
+    lake: Path, month: str, thread_id: int, texts: list[str], sha: str | None = None
+) -> Path:
+    thread_dir = lake / "history" / "hn" / "raw" / f"month={month}" / f"thread={thread_id}"
+    thread_dir.mkdir(parents=True)
+    posts = thread_dir / hb.POSTS_FILE
+    with gzip.open(posts, "wt", encoding="utf-8") as fh:
+        for i, text in enumerate(texts):
+            rec = {
+                "post_id": thread_id * 1000 + i,
+                "thread_id": thread_id,
+                "month": month,
+                "created_at": f"{month}-05T10:00:00Z",
+                "text": text,
+            }
+            fh.write(json.dumps(rec) + "\n")
+    manifest: dict[str, Any] = {
+        "thread_id": thread_id,
+        "month": month,
+        "title": f"Ask HN: Who is hiring? ({month})",
+        "thread_created_at": f"{month}-01T10:00:00Z",
+        "fetched_at": "2026-11-20T10:00:00Z",
+        "post_count": len(texts),
+        "api_top_level_count": len(texts),
+        "firebase_kids_count": len(texts),
+        "excluded_deleted_or_empty": 0,
+        "complete": True,
+        "posts_file": hb.POSTS_FILE,
+        "sha256": sha or hashlib.sha256(posts.read_bytes()).hexdigest(),
+    }
+    (thread_dir / hb.MANIFEST_FILE).write_text(json.dumps(manifest), encoding="utf-8")
+    return thread_dir
+
+
+def _bronze_files(lake: Path) -> list[Path]:
+    return sorted((lake / "history" / "hn" / "bronze").rglob("*.parquet"))
+
+
+def test_bronze_build_is_idempotent(tmp_path: Path) -> None:
+    _write_thread(tmp_path, "2020-01", 1, ["Acme | Python", "Beta | Rust"])
+    first = hb.build_history_bronze(tmp_path)
+    assert first.processed == ["1"] and first.rows == 2 and not first.bad
+    files = _bronze_files(tmp_path)
+    assert len(files) == 2
+    stamps = {p: p.stat().st_mtime_ns for p in files}
+    second = hb.build_history_bronze(tmp_path)
+    assert second.processed == [] and second.skipped == ["1"]
+    assert {p: p.stat().st_mtime_ns for p in _bronze_files(tmp_path)} == stamps
+    assert not list((tmp_path / "history").rglob(".tmp-*"))
+
+
+def test_changed_raw_is_rebuilt(tmp_path: Path) -> None:
+    thread_dir = _write_thread(tmp_path, "2020-01", 1, ["a"])
+    hb.build_history_bronze(tmp_path)
+    for child in thread_dir.iterdir():
+        child.unlink()
+    thread_dir.rmdir()
+    _write_thread(tmp_path, "2020-01", 1, ["a", "b"])
+    res = hb.build_history_bronze(tmp_path)
+    assert res.processed == ["1"] and res.rows == 2
+
+
+def test_invalid_sha256_fails_and_writes_nothing(tmp_path: Path) -> None:
+    _write_thread(tmp_path, "2020-01", 1, ["Python"], sha="0" * 64)
+    res = hb.build_history_bronze(tmp_path)
+    assert len(res.bad) == 1 and "sha256" in res.bad[0].reason
+    assert not res.processed and _bronze_files(tmp_path) == []
+    with pytest.raises(RuntimeError, match="rejeitada"):
+        hb.run_history_build(tmp_path)
+
+
+def test_post_count_mismatch_is_rejected(tmp_path: Path) -> None:
+    thread_dir = _write_thread(tmp_path, "2020-01", 1, ["a", "b"])
+    manifest_path = thread_dir / hb.MANIFEST_FILE
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["post_count"] = 5
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    res = hb.build_history_bronze(tmp_path)
+    assert len(res.bad) == 1 and _bronze_files(tmp_path) == []
+
+
+@pytest.fixture(scope="module")
+def hist_lake(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    lake = tmp_path_factory.mktemp("lake_hist")
+    base = ["Generic role at a startup"] * 26
+    _write_thread(
+        lake,
+        "2021-03",
+        10,
+        [
+            "Acme | Python and SQL | Remote",
+            "Beta | Go programming | NYC",
+            "Gamma | We love Scala and Rust",
+            "Delta | Visit La Scala in Milan",
+            "Eps | Go to market lead",
+            "Zeta | Data work in R, Python",
+            "Eta | rust-free shop, golang services",
+            "Iota | ML Engineer | AI/ML",
+            "Kappa | 5 ml of HTML and XML, html5 homl",
+            "Lambda | MACHINE LEARNING platform",
+            "Mu | Machine-learning and aprendizado de máquina",
+            "Nu | uses sml and ocaml",
+            *base,
+        ],
+    )
+    _write_thread(lake, "2021-04", 11, ["Acme | python"] * 3)
+    hb.run_history_build(lake)
+    return lake
+
+
+def _skills_of(lake: Path, text_prefix: str) -> set[str]:
+    con = duckdb.connect(str(lake / "warehouse.duckdb"), read_only=True)
+    try:
+        rows = con.execute(
+            "select s.skill from silver_hn_post p join silver_hn_post_skill s using (post_id) "
+            "where p.text like ?",
+            [text_prefix + "%"],
+        ).fetchall()
+    finally:
+        con.close()
+    return {r[0] for r in rows}
+
+
+def test_skill_classification_respects_case_and_exclusions(hist_lake: Path) -> None:
+    assert {"Python", "SQL"} <= _skills_of(hist_lake, "Acme | Python and SQL")
+    assert "Go" in _skills_of(hist_lake, "Beta")
+    assert {"Scala", "Rust"} <= _skills_of(hist_lake, "Gamma")
+    assert "Scala" not in _skills_of(hist_lake, "Delta")  # exclude_pattern
+    assert "Go" not in _skills_of(hist_lake, "Eps")  # Go to market
+    assert "R" in _skills_of(hist_lake, "Zeta")
+    assert "Rust" not in _skills_of(hist_lake, "Eta")  # case_sensitive
+
+
+def test_machine_learning_matches_acronym_and_case_variants(hist_lake: Path) -> None:
+    ml = "Machine Learning"
+    assert ml in _skills_of(hist_lake, "Iota")  # ML maiusculo e AI/ML
+    assert ml in _skills_of(hist_lake, "Lambda")  # MACHINE LEARNING
+    assert ml in _skills_of(hist_lake, "Mu")  # machine-learning / aprendizado de maquina
+    assert ml not in _skills_of(hist_lake, "Kappa")  # ml minusculo, HTML, XML
+    assert ml not in _skills_of(hist_lake, "Nu")  # sml / ocaml
+
+
+def test_gold_denominator_is_top_level_posts_and_low_sample(hist_lake: Path) -> None:
+    con = duckdb.connect(str(hist_lake / "warehouse.duckdb"), read_only=True)
+    try:
+        row = con.execute(
+            "select n, denominator, low_sample from gold_history_skill_month "
+            "where month = '2021-03' and skill = 'Python'"
+        ).fetchone()
+        assert row == (2, 38, False)
+        cov = con.execute(
+            "select n_posts, low_sample from gold_history_coverage_month where month = '2021-04'"
+        ).fetchone()
+        assert cov == (3, True)
+    finally:
+        con.close()
+
+
+def test_history_build_is_idempotent_on_rerun(hist_lake: Path) -> None:
+    again = hb.build_history_bronze(hist_lake)
+    assert again.processed == [] and sorted(again.skipped) == ["10", "11"]
+
+
+def test_dashboard_history_present_and_absent(hist_lake: Path, tmp_path: Path) -> None:
+    con = duckdb.connect(str(hist_lake / "warehouse.duckdb"), read_only=True)
+    try:
+        hist = collect_history(con)
+    finally:
+        con.close()
+    assert hist is not None
+    assert hist["months"] == ["2021-03", "2021-04"]
+    assert "author" not in json.dumps(hist).lower()
+    empty = duckdb.connect(str(tmp_path / "empty.duckdb"))
+    try:
+        assert collect_history(empty) is None
+    finally:
+        empty.close()
+    html = render_html({"hist": None, "months": []}, "2021-03", "")
+    assert 'id="hist"' in html and "hidden" in html
+
+
+def test_monthly_excludes_history_tag(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    captured: dict[str, Any] = {}
+
+    def fake_dbt(lake: Any, project_dir: Any = None, extra_args: Any = None) -> Path:
+        captured["extra"] = extra_args
+        raise RuntimeError("stop")
+
+    monkeypatch.setattr(monthly, "run_dbt", fake_dbt)
+    monkeypatch.setattr(monthly, "build_bronze", lambda *a, **k: None)
+    (tmp_path / "bronze" / "runs").mkdir(parents=True)
+    with pytest.raises(RuntimeError, match="stop"):
+        monthly.run_monthly(tmp_path)
+    assert captured["extra"] == ["--exclude", "tag:history"]
+
+
+def _yr(y: int, k: str, n: int, sh: float) -> dict[str, Any]:
+    return {"y": y, "k": k, "n": n, "sh": sh}
+
+
+def _movers_fixture() -> tuple[list[dict[str, Any]], dict[int, int], list[dict[str, Any]]]:
+    yr = [
+        _yr(2023, "A", 100, 10.0), _yr(2024, "A", 80, 8.0), _yr(2025, "A", 50, 5.0),
+        _yr(2023, "B", 40, 4.0), _yr(2024, "B", 20, 2.0), _yr(2025, "B", 10, 1.0),
+        _yr(2024, "D", 35, 3.0), _yr(2025, "D", 90, 9.0),
+        _yr(2024, "E", 40, 4.0), _yr(2025, "E", 10, 1.0),
+        _yr(2023, "JavaScript", 100, 9.0), _yr(2024, "JavaScript", 90, 8.0),
+        _yr(2025, "JavaScript", 50, 4.0),
+        _yr(2023, "TypeScript", 50, 5.0), _yr(2024, "TypeScript", 60, 6.0),
+        _yr(2025, "TypeScript", 120, 12.0),
+        _yr(2026, "A", 1, 0.1),
+    ]  # fmt: skip
+    months = {2023: 12, 2024: 12, 2025: 12, 2026: 11}
+    jsts = [{"y": 2023, "n": 140, "sh": 13.0}, {"y": 2024, "n": 140, "sh": 12.5},
+            {"y": 2025, "n": 160, "sh": 14.0}]  # fmt: skip
+    return yr, months, jsts
+
+
+def test_movers_use_last_complete_year_and_min_sample() -> None:
+    yr, months, jsts = _movers_fixture()
+    out = build_movers(yr, months, jsts, 30)
+    assert out is not None
+    head = out["pairs"][0]
+    assert (head["a"], head["b"]) == (2024, 2025)  # 2026 e parcial: nao e a base da manchete
+    assert [r["k"] for r in head["downs"]] == ["A", "E"]  # B (n<30 nos dois anos) fora
+    assert head["downs"][0]["rel"] == -37.5 and head["downs"][0]["small"] is False
+    assert head["downs"][1]["small"] is True  # E: ano anterior com 40 posts (< 50)
+    assert head["downs"][0]["t"] == [10.0, 8.0, 5.0, 0.1]  # mini-tendencia alinhada aos anos
+
+
+def test_javascript_and_typescript_never_appear_alone_and_combo_uses_per_post_value() -> None:
+    yr, months, jsts = _movers_fixture()
+    out = build_movers(yr, months, jsts, 30)
+    assert out is not None
+    for pair in out["pairs"]:
+        for item in pair["ups"] + pair["downs"]:
+            assert item["k"] not in ("JavaScript", "TypeScript")
+    head = out["pairs"][0]
+    ups = {r["k"]: r for r in head["ups"]}
+    combo = ups["JavaScript + TypeScript"]
+    assert (combo["psh"], combo["sh"], combo["dp"]) == (12.5, 14.0, 1.5)  # valor por post
+    assert combo["skills"] == ["JavaScript", "TypeScript"]
+    assert [r["k"] for r in head["ups"]] == ["D", "JavaScript + TypeScript"]
+
+
+def test_movers_pairs_and_degenerate_inputs() -> None:
+    yr, months, jsts = _movers_fixture()
+    out = build_movers(yr, months, jsts, 30)
+    assert out is not None
+    labels = [(p["a"], p["b"]) for p in out["pairs"]]
+    assert labels[0] == (2024, 2025) and (2023, 2026) not in labels  # sem 2022 nos dados
+    assert (2025, 2026) in labels and out["pairs"][labels.index((2025, 2026))]["mb"] == 11
+    assert build_movers(yr, {2025: 12}, jsts, 30) is None

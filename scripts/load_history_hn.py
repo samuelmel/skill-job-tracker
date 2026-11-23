@@ -1,6 +1,7 @@
 """Carga historica mensal do "Ask HN: Who is hiring?" para data/history/hn/raw.
 
 Uso: uv run python scripts/load_history_hn.py [--from YYYY-MM] [--to YYYY-MM] [--lake-dir data]
+         [--allowlisted-only]
 Idempotente: meses ja completos sao pulados; o mes mais novo e sempre baixado de novo.
 """
 
@@ -12,7 +13,12 @@ import sys
 from pathlib import Path
 
 from vaya_indexer.extraction.http import HttpClient
-from vaya_indexer.lake.history_hn import USER_AGENT, LoadSummary, load_history
+from vaya_indexer.lake.history_hn import (
+    ALLOWED_THREAD_IDS,
+    USER_AGENT,
+    LoadSummary,
+    load_history,
+)
 
 _MONTH = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 
@@ -55,7 +61,14 @@ async def _run(args: argparse.Namespace) -> int:
     async with HttpClient(
         user_agent=USER_AGENT, timeout=60.0, max_retries=5, min_interval=1.0, backoff_max=60.0
     ) as http:
-        summary = await load_history(http, lake_dir, start=args.start, end=args.end)
+        summary = await load_history(
+            http,
+            lake_dir,
+            start=args.start,
+            end=args.end,
+            extra_ids=ALLOWED_THREAD_IDS,
+            only_ids=set(ALLOWED_THREAD_IDS) if args.allowlisted_only else None,
+        )
     _print(summary, lake_dir)
     return 1 if summary.failed or summary.incomplete else 0
 
@@ -65,6 +78,11 @@ def main() -> int:
     parser.add_argument("--from", dest="start", type=_month, default=None)
     parser.add_argument("--to", dest="end", type=_month, default=None)
     parser.add_argument("--lake-dir", default="data")
+    parser.add_argument(
+        "--allowlisted-only",
+        action="store_true",
+        help="baixa so as threads da allowlist (meses postados por outras contas)",
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.WARNING)
     return asyncio.run(_run(args))
