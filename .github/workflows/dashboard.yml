@@ -1,0 +1,84 @@
+name: dashboard
+
+# Publica so o front-end do dashboard: baixa o site ja publicado, extrai os dados embutidos e
+# renderiza de novo com o template atual. Nao coleta nada, nao usa secret e nao acessa o
+# repositorio de dados. Mudanca em dashboard.py (calculo) exige a carga mensal.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - src/vaya_indexer/lake/dashboard_template.html
+      - scripts/rerender_site.py
+      - .github/workflows/dashboard.yml
+
+# Grupo proprio: nunca o `monthly`, para que um run pendente daqui nao substitua uma carga
+# mensal pendente.
+concurrency:
+  group: dashboard-frontend
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  USER_AGENT: VayaJobIndexer/0.1 (+https://github.com/${{ github.repository }})
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Cobre a espera pelo mensal (340 min) mais a montagem.
+    timeout-minutes: 360
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Evita publicar uma copia velha por cima de dados que o mensal acabou de gerar.
+      - name: Esperar a carga mensal em andamento
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          while true; do
+            active=$(gh run list --workflow monthly.yml --limit 20 --json status \
+              --jq '[.[] | select(.status != "completed")] | length')
+            if [ "$active" = "0" ]; then
+              break
+            fi
+            echo "monthly.yml com $active run(s) ativo(s); nova checagem em 60 s"
+            sleep 60
+          done
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+
+      - name: Instalar dependencias
+        run: uv sync --frozen
+
+      - name: Renderizar o site publicado com o template atual
+        run: uv run --no-sync python scripts/rerender_site.py --out _site
+
+      - name: Empacotar para o Pages
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
