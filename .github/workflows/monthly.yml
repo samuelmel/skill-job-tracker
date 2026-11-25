@@ -17,9 +17,9 @@ permissions:
   contents: read
 
 env:
-  DATA_REPO_NAME: skill-job-tracker-data
+  DATA_REPO_NAME: skilometer-data
   # Contato publico (URL do repositorio); nenhum e-mail pessoal.
-  USER_AGENT: VayaJobIndexer/0.1 (+https://github.com/${{ github.repository }})
+  USER_AGENT: Skilometer/0.1 (+https://github.com/${{ github.repository }})
   LOG_LEVEL: WARNING
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
       - name: Checkout do repositorio privado de dados
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: ${{ github.repository_owner }}/skill-job-tracker-data
+          repository: ${{ github.repository_owner }}/skilometer-data
           ssh-key: ${{ secrets.DATA_REPO_SSH_KEY }}
           path: .data-repo
           # A chave serve so para clonar; nao fica gravada em .git/config nem em disco depois.
@@ -109,7 +109,7 @@ jobs:
         if: ${{ !cancelled() && steps.stage.outputs.changed == 'true' }}
         env:
           DATA_REPO_SSH_KEY: ${{ secrets.DATA_REPO_SSH_KEY }}
-          DATA_REPO_SLUG: ${{ github.repository_owner }}/skill-job-tracker-data
+          DATA_REPO_SLUG: ${{ github.repository_owner }}/skilometer-data
         run: |
           install -d -m 700 "$RUNNER_TEMP/ssh"
           # Chave publica ed25519 do github.com (https://docs.github.com/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints)

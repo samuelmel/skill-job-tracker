@@ -118,7 +118,7 @@ def test_pipeline_never_touches_hn_history() -> None:
     roots = [
         SCRIPTS / "run_monthly.py",
         SCRIPTS / "collect_local.py",
-        *sorted((SCRIPTS.parent / "src" / "vaya_indexer" / "lake").glob("*.py")),
+        *sorted((SCRIPTS.parent / "src" / "skilometer" / "lake").glob("*.py")),
     ]
     for path in roots:
         if path.name in ("history_hn.py", "history_build.py"):

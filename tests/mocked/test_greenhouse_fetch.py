@@ -2,10 +2,10 @@ import httpx
 import pytest
 import respx
 
+from skilometer.connectors.greenhouse import GreenhouseConnector
+from skilometer.core.exceptions import ConnectorConfigError, HttpStatusError, ParseError
+from skilometer.extraction.http import HttpClient
 from tests.fixtures.greenhouse import BOARD_TOKEN, JOBS_URL, board_payload
-from vaya_indexer.connectors.greenhouse import GreenhouseConnector
-from vaya_indexer.core.exceptions import ConnectorConfigError, HttpStatusError, ParseError
-from vaya_indexer.extraction.http import HttpClient
 
 
 def connector(http: HttpClient) -> GreenhouseConnector:
@@ -83,7 +83,7 @@ async def test_normalize_extracts_explicit_attributes_and_salary() -> None:
         {"name": "Employment Type", "value": "Full-time"},
         {"name": "Salary Range", "value": "$120k - $150k"},
     ]
-    from vaya_indexer.connectors.base import RawJob
+    from skilometer.connectors.base import RawJob
 
     async with HttpClient(user_agent="t") as http:
         job = connector(http).normalize(RawJob(external_id="1001", payload=payload))

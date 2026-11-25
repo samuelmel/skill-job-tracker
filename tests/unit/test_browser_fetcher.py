@@ -4,11 +4,11 @@ from typing import Any, ClassVar
 import pytest
 from pydantic import BaseModel
 
-from vaya_indexer.connectors.base import BaseConnector, FetchResult, NormalizedJob, RawJob
-from vaya_indexer.connectors.registry import _REGISTRY, create_connector, register
-from vaya_indexer.core.exceptions import BrowserUnavailable, FetchError
-from vaya_indexer.extraction.browser import BrowserFetcher
-from vaya_indexer.extraction.http import HttpClient
+from skilometer.connectors.base import BaseConnector, FetchResult, NormalizedJob, RawJob
+from skilometer.connectors.registry import _REGISTRY, create_connector, register
+from skilometer.core.exceptions import BrowserUnavailable, FetchError
+from skilometer.extraction.browser import BrowserFetcher
+from skilometer.extraction.http import HttpClient
 
 
 class FakeResponse:
@@ -93,7 +93,7 @@ def make(
     log: list[str], status: int = 200, fail: bool = False, broken: bool = False
 ) -> BrowserFetcher:
     return BrowserFetcher(
-        user_agent="Vaya-Test/1.0",
+        user_agent="Skilometer-Test/1.0",
         timeout=5,
         playwright_factory=lambda: FakeDriver(FakePlaywright(log, status, fail, broken)),
     )
@@ -105,7 +105,7 @@ async def test_fetch_html_and_closes_resources_in_order() -> None:
         page = await fetcher.fetch_html("https://exemplo.test/", wait_for_selector="#jobs")
     assert page.html == "<html>ok</html>" and page.status == 200
     assert page.url == "https://exemplo.test/final"
-    assert "ua Vaya-Test/1.0" in log and "launch headless=True" in log
+    assert "ua Skilometer-Test/1.0" in log and "launch headless=True" in log
     assert "goto https://exemplo.test/ domcontentloaded 5000" in log and "wait #jobs" in log
     assert log[-3:] == ["context.close", "browser.close", "playwright.stop"]
 

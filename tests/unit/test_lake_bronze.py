@@ -8,9 +8,9 @@ from pathlib import Path
 
 import pyarrow.parquet as pq
 
-from vaya_indexer.connectors.base import RawJob
-from vaya_indexer.lake.bronze import build_bronze
-from vaya_indexer.lake.raw import JOBS_FILE, RawLakeWriter
+from skilometer.connectors.base import RawJob
+from skilometer.lake.bronze import build_bronze
+from skilometer.lake.raw import JOBS_FILE, RawLakeWriter
 
 FETCHED = datetime(2026, 11, 5, 12, 0, tzinfo=UTC)
 NO_CATALOG = Path("nao-existe.json")
@@ -93,7 +93,7 @@ def test_checksum_mismatch_is_rejected_and_reported(tmp_path: Path) -> None:
 def test_invalid_line_is_preserved_with_error(tmp_path: Path) -> None:
     run_dir = _write_run(tmp_path, [RawJob(external_id="1", payload={"a": 1})])
     # Reescreve o arquivo com uma linha lixo e atualiza o checksum do manifest.
-    from vaya_indexer.lake.raw import _sha256_file
+    from skilometer.lake.raw import _sha256_file
 
     jobs_path = run_dir / JOBS_FILE
     with gzip.open(jobs_path, "wb") as fh:

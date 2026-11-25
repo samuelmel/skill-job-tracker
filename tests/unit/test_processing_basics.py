@@ -2,16 +2,16 @@ from decimal import Decimal
 
 import pytest
 
-from vaya_indexer.processing.attributes import (
+from skilometer.processing.attributes import (
     EmploymentType,
     WorkplaceType,
     infer_workplace_type,
     normalize_employment_type,
 )
-from vaya_indexer.processing.location import location_relation, normalize_location
-from vaya_indexer.processing.salary import SalaryPeriod, parse_salary
-from vaya_indexer.processing.text import html_to_text, jaccard, shingles, word_tokens
-from vaya_indexer.processing.urls import canonical_url
+from skilometer.processing.location import location_relation, normalize_location
+from skilometer.processing.salary import SalaryPeriod, parse_salary
+from skilometer.processing.text import html_to_text, jaccard, shingles, word_tokens
+from skilometer.processing.urls import canonical_url
 
 # ---- localizacao ----
 

@@ -12,8 +12,8 @@ import re
 import sys
 from pathlib import Path
 
-from vaya_indexer.extraction.http import HttpClient
-from vaya_indexer.lake.history_hn import (
+from skilometer.extraction.http import HttpClient
+from skilometer.lake.history_hn import (
     ALLOWED_THREAD_IDS,
     USER_AGENT,
     LoadSummary,

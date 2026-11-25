@@ -19,9 +19,9 @@ ROOT = Path(__file__).resolve().parents[1]
 BOARDS = ("gitlab", "airbnb", "discord", "stripe")
 
 
-def vaya(*args: str, env: dict[str, str], check: bool = True) -> str:
+def skilometer(*args: str, env: dict[str, str], check: bool = True) -> str:
     result = subprocess.run(
-        [sys.executable, "-m", "vaya_indexer", *args],
+        [sys.executable, "-m", "skilometer", *args],
         cwd=ROOT,
         env=env,
         capture_output=True,
@@ -30,7 +30,7 @@ def vaya(*args: str, env: dict[str, str], check: bool = True) -> str:
         check=False,
     )
     if check and result.returncode != 0:
-        raise SystemExit(f"vaya {' '.join(args)} falhou:\n{result.stderr}\n{result.stdout}")
+        raise SystemExit(f"skilometer {' '.join(args)} falhou:\n{result.stderr}\n{result.stdout}")
     return result.stdout
 
 
@@ -56,20 +56,20 @@ def main() -> None:
     subprocess.run(
         [sys.executable, "-m", "alembic", "upgrade", "head"], cwd=ROOT, env=env, check=True
     )
-    print(vaya("seed-platforms", env=env).strip())
+    print(skilometer("seed-platforms", env=env).strip())
     for board in boards:
-        out = vaya(
+        out = skilometer(
             "add-source", "--platform", "greenhouse", "--company", board.title(),
             "--config", json.dumps({"board_token": board}), env=env,
         )  # fmt: skip
         source_id = out.split("source_id=")[1].split()[0]
-        first = vaya("fetch", "--source-id", source_id, env=env, check=False)
+        first = skilometer("fetch", "--source-id", source_id, env=env, check=False)
         if not first.strip() or json.loads(first)["jobs_found"] == 0:
             continue
         print(f"board={board} source_id={source_id}")
         summarize("run 1", first)
-        summarize("run 2", vaya("fetch", "--source-id", source_id, env=env))
-        print(vaya("list-jobs", "--limit", "5", env=env).strip())
+        summarize("run 2", skilometer("fetch", "--source-id", source_id, env=env))
+        print(skilometer("list-jobs", "--limit", "5", env=env).strip())
         return
     raise SystemExit("nenhum board respondeu com vagas")
 

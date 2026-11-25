@@ -12,14 +12,14 @@ from sqlalchemy import select, text
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from skilometer.connectors.base import NormalizedJob, RawJob
+from skilometer.connectors.greenhouse import GreenhouseConnector
+from skilometer.core.exceptions import safe_error
+from skilometer.database.models import FetchRunStatus, Job
+from skilometer.database.session import create_engine
+from skilometer.extraction.http import HttpClient
+from skilometer.ingestion.service import IngestionService, register_source
 from tests.fixtures.greenhouse import BOARD_TOKEN, JOBS_URL, board_payload
-from vaya_indexer.connectors.base import NormalizedJob, RawJob
-from vaya_indexer.connectors.greenhouse import GreenhouseConnector
-from vaya_indexer.core.exceptions import safe_error
-from vaya_indexer.database.models import FetchRunStatus, Job
-from vaya_indexer.database.session import create_engine
-from vaya_indexer.extraction.http import HttpClient
-from vaya_indexer.ingestion.service import IngestionService, register_source
 
 pytestmark = pytest.mark.usefixtures("seeded")
 
@@ -33,7 +33,7 @@ async def _noop_sleep(_: float) -> None:
 
 @pytest.fixture
 async def http() -> AsyncIterator[HttpClient]:
-    async with HttpClient(user_agent="vaya-test", max_retries=1, sleep=_noop_sleep) as client:
+    async with HttpClient(user_agent="skilometer-test", max_retries=1, sleep=_noop_sleep) as client:
         yield client
 
 

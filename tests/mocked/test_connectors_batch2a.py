@@ -7,19 +7,19 @@ import httpx
 import pytest
 import respx
 
-from vaya_indexer.connectors.applicantpro import ApplicantProConnector
-from vaya_indexer.connectors.avature import AvatureConnector
-from vaya_indexer.connectors.careerplug import CareerPlugConnector
-from vaya_indexer.connectors.comeet import ComeetConnector
-from vaya_indexer.connectors.eightfold_ai import EightfoldConnector
-from vaya_indexer.connectors.icims import IcimsConnector
-from vaya_indexer.connectors.jazzhr import JazzHRConnector
-from vaya_indexer.connectors.jobvite import JobviteConnector
-from vaya_indexer.connectors.join_com import JoinConnector
-from vaya_indexer.connectors.oracle_recruiting import OracleRecruitingConnector
-from vaya_indexer.connectors.paylocity import PaylocityConnector
-from vaya_indexer.core.exceptions import ParseError
-from vaya_indexer.extraction.http import HttpClient
+from skilometer.connectors.applicantpro import ApplicantProConnector
+from skilometer.connectors.avature import AvatureConnector
+from skilometer.connectors.careerplug import CareerPlugConnector
+from skilometer.connectors.comeet import ComeetConnector
+from skilometer.connectors.eightfold_ai import EightfoldConnector
+from skilometer.connectors.icims import IcimsConnector
+from skilometer.connectors.jazzhr import JazzHRConnector
+from skilometer.connectors.jobvite import JobviteConnector
+from skilometer.connectors.join_com import JoinConnector
+from skilometer.connectors.oracle_recruiting import OracleRecruitingConnector
+from skilometer.connectors.paylocity import PaylocityConnector
+from skilometer.core.exceptions import ParseError
+from skilometer.extraction.http import HttpClient
 
 GUID = "cab4161a-b9de-40e7-85e8-27920748af9d"
 

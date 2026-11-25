@@ -11,10 +11,10 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from vaya_indexer.lake.bronze import JOBS_SCHEMA, RUNS_SCHEMA, bronze_paths
-from vaya_indexer.lake.dashboard import collect_data
-from vaya_indexer.lake.monthly import MONTHLY_DBT_ARGS
-from vaya_indexer.lake.roles import (
+from skilometer.lake.bronze import JOBS_SCHEMA, RUNS_SCHEMA, bronze_paths
+from skilometer.lake.dashboard import collect_data
+from skilometer.lake.monthly import MONTHLY_DBT_ARGS
+from skilometer.lake.roles import (
     MIN_COMPANIES,
     MIN_SALARY_SAMPLE,
     annual_usd_for_job,
@@ -24,8 +24,8 @@ from vaya_indexer.lake.roles import (
     round_thousand,
     salary_stats,
 )
-from vaya_indexer.lake.transform import run_dbt
-from vaya_indexer.processing.salary import (
+from skilometer.lake.transform import run_dbt
+from skilometer.processing.salary import (
     annual_usd_from_text,
     annual_usd_midpoint,
     parse_salary,
@@ -497,7 +497,7 @@ def test_collect_data_exposes_role_trend_optional_key(roles_lake: Path) -> None:
 
 
 def test_hn_company_needs_a_pipe_header() -> None:
-    from vaya_indexer.lake.roles import hn_company
+    from skilometer.lake.roles import hn_company
 
     assert hn_company("https://acme.io Acme Inc. | ML Engineer | Remote") == "acme inc"
     assert hn_company("Hiring a senior ML engineer, remote, $200k") == ""  # sem "|"

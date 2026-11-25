@@ -5,9 +5,9 @@ from typing import Any
 
 import pytest
 
-from vaya_indexer.connectors.base import BaseConnector, NormalizedJob, RawJob
-from vaya_indexer.connectors.registry import get_connector_class, registered_names
-from vaya_indexer.coverage.metadata import load_platform_metadata
+from skilometer.connectors.base import BaseConnector, NormalizedJob, RawJob
+from skilometer.connectors.registry import get_connector_class, registered_names
+from skilometer.coverage.metadata import load_platform_metadata
 
 NAMES = registered_names()
 

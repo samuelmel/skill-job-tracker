@@ -12,16 +12,16 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from vaya_indexer.lake.bronze import JOBS_SCHEMA, RUNS_SCHEMA, bronze_paths
-from vaya_indexer.lake.dashboard import (
+from skilometer.lake.bronze import JOBS_SCHEMA, RUNS_SCHEMA, bronze_paths
+from skilometer.lake.dashboard import (
     FALLBACK_PLACE,
     PLACES,
     build_areas,
     collect_data,
     render_html,
 )
-from vaya_indexer.lake.monthly import MONTHLY_DBT_ARGS
-from vaya_indexer.lake.transform import run_dbt
+from skilometer.lake.monthly import MONTHLY_DBT_ARGS
+from skilometer.lake.transform import run_dbt
 
 OCT = datetime(2026, 10, 10, 12, 0)
 NOV = datetime(2026, 11, 10, 12, 0)
@@ -207,13 +207,12 @@ def test_dashboard_data_and_html(trend_lake: Path) -> None:
     assert "__DATA__" not in html
     assert "<script src" not in html
     assert "https://" not in html
-    # Marca e escopo: sem "Vaya", sem recorte de vagas de dados, favicon embutido e ajuda do JS+TS.
-    assert "vaya" not in html.lower()
+    # Marca e escopo: sem recorte de vagas de dados, favicon embutido e ajuda do JS+TS.
     assert "data_roles" not in html
     assert "Vagas de dados" not in html
     assert 'rel="icon" href="data:' in html
     assert "jsts-note" not in html
-    assert "Skill Job Tracker" in html
+    assert "Skilometer" in html
     assert set(data["den"]) == {"all"}
 
 
@@ -342,7 +341,7 @@ def test_job_family_and_seniority_use_word_boundaries(skill_lake: Path) -> None:
 
 def test_failed_month_is_excluded_from_site_and_trend_baseline(tmp_path: Path) -> None:
     """Mes reprovado no gate: raw/bronze ficam, mas nao entram em silver, tendencia nem site."""
-    from vaya_indexer.lake.failed_months import mark_failed, read_failed_months
+    from skilometer.lake.failed_months import mark_failed, read_failed_months
 
     dec = datetime(2026, 12, 10, 12, 0)
     # Out boa; nov coletada pela metade (reprovada); dez boa.
@@ -377,7 +376,7 @@ def test_failed_month_is_excluded_from_site_and_trend_baseline(tmp_path: Path) -
 
 
 def test_failed_months_registry_roundtrip_and_validation(tmp_path: Path) -> None:
-    from vaya_indexer.lake.failed_months import clear_failed, mark_failed, read_failed_months
+    from skilometer.lake.failed_months import clear_failed, mark_failed, read_failed_months
 
     assert read_failed_months(tmp_path) == []
     assert mark_failed(tmp_path, "2026-11") == ["2026-11"]

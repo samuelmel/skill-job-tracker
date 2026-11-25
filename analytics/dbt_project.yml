@@ -1,7 +1,7 @@
-name: vaya_analytics
+name: skilometer_analytics
 version: "1.0.0"
 config-version: 2
-profile: vaya
+profile: skilometer
 
 model-paths: ["models"]
 seed-paths: ["seeds"]
@@ -17,7 +17,7 @@ vars:
   z_threshold: 1.96
 
 models:
-  vaya_analytics:
+  skilometer_analytics:
     staging:
       +materialized: view
     silver:
@@ -31,7 +31,7 @@ models:
       +tags: ["history"]
 
 seeds:
-  vaya_analytics:
+  skilometer_analytics:
     skills:
       +column_types:
         skill: varchar

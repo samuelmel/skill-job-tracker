@@ -2,8 +2,8 @@ import httpx
 import pytest
 import respx
 
-from vaya_indexer.core.exceptions import HttpStatusError, RetryExhausted
-from vaya_indexer.extraction.http import HttpClient, parse_retry_after
+from skilometer.core.exceptions import HttpStatusError, RetryExhausted
+from skilometer.extraction.http import HttpClient, parse_retry_after
 
 URL = "https://example.test/api"
 
@@ -24,7 +24,7 @@ def sleeps() -> Sleeps:
 
 
 def make_client(sleeps: Sleeps, **kwargs: float) -> HttpClient:
-    return HttpClient(user_agent="vaya-test/1.0", max_retries=3, sleep=sleeps, **kwargs)
+    return HttpClient(user_agent="skilometer-test/1.0", max_retries=3, sleep=sleeps, **kwargs)
 
 
 @respx.mock
@@ -36,7 +36,7 @@ async def test_retries_503_then_succeeds(sleeps: Sleeps) -> None:
         assert await client.get_json(URL) == {"ok": 1}
     assert route.call_count == 3
     assert len(sleeps.calls) == 2
-    assert route.calls[0].request.headers["user-agent"] == "vaya-test/1.0"
+    assert route.calls[0].request.headers["user-agent"] == "skilometer-test/1.0"
 
 
 @respx.mock

@@ -2,9 +2,9 @@ import asyncio
 import uuid
 from collections import defaultdict
 
-from vaya_indexer.database.models import FetchRunStatus
-from vaya_indexer.ingestion.fetch_all import SourceTarget, fetch_all
-from vaya_indexer.ingestion.service import FetchRunSummary
+from skilometer.database.models import FetchRunStatus
+from skilometer.ingestion.fetch_all import SourceTarget, fetch_all
+from skilometer.ingestion.service import FetchRunSummary
 
 
 def _target(platform: str, n: int) -> SourceTarget:

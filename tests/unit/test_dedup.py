@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 
-from vaya_indexer.processing.dedup import (
+from skilometer.processing.dedup import (
     DedupAction,
     JobProfile,
     best_match,
@@ -10,7 +10,7 @@ from vaya_indexer.processing.dedup import (
     score_match,
     title_similarity,
 )
-from vaya_indexer.processing.normalization import canonical_fingerprint
+from skilometer.processing.normalization import canonical_fingerprint
 
 COMPANY = uuid.uuid4()
 SRC_A, SRC_B = uuid.uuid4(), uuid.uuid4()
@@ -132,7 +132,7 @@ def test_specific_url_with_unrelated_title_does_not_merge() -> None:
 
 
 def test_is_specific_url() -> None:
-    from vaya_indexer.processing.urls import is_specific_url
+    from skilometer.processing.urls import is_specific_url
 
     assert is_specific_url("https://a.com/jobs/123")
     assert is_specific_url("https://a.com/careers?gh_jid=5")

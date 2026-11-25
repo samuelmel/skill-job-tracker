@@ -13,8 +13,8 @@ import respx
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from vaya_indexer.core.config import ProcessingPolicy
-from vaya_indexer.database.models import (
+from skilometer.core.config import ProcessingPolicy
+from skilometer.database.models import (
     DedupDecision,
     DedupMatch,
     FetchRunStatus,
@@ -23,8 +23,8 @@ from vaya_indexer.database.models import (
     JobSource,
     JobStatus,
 )
-from vaya_indexer.extraction.http import HttpClient
-from vaya_indexer.ingestion.service import FetchRunSummary, IngestionService, register_source
+from skilometer.extraction.http import HttpClient
+from skilometer.ingestion.service import FetchRunSummary, IngestionService, register_source
 
 pytestmark = pytest.mark.usefixtures("seeded")
 
@@ -84,7 +84,7 @@ async def _noop_sleep(_: float) -> None:
 
 @pytest.fixture
 async def http() -> AsyncIterator[HttpClient]:
-    async with HttpClient(user_agent="vaya-test", max_retries=1, sleep=_noop_sleep) as client:
+    async with HttpClient(user_agent="skilometer-test", max_retries=1, sleep=_noop_sleep) as client:
         yield client
 
 
@@ -420,7 +420,7 @@ async def test_small_board_mostly_absent_still_closes(
 async def test_candidate_limit_keeps_exact_match(
     session_factory: Factory, service: IngestionService, src_a: uuid.UUID
 ) -> None:
-    from vaya_indexer.database.repositories.jobs import JobRepository
+    from skilometer.database.repositories.jobs import JobRepository
 
     prefixed = [
         _job(i, f"Data Engineer {chr(65 + i)}", location=f"City{i}, Italy") for i in range(1, 5)
@@ -447,7 +447,7 @@ async def test_concurrent_run_is_rejected_without_touching_data(
 ) -> None:
     from sqlalchemy import text
 
-    from vaya_indexer.ingestion.service import CONCURRENT_MESSAGE, source_lock_key
+    from skilometer.ingestion.service import CONCURRENT_MESSAGE, source_lock_key
 
     _mock(URL_A, _job(1, "Alpha Role"))
     async with session_factory() as holder:

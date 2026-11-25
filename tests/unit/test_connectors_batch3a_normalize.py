@@ -6,9 +6,9 @@ from typing import Any
 
 import pytest
 
-from vaya_indexer.connectors.base import NormalizedJob, RawJob
-from vaya_indexer.connectors.registry import get_connector_class
-from vaya_indexer.coverage.metadata import load_platform_metadata
+from skilometer.connectors.base import NormalizedJob, RawJob
+from skilometer.connectors.registry import get_connector_class
+from skilometer.coverage.metadata import load_platform_metadata
 
 EXPECTED: list[tuple[str, int, dict[str, Any]]] = [
     ("niceboard", 0, {"salary_min": Decimal(85000)}),

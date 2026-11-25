@@ -3,7 +3,7 @@ from pathlib import Path
 import duckdb
 import pytest
 
-from vaya_indexer.lake import warehouse as wh
+from skilometer.lake import warehouse as wh
 
 
 def _make(path: Path) -> None:

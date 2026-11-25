@@ -67,7 +67,7 @@ Airflow orquestra coleta, exportação, dbt e checagens de qualidade.
 | Histórico (SCD2) | **Derivar de `job_history`**, não usar dbt snapshot | O snapshot só vê o estado na hora em que roda; `job_history` já tem o momento exato |
 | Fonte de verdade operacional | Postgres continua | Dedup, locks e reconciliação já dependem dele |
 | Analítico local | dbt + DuckDB | Custo zero e cabe na máquina |
-| Orquestrador | Airflow em container próprio, chamando a imagem do `vaya` | Evita conflito de dependências com o projeto |
+| Orquestrador | Airflow em container próprio, chamando a imagem do `skilometer` | Evita conflito de dependências com o projeto |
 | Concorrência | Um pool do Airflow por plataforma/domínio | Compensa o rate limit por processo |
 | Nuvem | Databricks só na Fase 6, opcional | Não resolve nenhuma lacuna atual |
 | Novas plataformas | Pausadas | O gargalo é ter mais empresas de tecnologia nas plataformas que já funcionam |
@@ -81,7 +81,7 @@ Histórico perdido não se recupera, então esta fase vem antes de qualquer ferr
 - Instalar Docker no WSL e subir o Postgres do `docker-compose.yml` como banco de produção, separado dos bancos de verify.
 - Gravar raw + manifest logo após `fetch_jobs` e antes de `_persist`. O manifest guarda `complete`, status, contagem e versão do conector.
 - Falha ao gravar raw não bloqueia a ingestão, mas fica registrada e gera alerta.
-- Criar `vaya fetch-all`, com concorrência limitada por plataforma e sem interromper tudo quando uma fonte falha.
+- Criar `skilometer fetch-all`, com concorrência limitada por plataforma e sem interromper tudo quando uma fonte falha.
 - Agendar uma coleta diária simples com cron no WSL. O Airflow assume na Fase 3.
 - Carga mensal manual em um comando (coleta todas as fontes e depois bronze + dbt + dashboard): `uv run python scripts/run_monthly.py [--limit N] [--platform slug] [--skip-collect]`. Não refaz o dashboard se menos de 50% das fontes tentadas terminarem SUCCEEDED/PARTIAL.
 
@@ -133,10 +133,10 @@ Regras analíticas obrigatórias:
 
 Nada aqui foi executado. Renomear, criar o remoto, dar push e publicar dependem de aprovação explícita.
 
-1. **Repositórios (decidido):** o código vai para `skill-job-tracker`, público para o Pages, e os dados para `skill-job-tracker-data`, **privado**. Atualizar pacote, CLI e documentação só se o novo nome justificar. Hoje não há remoto, e a branch local é `master`.
+1. **Repositórios (decidido):** o código vai para `skilometer`, público para o Pages, e os dados para `skilometer-data`, **privado**. Pacote, CLI e documentação usam o mesmo nome (`skilometer`). Hoje não há remoto, e a branch local é `master`.
 2. **Antes do primeiro push:** revisar o histórico em busca de segredos e confirmar que `data/`, `.pgdata*` e arquivos de rascunho continuam fora do Git.
 3. **Workflow mensal:** `.github/workflows/monthly.yml` com `schedule` (dia 1, em minuto fora da hora cheia) e `workflow_dispatch`. Roda `scripts/run_monthly.py` com Postgres embutido, `concurrency` para impedir duas cargas juntas, `timeout-minutes` abaixo do limite de 6 horas e `permissions` mínimas por job.
-4. **Estado entre execuções (decidido):** o runner é descartável e `data/` não vai para o repositório de código. O raw imutável e o manifesto, incluindo o histórico do Hacker News, ficam em `skill-job-tracker-data`. Bronze e warehouse são derivados e reconstruídos no CI, para o repositório privado não crescer à toa. O workflow acessa esse repositório com uma deploy key ou token de escopo mínimo guardado em GitHub Secrets. Acompanhar o tamanho a cada mês (o raw atual tem cerca de 16 MB por coleta) e rever a estratégia antes de chegar a 1 GB. Cache do Actions não serve como fonte de verdade, e Release em repositório público exporia as descrições completas.
+4. **Estado entre execuções (decidido):** o runner é descartável e `data/` não vai para o repositório de código. O raw imutável e o manifesto, incluindo o histórico do Hacker News, ficam em `skilometer-data`. Bronze e warehouse são derivados e reconstruídos no CI, para o repositório privado não crescer à toa. O workflow acessa esse repositório com uma deploy key ou token de escopo mínimo guardado em GitHub Secrets. Acompanhar o tamanho a cada mês (o raw atual tem cerca de 16 MB por coleta) e rever a estratégia antes de chegar a 1 GB. Cache do Actions não serve como fonte de verdade, e Release em repositório público exporia as descrições completas.
 5. **Portabilidade:** remover o caminho absoluto da view `silver_hn_post` e reconstruir o warehouse a partir do Bronze no CI.
 6. **Publicação:** job separado envia ao GitHub Pages somente o HTML estático agregado. Sem raw, descrição completa, autor ou banco. O bloqueio atual (menos de 50% das fontes com sucesso) impede o deploy e mantém a última versão boa no ar.
 7. **Coleta em datacenter:** medir na primeira execução quais fontes bloqueiam IPs do GitHub. Fonte bloqueada fica registrada como falha, sem contornar robots.txt, Cloudflare ou CAPTCHA. Se a cobertura cair demais, coletar localmente e deixar o Actions só com transformação e publicação.

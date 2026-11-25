@@ -1,6 +1,6 @@
 from datetime import UTC, timedelta
 
-from vaya_indexer.processing.normalization import (
+from skilometer.processing.normalization import (
     canonical_fingerprint,
     normalize_company_name,
     normalize_title,

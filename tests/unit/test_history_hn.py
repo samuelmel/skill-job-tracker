@@ -6,8 +6,8 @@ from typing import Any
 
 import pytest
 
-from vaya_indexer.core.exceptions import HttpStatusError
-from vaya_indexer.lake import history_hn as hn
+from skilometer.core.exceptions import HttpStatusError
+from skilometer.lake import history_hn as hn
 
 NOW = datetime(2026, 11, 23, tzinfo=UTC)
 

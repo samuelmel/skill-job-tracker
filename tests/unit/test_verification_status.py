@@ -1,11 +1,11 @@
-from vaya_indexer.connectors.greenhouse import GreenhouseConnector
-from vaya_indexer.coverage.verification import (
+from skilometer.connectors.greenhouse import GreenhouseConnector
+from skilometer.coverage.verification import (
     InstanceResult,
     decide_status,
     fixture_normalizes,
     is_transient,
 )
-from vaya_indexer.database.models import ImplementationStatus as S
+from skilometer.database.models import ImplementationStatus as S
 
 OK = InstanceResult("a", success=True, jobs_found=3)
 NET = InstanceResult("b", error="RetryExhausted: timeout", transient=True)

@@ -11,9 +11,9 @@ from sqlalchemy import text
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
-from vaya_indexer.database.repositories.platforms import PlatformRepository
-from vaya_indexer.database.session import create_engine, create_session_factory
-from vaya_indexer.platforms_catalog import build_catalog
+from skilometer.database.repositories.platforms import PlatformRepository
+from skilometer.database.session import create_engine, create_session_factory
+from skilometer.platforms_catalog import build_catalog
 
 ROOT = Path(__file__).resolve().parents[2]
 

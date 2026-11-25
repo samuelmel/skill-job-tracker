@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from vaya_indexer.connectors.base import RawJob
-from vaya_indexer.lake.raw import RawLakeWriter, sanitize_part
+from skilometer.connectors.base import RawJob
+from skilometer.lake.raw import RawLakeWriter, sanitize_part
 
 RUN = uuid.UUID("11111111-1111-1111-1111-111111111111")
 SRC = uuid.UUID("22222222-2222-2222-2222-222222222222")

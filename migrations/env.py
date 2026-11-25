@@ -3,9 +3,9 @@
 from alembic import context
 from sqlalchemy import create_engine, pool
 
-from vaya_indexer.core.config import get_settings
-from vaya_indexer.database import models  # noqa: F401  (registra as tabelas no metadata)
-from vaya_indexer.database.base import Base
+from skilometer.core.config import get_settings
+from skilometer.database import models  # noqa: F401  (registra as tabelas no metadata)
+from skilometer.database.base import Base
 
 config = context.config
 target_metadata = Base.metadata

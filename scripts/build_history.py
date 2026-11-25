@@ -15,7 +15,7 @@ from pathlib import Path
 
 import duckdb
 
-from vaya_indexer.lake.history_build import build_history_bronze, history_root, run_history_build
+from skilometer.lake.history_build import build_history_bronze, history_root, run_history_build
 
 ROOT = Path(__file__).resolve().parents[1]
 TABLES = [

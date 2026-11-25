@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.engine import make_url
 
 ROOT = Path(__file__).resolve().parents[2]
-DB_NAME = "vaya_migration_test"
+DB_NAME = "skilometer_migration_test"
 
 
 def _cfg(url: str) -> Config:

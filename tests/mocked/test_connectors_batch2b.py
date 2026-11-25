@@ -7,19 +7,19 @@ import httpx
 import pytest
 import respx
 
-from vaya_indexer.connectors.hireology import HireologyConnector
-from vaya_indexer.connectors.hiringthing import HiringThingConnector
-from vaya_indexer.connectors.isolvedhire import IsolvedHireConnector
-from vaya_indexer.connectors.pageup import PageUpConnector
-from vaya_indexer.connectors.personio import PersonioConnector
-from vaya_indexer.connectors.phenom_people import PhenomPeopleConnector
-from vaya_indexer.connectors.recooty import RecootyConnector
-from vaya_indexer.connectors.teamtailor import TeamtailorConnector
-from vaya_indexer.connectors.trakstar import TrakstarConnector
-from vaya_indexer.connectors.trinet import TriNetConnector
-from vaya_indexer.connectors.zoho_recruit import ZohoRecruitConnector
-from vaya_indexer.core.exceptions import ConnectorConfigError, ParseError
-from vaya_indexer.extraction.http import HttpClient
+from skilometer.connectors.hireology import HireologyConnector
+from skilometer.connectors.hiringthing import HiringThingConnector
+from skilometer.connectors.isolvedhire import IsolvedHireConnector
+from skilometer.connectors.pageup import PageUpConnector
+from skilometer.connectors.personio import PersonioConnector
+from skilometer.connectors.phenom_people import PhenomPeopleConnector
+from skilometer.connectors.recooty import RecootyConnector
+from skilometer.connectors.teamtailor import TeamtailorConnector
+from skilometer.connectors.trakstar import TrakstarConnector
+from skilometer.connectors.trinet import TriNetConnector
+from skilometer.connectors.zoho_recruit import ZohoRecruitConnector
+from skilometer.core.exceptions import ConnectorConfigError, ParseError
+from skilometer.extraction.http import HttpClient
 
 
 def _rss(items: str, ns: str = "") -> str:
@@ -211,7 +211,7 @@ async def test_isolvedhire_fetches_details_and_flags_failed_detail() -> None:
 
 @respx.mock
 async def test_trakstar_reads_jsonld_and_caps_are_incomplete(monkeypatch) -> None:  # type: ignore[no-untyped-def]
-    import vaya_indexer.connectors.trakstar as mod
+    import skilometer.connectors.trakstar as mod
 
     base = "https://acme.hire.trakstar.com"
     respx.get(f"{base}/sitemap.xml").mock(
@@ -379,7 +379,7 @@ async def test_phenom_total_greater_than_received_is_incomplete() -> None:
 
 
 def test_jsonld_tolerates_stray_backslash_and_raw_newline() -> None:
-    from vaya_indexer.connectors.jsonld import extract_job_postings
+    from skilometer.connectors.jsonld import extract_job_postings
 
     html = (
         '<script type="application/ld+json">'

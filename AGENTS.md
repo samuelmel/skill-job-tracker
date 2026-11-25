@@ -9,7 +9,7 @@ Read this file before starting. The task prompt only says **batch, slugs and dat
   `uv run python scripts/verify_local.py --data-dir .pgdata-verify-<x> <slug> [<slug> ...]`
 
 ## Pattern to copy (don't reinvent)
-- Connector: `src/vaya_indexer/connectors/ashby.py`, `lever_co.py`, `workday.py` + helpers in `_common.py`, `pagination.py`, `jsonld.py` (JobPosting), `feeds.py` (RSS/Atom/XML).
+- Connector: `src/skilometer/connectors/ashby.py`, `lever_co.py`, `workday.py` + helpers in `_common.py`, `pagination.py`, `jsonld.py` (JobPosting), `feeds.py` (RSS/Atom/XML).
 - Tests: `tests/mocked/test_connectors_batch1.py`, `tests/unit/test_connectors_batch1_normalize.py`.
 - The contract test (`tests/contract/`) discovers `connectors/fixtures/<name>.json` on its own.
 - Research per platform (endpoint, pagination, fields, instances, robots): `docs/research/r1..r4.json`. Use only what is there, and confirm with a real request before coding.

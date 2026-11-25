@@ -1,4 +1,4 @@
-"""Roda `vaya verify` contra um Postgres embutido (pgserver), sem Docker.
+"""Roda `skilometer verify` contra um Postgres embutido (pgserver), sem Docker.
 
 Uso: uv run python scripts/verify_local.py --data-dir .pgdata-verify-a ashby lever-co
 Sem slugs, verifica todas as plataformas (`verify --all`).
@@ -36,13 +36,13 @@ def main() -> int:
     )
     # idempotente: nunca rebaixa IMPLEMENTED/TESTED/VERIFIED
     subprocess.run(
-        [sys.executable, "-m", "vaya_indexer", "seed-platforms"], cwd=ROOT, env=env, check=True
+        [sys.executable, "-m", "skilometer", "seed-platforms"], cwd=ROOT, env=env, check=True
     )
     targets = [["--platform", s] for s in args.slugs] or [["--all"]]
     code = 0
     for target in targets:
         result = subprocess.run(
-            [sys.executable, "-m", "vaya_indexer", "verify", *target],
+            [sys.executable, "-m", "skilometer", "verify", *target],
             cwd=ROOT,
             env=env,
             check=False,
@@ -50,7 +50,7 @@ def main() -> int:
         code = code or result.returncode
     if args.report:
         subprocess.run(
-            [sys.executable, "-m", "vaya_indexer", "coverage-report"], cwd=ROOT, env=env, check=True
+            [sys.executable, "-m", "skilometer", "coverage-report"], cwd=ROOT, env=env, check=True
         )
     return code
 

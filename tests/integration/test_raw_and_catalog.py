@@ -10,14 +10,14 @@ import respx
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from skilometer.connectors.base import RawJob
+from skilometer.database.models import FetchRunStatus, Job, Source
+from skilometer.extraction.http import HttpClient
+from skilometer.ingestion.fetch_all import fetch_all, list_active_targets
+from skilometer.ingestion.service import IngestionService, register_source
+from skilometer.lake.raw import RawLakeWriter, RawWriteResult
+from skilometer.source_catalog import CatalogEntry, SourceCatalog, load_catalog
 from tests.fixtures.greenhouse import BOARD_TOKEN, JOBS_URL, board_payload
-from vaya_indexer.connectors.base import RawJob
-from vaya_indexer.database.models import FetchRunStatus, Job, Source
-from vaya_indexer.extraction.http import HttpClient
-from vaya_indexer.ingestion.fetch_all import fetch_all, list_active_targets
-from vaya_indexer.ingestion.service import IngestionService, register_source
-from vaya_indexer.lake.raw import RawLakeWriter, RawWriteResult
-from vaya_indexer.source_catalog import CatalogEntry, SourceCatalog, load_catalog
 
 pytestmark = pytest.mark.usefixtures("seeded")
 
@@ -30,7 +30,7 @@ async def _noop_sleep(_: float) -> None:
 
 @pytest.fixture
 async def http() -> AsyncIterator[HttpClient]:
-    async with HttpClient(user_agent="vaya-test", max_retries=1, sleep=_noop_sleep) as client:
+    async with HttpClient(user_agent="skilometer-test", max_retries=1, sleep=_noop_sleep) as client:
         yield client
 
 
@@ -79,7 +79,7 @@ async def test_raw_failure_does_not_block_ingestion(
 ) -> None:
     respx.get(JOBS_URL).mock(return_value=httpx.Response(200, json=board_payload()))
     service = IngestionService(session_factory, http, raw_writer=BrokenWriter())  # type: ignore[arg-type]
-    with caplog.at_level("ERROR", logger="vaya.ingestion"):
+    with caplog.at_level("ERROR", logger="skilometer.ingestion"):
         summary = await service.run_source(source_id)
 
     assert summary.status is FetchRunStatus.SUCCEEDED
@@ -192,7 +192,7 @@ async def test_catalog_load_is_idempotent(session_factory: Factory) -> None:
 
 
 def test_committed_catalog_is_valid() -> None:
-    from vaya_indexer.source_catalog import read_catalog
+    from skilometer.source_catalog import read_catalog
 
     root = Path(__file__).resolve().parents[2]
     catalog = read_catalog(root / "catalog" / "sources.json")

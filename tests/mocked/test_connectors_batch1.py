@@ -4,21 +4,21 @@ import httpx
 import pytest
 import respx
 
-from vaya_indexer.connectors.ashby import AshbyConnector
-from vaya_indexer.connectors.bamboohr import BambooConnector
-from vaya_indexer.connectors.breezy_hr import BreezyConnector
-from vaya_indexer.connectors.gem_com import GemConnector
-from vaya_indexer.connectors.hirehive import HireHiveConnector
-from vaya_indexer.connectors.lever_co import LeverConnector
-from vaya_indexer.connectors.manatal import ManatalConnector
-from vaya_indexer.connectors.pinpoint import PinpointConnector
-from vaya_indexer.connectors.polymer import PolymerConnector
-from vaya_indexer.connectors.recruitee import RecruiteeConnector
-from vaya_indexer.connectors.rippling import RipplingConnector
-from vaya_indexer.connectors.workable import WorkableConnector
-from vaya_indexer.connectors.workday import WorkdayConnector
-from vaya_indexer.core.exceptions import ParseError
-from vaya_indexer.extraction.http import HttpClient
+from skilometer.connectors.ashby import AshbyConnector
+from skilometer.connectors.bamboohr import BambooConnector
+from skilometer.connectors.breezy_hr import BreezyConnector
+from skilometer.connectors.gem_com import GemConnector
+from skilometer.connectors.hirehive import HireHiveConnector
+from skilometer.connectors.lever_co import LeverConnector
+from skilometer.connectors.manatal import ManatalConnector
+from skilometer.connectors.pinpoint import PinpointConnector
+from skilometer.connectors.polymer import PolymerConnector
+from skilometer.connectors.recruitee import RecruiteeConnector
+from skilometer.connectors.rippling import RipplingConnector
+from skilometer.connectors.workable import WorkableConnector
+from skilometer.connectors.workday import WorkdayConnector
+from skilometer.core.exceptions import ParseError
+from skilometer.extraction.http import HttpClient
 
 CASES = [
     (AshbyConnector, {"org_slug": "acme"}, "https://api.ashbyhq.com/posting-api/job-board/acme"),
@@ -278,7 +278,7 @@ async def test_list_endpoints_return_jobs() -> None:
     ],
 )
 def test_config_rejects_unsafe_values(cls, config) -> None:  # type: ignore[no-untyped-def]
-    from vaya_indexer.core.exceptions import ConnectorConfigError
+    from skilometer.core.exceptions import ConnectorConfigError
 
     with pytest.raises(ConnectorConfigError):
         cls.validate_config(config)

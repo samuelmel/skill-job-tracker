@@ -1,15 +1,15 @@
 import pytest
 
-from vaya_indexer.connectors.greenhouse import GreenhouseConnector
-from vaya_indexer.connectors.registry import (
+from skilometer.connectors.greenhouse import GreenhouseConnector
+from skilometer.connectors.registry import (
     create_connector,
     get_connector_class,
     registered_names,
 )
-from vaya_indexer.core.exceptions import ConnectorConfigError, ConnectorNotFound
-from vaya_indexer.database.models import ImplementationStatus, PlatformCategory
-from vaya_indexer.extraction.http import HttpClient
-from vaya_indexer.platforms_catalog import build_catalog
+from skilometer.core.exceptions import ConnectorConfigError, ConnectorNotFound
+from skilometer.database.models import ImplementationStatus, PlatformCategory
+from skilometer.extraction.http import HttpClient
+from skilometer.platforms_catalog import build_catalog
 
 
 def test_catalog_has_78_unique_platforms() -> None:

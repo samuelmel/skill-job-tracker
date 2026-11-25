@@ -1,6 +1,6 @@
 # Cobertura das plataformas
 
-Gerado em 2026-11-19 22:24 UTC por `vaya coverage-report`. So conta como **VERIFIED** a plataforma com execucao real bem-sucedida (run SUCCEEDED com vagas); fixtures sinteticas e testes mockados nao contam.
+Gerado em 2026-11-19 22:24 UTC por `skilometer coverage-report`. So conta como **VERIFIED** a plataforma com execucao real bem-sucedida (run SUCCEEDED com vagas); fixtures sinteticas e testes mockados nao contam.
 
 **43 de 78 plataformas com evidencia real.**
 

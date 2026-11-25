@@ -5,14 +5,14 @@ import sys
 
 import pytest
 
-from vaya_indexer.core.exceptions import BrowserUnavailable
-from vaya_indexer.extraction.browser import BrowserFetcher, BrowserPage
+from skilometer.core.exceptions import BrowserUnavailable
+from skilometer.extraction.browser import BrowserFetcher, BrowserPage
 
 pytestmark = pytest.mark.live
 
 
 async def _load() -> BrowserPage:
-    async with BrowserFetcher(user_agent="VayaJobIndexer/0.1 (live-test)", timeout=30) as fetcher:
+    async with BrowserFetcher(user_agent="Skilometer/0.1 (live-test)", timeout=30) as fetcher:
         return await fetcher.fetch_html("https://example.com/")
 
 

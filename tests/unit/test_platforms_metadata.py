@@ -2,15 +2,15 @@ import json
 
 import pytest
 
-from vaya_indexer.connectors.registry import get_connector_class
-from vaya_indexer.coverage.metadata import (
+from skilometer.connectors.registry import get_connector_class
+from skilometer.coverage.metadata import (
     PLATFORMS_JSON,
     SCHEMA_VERSION,
     load_platform_metadata,
     parse_platforms,
 )
-from vaya_indexer.database.models import ImplementationStatus
-from vaya_indexer.platforms_catalog import ATS_NAMES, JOB_BOARD_NAMES, build_catalog, slugify
+from skilometer.database.models import ImplementationStatus
+from skilometer.platforms_catalog import ATS_NAMES, JOB_BOARD_NAMES, build_catalog, slugify
 
 
 def test_json_covers_exactly_the_78_catalog_slugs() -> None:

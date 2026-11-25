@@ -10,5 +10,5 @@ COPY alembic.ini ./
 RUN uv sync --frozen --no-dev
 
 ENV PATH="/app/.venv/bin:$PATH"
-ENTRYPOINT ["vaya"]
+ENTRYPOINT ["skilometer"]
 CMD ["--help"]

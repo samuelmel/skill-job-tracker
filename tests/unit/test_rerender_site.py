@@ -11,8 +11,8 @@ import pytest
 import respx
 import yaml
 
-from vaya_indexer.lake import dashboard
-from vaya_indexer.lake.dashboard import build_areas, render_html
+from skilometer.lake import dashboard
+from skilometer.lake.dashboard import build_areas, render_html
 
 ROOT = Path(__file__).resolve().parents[2]
 URL = "https://example.test/site/"
@@ -106,7 +106,7 @@ def test_main_baixa_e_grava(mod: ModuleType, tmp_path: Path) -> None:
     route = respx.get(URL).mock(return_value=httpx.Response(200, text=_published()))
     out = tmp_path / "site"
     assert mod.main(["--url", URL, "--out", str(out)]) == 0
-    assert "VayaJobIndexer" in route.calls[0].request.headers["user-agent"]
+    assert "Skilometer" in route.calls[0].request.headers["user-agent"]
     assert "@" not in route.calls[0].request.headers["user-agent"]
     assert sorted(p.name for p in out.iterdir()) == [
         "dashboard-2026-01.html",
@@ -127,7 +127,7 @@ def test_workflow_dashboard() -> None:
     wf = yaml.safe_load((ROOT / ".github/workflows/dashboard.yml").read_text(encoding="utf-8"))
     on = wf[True] if True in wf else wf["on"]
     assert on["push"]["paths"] == [
-        "src/vaya_indexer/lake/dashboard_template.html",
+        "src/skilometer/lake/dashboard_template.html",
         "scripts/rerender_site.py",
         ".github/workflows/dashboard.yml",
     ]

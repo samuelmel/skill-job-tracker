@@ -4,11 +4,11 @@ Este guia cobre o ciclo completo de um conector novo: codigo, registro, configur
 fixture sintetica, entrada em `platforms.json` e verificacao com evidencia real.
 
 Cobertura so conta com evidencia real: uma plataforma so vira `VERIFIED` quando
-`vaya verify` extrai pelo menos uma vaga de uma instancia publica real.
+`skilometer verify` extrai pelo menos uma vaga de uma instancia publica real.
 
 ## 1. Arquivo do conector
 
-Crie `src/vaya_indexer/connectors/<nome>.py` com uma subclasse de `BaseConnector`:
+Crie `src/skilometer/connectors/<nome>.py` com uma subclasse de `BaseConnector`:
 
 ```python
 @register("minha_plataforma")
@@ -42,22 +42,22 @@ contrato e para decidir entre `IMPLEMENTED` e `TESTED`. Nunca conta como cobertu
 
 ## 5. Entrada em platforms.json
 
-Em `src/vaya_indexer/coverage/platforms.json`, na chave do slug da plataforma:
+Em `src/skilometer/coverage/platforms.json`, na chave do slug da plataforma:
 
 - `connector_type`: o nome registrado.
 - `example_instances`: `[{"company": "...", "config": {...}}]` com instancias reais e publicas.
 - `docs_urls`, `extraction_strategy`, `limitations`.
 - `research_status`: `NOT_STARTED`, `RESEARCHING` ou `BLOCKED` (so vale sem conector).
 
-Rode `vaya seed-platforms` para sincronizar com o banco. O seed nunca sobrescreve
+Rode `skilometer seed-platforms` para sincronizar com o banco. O seed nunca sobrescreve
 `IMPLEMENTED`, `TESTED` ou `VERIFIED`.
 
 ## 6. Verificacao
 
 ```
-vaya verify --platform minha_plataforma
-vaya verify --all --concurrency 3
-vaya coverage-report
+skilometer verify --platform minha_plataforma
+skilometer verify --all --concurrency 3
+skilometer coverage-report
 ```
 
 `verify` registra as fontes de forma idempotente, executa o `IngestionService.run_source`

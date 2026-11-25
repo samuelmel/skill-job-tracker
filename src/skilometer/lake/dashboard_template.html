@@ -1,0 +1,1081 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Skilometer - skills e cargos em tecnologia</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='white'/%3E%3Crect x='3' y='3' width='7' height='9' rx='1' fill='%2367e8f9'/%3E%3Crect x='14' y='3' width='7' height='5' rx='1' fill='%2386efac'/%3E%3Crect x='14' y='12' width='7' height='9' rx='1' fill='%23f9a8d4'/%3E%3Crect x='3' y='16' width='7' height='5' rx='1' fill='%23c4b5fd'/%3E%3C/svg%3E">
+<style>
+/* Sistema visual: Yafa-UI dashboard. Canvas #f8fafd, superficies brancas com borda 1px e raio 8px,
+   paleta multicolor estavel (ciano, azul, verde, rosa, violeta), icones Lucide inline.
+   Desvio documentado: fonte do sistema no lugar de Inter (arquivo unico, sem CDN nem arquivo de fonte). */
+:root {
+  --canvas: #f8fafd; --surface: #fff; --border: #dadce0; --divider: #e8eaed; --edge: #8792a2; --grid: #e8eef6;
+  --ink: #202124; --body: #3c4043; --muted: #5f6368; --action: #2563eb;
+  --ok: #059669; --ok-soft: #ecfdf5; --bad: #dc2626; --bad-soft: #fef2f2;
+  --cyan: #0891b2; --cyan-l: #67e8f9; --cyan-s: #ecfeff;
+  --blue: #2563eb; --blue-l: #5dadec; --blue-s: #eff6ff;
+  --green: #059669; --green-l: #86efac; --green-s: #ecfdf5;
+  --pink: #db2777; --pink-l: #f9a8d4; --pink-s: #fdf2f8;
+  --violet: #7c3aed; --violet-l: #c4b5fd; --violet-s: #f5f3ff;
+  --amber: #d97706; --amber-s: #fffbeb;
+  --c1: var(--cyan); --c2: var(--green); --c3: var(--pink); --c4: var(--violet); --c5: var(--blue); --c6: var(--amber);
+  --s1: var(--cyan-s); --s2: var(--green-s); --s3: var(--pink-s); --s4: var(--violet-s); --s5: var(--blue-s); --s6: var(--amber-s);
+  --route: var(--cyan); --route-soft: var(--cyan-s);
+  --sb: 15rem;
+  color-scheme: light;
+}
+:root[data-route="empregos"] { --route: var(--blue); --route-soft: var(--blue-s); }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
+body { margin: 0; overflow-x: clip; background: var(--canvas); color: var(--body); font-synthesis: none; -webkit-font-smoothing: antialiased;
+  font: 13px/1.45 "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; }
+@media (min-width: 640px) { body { font-size: 14px; } }
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0 .65rem; min-height: 2rem; }
+button:hover { border-color: var(--edge); }
+:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
+a { color: var(--action); text-underline-offset: 3px; }
+select, input[type=search] { background: var(--surface); border: 1px solid var(--edge); border-radius: 6px; padding: 0 .5rem; min-height: 2rem; }
+.num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.up { color: var(--ok); } .down { color: var(--bad); }
+.empty { color: var(--muted); padding: 1rem 0; }
+[hidden] { display: none !important; }
+.ic { width: 1em; height: 1em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* casca: sidebar + topbar + identidade + canvas */
+.app { display: grid; grid-template-columns: var(--sb) minmax(0, 1fr); min-height: 100dvh; }
+.side { position: sticky; top: 0; height: 100dvh; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 40; overflow: hidden auto; }
+.side-h { display: flex; align-items: center; gap: .6rem; padding: 0 1rem; min-height: 2.75rem; border-bottom: 1px solid var(--divider); font-weight: 800; font-size: 14px; color: var(--ink); white-space: nowrap; }
+.side-h .ic { width: 1.4rem; height: 1.4rem; }
+.nav { display: flex; flex-direction: column; padding: .6rem 0; flex: 1; }
+.nav-sep { flex: 1; }
+.ni { display: flex; align-items: center; gap: .75rem; width: 100%; min-height: 2.6rem; padding: 0 1rem; border: 0; border-left: 3px solid transparent; border-radius: 0; background: none; text-align: left; font-size: 15px; font-weight: 500; color: var(--muted); }
+.ni .ic { width: 18px; height: 18px; stroke-width: 2.25; color: var(--ic); opacity: .78; }
+.ni:hover { background: var(--cyan-s); border-color: transparent; }
+.ni[aria-current=page] { background: var(--ic-s); border-left-color: var(--ic); color: var(--ink); font-weight: 700; }
+.ni[aria-current=page] .ic { opacity: 1; }
+.ni[data-view=skills] { --ic: var(--cyan); --ic-s: var(--cyan-s); }
+.ni[data-view=empregos] { --ic: var(--blue); --ic-s: var(--blue-s); }
+.ni.meth { --ic: #475569; --ic-s: #f1f5f9; }
+.main { min-width: 0; display: flex; flex-direction: column; }
+.topbar { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: .6rem; min-height: 2.75rem; padding: 0 12px; background: var(--surface); border-bottom: 1px solid var(--border); font-weight: 800; color: var(--ink); font-size: 14px; }
+.menu-btn { display: none; width: 2rem; padding: 0; align-items: center; justify-content: center; border-radius: 4px; }
+.menu-btn .ic { width: 16px; height: 16px; }
+.topbar .sp { flex: 1; }
+.topbar .gen { font-weight: 500; font-size: 12px; color: var(--muted); }
+.ident { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .6rem 1rem; align-items: center; padding: .6rem clamp(.75rem, 1.7vw, 1.5rem); }
+.ident-l { display: flex; align-items: center; gap: .7rem; min-width: 0; }
+.ident-bar { width: 6px; height: 20px; border-radius: 2px; background: var(--route); flex: none; }
+.ident-tile { width: 36px; height: 36px; border-radius: 6px; background: var(--route-soft); color: var(--route); display: grid; place-items: center; flex: none; }
+.ident-tile .ic { width: 18px; height: 18px; stroke-width: 2.25; }
+.ident h1 { margin: 0; font-size: 16px; line-height: 1.2; font-weight: 800; text-transform: uppercase; color: var(--ink); }
+.ident p { margin: 0; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ident-t { min-width: 0; }
+.lens { display: flex; gap: .6rem; align-items: end; flex-wrap: wrap; }
+.lens label { display: flex; flex-direction: column; gap: 2px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted); }
+.lens select { font-size: 13px; font-weight: 500; text-transform: none; color: var(--ink); }
+@media (max-width: 720px) { .ident { grid-template-columns: minmax(0, 1fr); } }
+.canvas { padding: .4rem clamp(.75rem, 1.7vw, 1.5rem) 3rem; display: grid; gap: 1rem; align-content: start; }
+.scrim { display: none; }
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  :root { --sb: 4rem; }
+  .side-h span, .ni .lbl { display: none; }
+  .side-h { padding: 0; justify-content: center; }
+  .ni { padding: 0; justify-content: center; }
+  .ni .ic { opacity: 1; width: 20px; height: 20px; }
+}
+@media (max-width: 767px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .side { position: fixed; inset: 0 auto 0 0; width: min(92vw, 20rem); transform: translateX(-100%); transition: transform .18s ease-out; box-shadow: none; }
+  body.drawer .side { transform: none; box-shadow: 0 0 40px rgb(0 0 0 / .25); }
+  body.drawer .scrim { display: block; position: fixed; inset: 0; background: rgb(15 23 42 / .45); z-index: 35; }
+  body.drawer { overflow: hidden; }
+  .menu-btn { display: inline-flex; }
+}
+@media (prefers-reduced-motion: reduce) { .side { transition: none; } }
+
+/* superficies */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; min-width: 0; position: relative; }
+.card.rule::before { content: ""; position: absolute; left: -1px; right: -1px; top: -1px; height: 3px; border-radius: 8px 8px 0 0; background: var(--rule, var(--cyan-l)); }
+.card-h { display: flex; align-items: center; gap: .6rem; padding: 14px 16px 10px; border-bottom: 1px solid var(--divider); }
+.card-h h2, .card-h h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+.card-h .ic { width: 16px; height: 16px; stroke-width: 2.25; }
+.card-h .aux { margin-left: auto; font-size: 12px; color: var(--muted); text-align: right; }
+.card-b { padding: 14px 16px 16px; }
+.note { margin: 0; font-size: 12.5px; color: var(--muted); max-width: 80ch; }
+
+/* KPIs */
+.kpis { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr)); }
+.kpi { padding: 14px 16px 14px; }
+.kpi .kt { display: inline; padding: 0; min-height: 0; border: 0; background: none; border-radius: 0; font-size: 14px; font-weight: 600; color: var(--ink); text-align: left; text-decoration: underline dotted var(--edge); text-underline-offset: 4px; text-decoration-thickness: 1.5px; }
+.kpi .kt:hover { border: 0; }
+.kpi hr { border: 0; border-top: 1px solid var(--divider); margin: 8px 0 10px; }
+.kpi .kv { font-size: clamp(26px, 2.3vw, 32px); font-weight: 700; line-height: 1.1; color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.kpi .kv small { font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+.kpi .kc { margin-top: 4px; font-size: 12.5px; color: var(--muted); }
+@media (max-width: 640px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+  .kpi { padding: 10px 12px; }
+  .kpi .kt { font-size: 12.5px; }
+  .kpi hr { margin: 6px 0 8px; }
+  .kpi .kv { font-size: 22px; }
+  .kpi .kc { font-size: 11.5px; }
+  .kpi:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .lens { flex-wrap: nowrap; }
+  .lens label { min-width: 0; flex: 1; }
+  .lens select { width: 100%; }
+}
+.ktip { position: fixed; z-index: 60; max-width: min(18rem, calc(100vw - 16px)); background: var(--ink); color: #fff; font-size: 12.5px; line-height: 1.4; padding: 8px 10px; border-radius: 6px; pointer-events: none; box-shadow: 0 4px 16px rgb(0 0 0 / .2); }
+
+/* altas e quedas */
+.movers { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1000px) { .movers { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.mv-list { list-style: none; margin: 0; padding: 0 16px 6px; }
+.mv-list li { position: relative; }
+.mv { display: grid; grid-template-columns: minmax(6rem, 11rem) minmax(2rem, 1fr) 6rem 7.2rem 4.6rem; gap: .7rem; align-items: center; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--divider); border-radius: 0; background: none; padding: 6px 4px; min-height: 2.75rem; }
+.mv:hover { background: var(--canvas); }
+.mv .nm.c { padding-right: 1.2rem; }
+.mv .nm { font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dbar { display: block; height: .55rem; background: var(--divider); border-radius: 2px; overflow: hidden; }
+.dbar i { display: block; height: 100%; border-radius: 2px; }
+.dbar.up i { background: var(--ok); } .dbar.down i { background: var(--bad); }
+.mv .vals { color: var(--muted); font-size: 12px; white-space: nowrap; text-align: right; }
+.mv .vals b { color: var(--ink); }
+.mv .dl { font-weight: 700; text-align: right; white-space: nowrap; }
+.sp { width: 100%; height: 1.7rem; display: block; }
+.sp path { fill: none; stroke: var(--edge); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+.sp .a { fill: #fff; stroke: var(--edge); stroke-width: 1.6; }
+.sp .b.up { fill: var(--ok); } .sp .b.down { fill: var(--bad); }
+.tag { margin-left: .4rem; font-size: 11px; font-weight: 500; color: var(--muted); }
+@media (max-width: 900px) { .mv { grid-template-columns: minmax(5rem, 1fr) minmax(2rem, 6rem) 4.6rem; } .mv .sp, .mv .vals { display: none; } }
+.help { position: absolute; width: 1.1rem; height: 1.1rem; min-height: 0; padding: 0; border: 0; background: none; border-radius: 50%; color: var(--muted); display: grid; place-items: center; }
+.help .ic { width: 14px; height: 14px; }
+.htip { display: none; position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% - .3rem); max-width: 26rem; background: var(--ink); color: #fff; padding: 8px 10px; font-size: 12.5px; border-radius: 6px; }
+.help[aria-expanded=true] ~ .htip { display: block; }
+
+/* explorador */
+.explorer { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; align-items: start; }
+@media (min-width: 1000px) { .explorer { grid-template-columns: minmax(22rem, 31rem) minmax(0, 1fr); } }
+.picker .card-b { padding-top: 12px; }
+.search { position: relative; margin-bottom: .6rem; }
+.search .ic { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--muted); }
+.search input { width: 100%; padding-left: 30px; min-height: 2.25rem; }
+.tabs { display: flex; flex-wrap: wrap; gap: 0 .1rem; border-bottom: 1px solid var(--divider); margin-bottom: .6rem; }
+.tabs.dim { opacity: .45; }
+.tab { border: 0; border-radius: 0; background: none; border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 4px 8px; min-height: 2rem; font-weight: 600; color: var(--muted); font-size: 13px; }
+.tab[aria-selected=true] { color: var(--ink); border-bottom-color: var(--cyan); }
+.pick-head { display: flex; justify-content: space-between; gap: .6rem; font-size: 12px; color: var(--muted); margin-bottom: .4rem; flex-wrap: wrap; }
+.panel { max-height: 28rem; overflow: auto; padding-right: .3rem; }
+.grp { margin: .9rem 0 .35rem; font-size: 12px; font-weight: 700; color: var(--muted); }
+.grp:first-child { margin-top: 0; }
+.grid { display: flex; flex-wrap: wrap; gap: .35rem; }
+.sk { --slot: var(--border); --soft: var(--surface); display: inline-flex; align-items: center; gap: .4rem; min-height: 2rem; padding: 0 .6rem; font-size: 13px; background: var(--soft); }
+.sk.on { border-color: var(--slot); box-shadow: inset 0 0 0 1px var(--slot); color: var(--ink); font-weight: 650; }
+.sk .dd { font-size: 11.5px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.sk.dis { cursor: not-allowed; color: var(--muted); opacity: .55; }
+.sel-bar { display: flex; flex-wrap: wrap; gap: .4rem .8rem; align-items: center; justify-content: space-between; min-height: 2rem; margin-bottom: .4rem; }
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: .4rem; padding: 0 .35rem 0 .65rem; font-size: 13px; min-height: 1.9rem; border-radius: 999px; }
+.chip .sw { width: .65rem; height: .65rem; border-radius: 50%; }
+.chip .ic { width: 12px; height: 12px; color: var(--muted); }
+.linkbtn { border: 0; background: none; color: var(--action); padding: .2rem .3rem; min-height: 0; }
+.notice { min-height: 1.2rem; font-size: 12.5px; color: var(--muted); margin: 0 0 .3rem; }
+.chartbox { position: relative; touch-action: pan-y; }
+.chartbox svg { display: block; width: 100%; }
+.chartbox text { fill: var(--muted); font-size: 12px; }
+.chartbox text.lbl { fill: var(--ink); font-weight: 650; }
+.tip { position: absolute; top: .5rem; pointer-events: none; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 4px 16px rgb(0 0 0 / .12); padding: 8px 10px; font-size: 12.5px; min-width: 11rem; z-index: 2; }
+.tip .r { display: flex; align-items: center; gap: .45rem; justify-content: space-between; }
+.tip .r > span:first-child { display: inline-flex; align-items: center; gap: .4rem; }
+.tip .sw { width: .6rem; height: .6rem; border-radius: 50%; display: inline-block; }
+.chart-empty { padding: 3rem 1rem; text-align: center; color: var(--muted); }
+details.tbl-view { margin-top: .6rem; font-size: 12.5px; }
+details.tbl-view summary { cursor: pointer; color: var(--muted); }
+.tbl-wrap { overflow-x: auto; margin-top: .4rem; border: 1px solid var(--divider); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--divider); white-space: nowrap; }
+th { color: var(--muted); font-weight: 650; font-size: 11px; background: var(--canvas); }
+tbody tr:nth-child(even) td { background: #fcfdfe; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* skills nas vagas coletadas */
+.rows { display: grid; gap: 0 2.5rem; grid-template-columns: minmax(0, 1fr); padding: 0 16px; }
+@media (min-width: 1000px) { .rows { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-auto-flow: column; grid-template-rows: repeat(8, auto); } }
+.row { display: grid; grid-template-columns: 1.6rem minmax(5.5rem, 9rem) minmax(0, 1fr) auto; gap: .6rem; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--divider); }
+.row .rk { color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; font-size: 12px; }
+.row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; color: var(--ink); }
+.row .bar { height: .55rem; background: var(--divider); border-radius: 2px; overflow: hidden; }
+.row .bar i { display: block; height: 100%; background: var(--cyan-l); border-radius: 2px; }
+.row .val { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 12px; white-space: nowrap; }
+.row .val b { color: var(--ink); font-weight: 700; }
+.trends { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1rem 2.5rem; padding: 12px 16px 16px; border-top: 1px solid var(--divider); margin-top: 12px; }
+.trends h3 { margin: 0 0 .3rem; font-size: 14px; font-weight: 600; color: var(--ink); }
+.tr { display: grid; grid-template-columns: minmax(6rem, 1fr) auto; gap: .6rem; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--divider); }
+
+/* empregos */
+.emp { --nm: 11.5rem; --vl: 8rem; --gp: .8rem; display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 1000px) { .emp { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+@media (min-width: 1700px) { .emp.three { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, .8fr); } }
+@media (max-width: 560px) { .emp { --nm: 7.5rem; --vl: 5.6rem; --gp: .5rem; } }
+.emp .cap { margin: 0; padding: 10px 16px 0; font-size: 12.5px; color: var(--muted); }
+.rl { position: relative; padding: 1.5rem 16px 10px; }
+.rrow { display: grid; grid-template-columns: var(--nm) minmax(0, 1fr) var(--vl); gap: var(--gp); align-items: center; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--divider); border-radius: 0; background: none; padding: 4px 2px; min-height: 2.6rem; position: relative; }
+.rrow:hover, .rrow.hl, .rrow:focus-visible { background: var(--canvas); }
+.rrow .nm { font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.rrow .trk { position: relative; height: 1.1rem; display: block; }
+.rrow .trk .bar { position: absolute; left: 0; top: .2rem; height: .7rem; border-radius: 0 3px 3px 0; background: var(--blue-l); }
+.rrow .trk .bar.violet { background: var(--violet-l); }
+.rrow .trk .bar.pink { background: var(--pink-l); }
+.rrow .vv { text-align: right; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1.2; }
+.rrow .vv b { display: block; color: var(--ink); font-size: 13.5px; font-weight: 700; }
+.axis { position: absolute; top: 0; bottom: 10px; left: calc(16px + var(--nm) + var(--gp) + 2px); right: calc(16px + var(--vl) + var(--gp) + 2px); pointer-events: none; }
+.axis i { position: absolute; top: 1.3rem; bottom: 0; width: 1px; background: var(--grid); }
+.axis span { position: absolute; top: 0; transform: translateX(-50%); font-size: 11px; color: var(--muted); white-space: nowrap; }
+.axis i:first-child { background: var(--edge); }
+.sal-skill .rrow { grid-template-columns: minmax(5rem, 9rem) minmax(0, 1fr) var(--vl); }
+.brief { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+.ans { display: block; width: 100%; text-align: left; padding: 14px 16px 12px; min-height: 0; cursor: pointer; font: inherit; }
+.ans:hover, .ans:focus-visible { border-color: var(--edge); }
+.ans .al { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.ans .an { display: block; margin-top: 4px; font-size: clamp(18px, 1.5vw, 22px); font-weight: 700; line-height: 1.2; color: var(--ink); overflow-wrap: anywhere; }
+.ans .av { display: block; margin-top: 3px; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ans .av.up { color: var(--ok); } .ans .av.down { color: var(--bad); }
+@media (max-width: 640px) { .brief { grid-template-columns: 1fr 1fr; gap: .6rem; } .ans { padding: 10px 12px; } .ans .an { font-size: 15px; } }
+.sect { margin: 0 0 .6rem; font-size: 15px; font-weight: 600; color: var(--ink); }
+.sect span { margin-left: .6rem; font-size: 12px; font-weight: 400; color: var(--muted); }
+#card-rt { margin-top: 1rem; }
+.mv.r { grid-template-columns: minmax(9rem, 18rem) minmax(2rem, 1fr) 7.2rem 4.6rem; cursor: default; }
+.mv.r:hover { background: none; }
+@media (max-width: 900px) { .mv.r { grid-template-columns: minmax(5rem, 1fr) minmax(2rem, 6rem) 4.6rem; } }
+.rtip { position: fixed; z-index: 70; width: min(21rem, calc(100vw - 1.5rem)); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px 12px; font-size: 12.5px; pointer-events: none; box-shadow: 0 8px 28px rgb(15 23 42 / .18); }
+.rtip h4 { margin: 0; font-size: 14px; font-weight: 700; color: var(--ink); }
+.rtip .meta { color: var(--muted); margin: 2px 0 8px; font-variant-numeric: tabular-nums; }
+.rtip .ts { display: grid; grid-template-columns: minmax(0, 1fr) 4.2rem 2.8rem; gap: .5rem; align-items: center; padding: 2px 0; }
+.rtip .ts .b { height: .45rem; background: var(--divider); border-radius: 2px; position: relative; display: block; }
+.rtip .ts .b i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--blue-l); border-radius: 2px; }
+.rtip .ts .p { text-align: right; font-variant-numeric: tabular-nums; font-weight: 650; color: var(--ink); }
+.rtip .none { color: var(--muted); }
+@media (max-width: 700px) { .rtip { left: .75rem !important; right: .75rem; bottom: .75rem; top: auto !important; width: auto; } }
+
+/* metodologia e saude */
+.meth-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: 1.2rem 2.5rem; }
+.meth-grid h3 { margin: 0 0 .4rem; font-size: 14px; font-weight: 600; color: var(--ink); }
+.meth-grid ul { margin: 0; padding-left: 1.1rem; }
+.meth-grid li { margin-bottom: .4rem; font-size: 13px; max-width: 70ch; }
+details.meth > summary { cursor: pointer; padding: 14px 16px; font-size: 15px; font-weight: 600; color: var(--ink); }
+details.meth[open] > summary { border-bottom: 1px solid var(--divider); }
+.hsum { display: flex; flex-wrap: wrap; gap: .3rem 1.1rem; margin-bottom: .6rem; font-size: 12.5px; }
+.dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; background: var(--edge); }
+.dot.ok { background: var(--ok); } .dot.bad { background: var(--bad); } .dot.warn { background: var(--amber); } .dot.info { background: var(--blue); }
+.htbl { max-height: 22rem; overflow: auto; border: 1px solid var(--divider); border-radius: 6px; }
+.htbl th { position: sticky; top: 0; }
+.foot { display: flex; flex-wrap: wrap; gap: .4rem 1.5rem; color: var(--muted); font-size: 12px; padding: .2rem 0; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M12 16v5"/><path d="M16 14v7"/><path d="M20 10v11"/><path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/><path d="M4 18v3"/><path d="M8 14v7"/></symbol>
+    <symbol id="i-brief" viewBox="0 0 24 24"><path d="M12 12h.01"/><path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><path d="M22 13a18.15 18.15 0 0 1-20 0"/><rect width="20" height="14" x="2" y="6" rx="2"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M4 18h16"/><path d="M4 6h16"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M16 17h6v-6"/><path d="m22 17-8.5-8.5-5 5L2 7"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
+    <symbol id="i-dash" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1" fill="#67e8f9"/><rect width="7" height="5" x="14" y="3" rx="1" fill="#86efac"/><rect width="7" height="9" x="14" y="12" rx="1" fill="#f9a8d4"/><rect width="7" height="5" x="3" y="16" rx="1" fill="#c4b5fd"/></symbol>
+    <symbol id="i-bars" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16h8"/><path d="M7 11h12"/><path d="M7 6h3"/></symbol>
+    <symbol id="i-coins" viewBox="0 0 24 24"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></symbol>
+  </defs>
+</svg>
+<div class="app">
+  <aside class="side" id="side" aria-label="Navegação">
+    <div class="side-h"><svg class="ic" aria-hidden="true"><use href="#i-dash"/></svg><span>Skilometer</span></div>
+    <nav class="nav" id="nav">
+      <button type="button" class="ni" data-view="skills" aria-current="page" aria-label="Skills" title="Skills"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg><span class="lbl">Skills</span></button>
+      <button type="button" class="ni" data-view="empregos" id="nav-emp" aria-label="Empregos" title="Empregos" hidden><svg class="ic" aria-hidden="true"><use href="#i-brief"/></svg><span class="lbl">Empregos</span></button>
+      <span class="nav-sep"></span>
+      <button type="button" class="ni meth" id="meth-link" aria-label="Metodologia" title="Metodologia"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg><span class="lbl">Metodologia</span></button>
+    </nav>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="menu-btn" id="menu-btn" aria-label="Abrir menu" aria-expanded="false" aria-controls="side"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      <span>Skilometer</span><span class="sp"></span><span class="gen">Gerado em <span id="gen"></span></span>
+    </header>
+    <section class="ident" aria-label="Página">
+      <div class="ident-l">
+        <span class="ident-bar" aria-hidden="true"></span>
+        <span class="ident-tile" aria-hidden="true"><svg class="ic" id="ident-ic"><use href="#i-chart"/></svg></span>
+        <div class="ident-t"><h1 id="h1">Skills</h1><p id="h1-sub">O que as vagas de tecnologia pedem e como isso mudou</p></div>
+      </div>
+      <div class="lens">
+        <label id="cmp-ctl" hidden>Período <select id="pair"></select></label>
+        <label id="month-wrap">Mês <select id="month"></select></label>
+      </div>
+    </section>
+
+    <main class="canvas">
+      <section class="kpis" id="vol" aria-label="Volume coletado">
+        <div class="card rule kpi" style="--rule:var(--cyan-l)"><button type="button" class="kt" data-tip="Vagas distintas coletadas nas fontes públicas no mês selecionado.">Vagas coletadas</button><hr><div class="kv" id="v-jobs">-</div><div class="kc">em <span id="v-month"></span></div></div>
+        <div class="card rule kpi" style="--rule:var(--blue-l)"><button type="button" class="kt" data-tip="Páginas de carreira (empresas ou quadros de vagas) que apareceram na coleta do mês.">Fontes</button><hr><div class="kv" id="v-src">-</div><div class="kc">com vagas no mês</div></div>
+        <div class="card rule kpi" style="--rule:var(--green-l)"><button type="button" class="kt" data-tip="Sistemas de recrutamento diferentes entre as fontes, como Greenhouse, Lever ou Workday.">Plataformas</button><hr><div class="kv" id="v-plat">-</div><div class="kc">sistemas de vagas distintos</div></div>
+        <div class="card rule kpi" style="--rule:var(--violet-l)"><button type="button" class="kt" data-tip="Vagas com o texto da descrição. Só estas entram na participação das skills.">Com descrição</button><hr><div class="kv" id="v-desc">-</div><div class="kc">base da leitura de skills</div></div>
+        <div class="card rule kpi" id="v-hn" style="--rule:var(--pink-l)" hidden><button type="button" class="kt" id="v-hn-title" data-tip="Anúncios de nível superior das threads mensais 'Ask HN: Who is hiring?'. É a base da comparação ano a ano, separada das vagas coletadas.">Anúncios do Hacker News</button><hr><div class="kv" id="v-hn-n">-</div><div class="kc" id="v-hn-t"></div></div>
+      </section>
+
+      <div id="view-skills" style="display:grid;gap:1rem;min-width:0">
+        <section class="brief" id="brief" aria-label="Resumo" hidden></section>
+        <p class="note" id="lead-sub"></p>
+        <section class="movers" id="lead" aria-label="Skills em alta e em queda">
+          <div class="card rule" id="mv-up" style="--rule:var(--green-l)" hidden>
+            <div class="card-h"><svg class="ic up" aria-hidden="true"><use href="#i-up"/></svg><h2>Em alta</h2><span class="aux" id="up-p"></span></div>
+            <ul class="mv-list" id="up"></ul>
+          </div>
+          <div class="card rule" id="mv-down" style="--rule:#fca5a5" hidden>
+            <div class="card-h"><svg class="ic down" aria-hidden="true"><use href="#i-down"/></svg><h2>Em queda</h2><span class="aux" id="down-p"></span></div>
+            <ul class="mv-list" id="down"></ul>
+          </div>
+        </section>
+
+        <section id="hist" aria-labelledby="h-ex" hidden>
+          <div class="explorer" id="explorer">
+            <div class="card picker">
+              <div class="card-h"><h2 id="h-ex">Explorar uma skill</h2></div>
+              <div class="card-b">
+                <div class="search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="q" placeholder="Buscar skill" aria-label="Buscar skill" autocomplete="off"></div>
+                <div class="tabs" id="tabs" role="tablist" aria-label="Áreas"></div>
+                <div class="pick-head"><span id="pick-count"></span><span id="pick-cols"></span></div>
+                <div class="panel" id="pick" role="tabpanel" tabindex="0"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-h"><h2>Participação mensal no Hacker News</h2><span class="aux" id="ex-sub"></span></div>
+              <div class="card-b">
+                <div class="sel-bar"><div class="chips" id="chips" aria-label="Skills no gráfico"></div><button type="button" class="linkbtn" id="clear" hidden>Limpar</button></div>
+                <p class="notice" id="notice" role="status" aria-live="polite"></p>
+                <div class="chartbox" id="hchart" tabindex="0" aria-label="Gráfico de participação mensal das skills selecionadas. Use as setas para percorrer os meses."></div>
+                <details class="tbl-view"><summary>Ver como tabela (média por ano)</summary><div class="tbl-wrap" id="ytable"></div></details>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card rule" id="now" aria-labelledby="h-now" style="--rule:var(--cyan-l)">
+          <div class="card-h"><h2 id="h-now">Skills nas vagas coletadas</h2><span class="aux" id="now-note"></span></div>
+          <div class="rows" id="rank"></div>
+          <div class="trends" id="now-trend" hidden></div>
+        </section>
+      </div>
+
+      <div id="view-empregos" hidden>
+        <div class="emp" id="emp">
+          <div class="card rule" style="--rule:var(--blue-l)">
+            <div class="card-h"><h2>Cargos que mais empregam</h2></div>
+            <p class="cap" id="cap-jobs"></p>
+            <div class="rl" id="rl-jobs"></div>
+          </div>
+          <div class="card rule" id="card-sal" style="--rule:var(--violet-l)">
+            <div class="card-h"><h2>Cargos com maior salário</h2></div>
+            <p class="cap" id="cap-sal"></p>
+            <div class="rl" id="rl-sal"></div>
+          </div>
+          <div class="card rule sal-skill" id="col-ss" style="--rule:var(--pink-l)" hidden>
+            <div class="card-h"><h2>Skills que mais pagam</h2></div>
+            <p class="cap" id="cap-ss"></p>
+            <div class="rl" id="rl-ss"></div>
+          </div>
+        </div>
+        <section id="card-rt" aria-label="Cargos em alta e em queda" hidden>
+          <h2 class="sect">Cargos em alta e em queda<span id="rt-sub"></span></h2>
+          <div class="movers">
+            <div class="card rule" style="--rule:var(--green-l)">
+              <div class="card-h"><svg class="ic up" aria-hidden="true"><use href="#i-up"/></svg><h2>Em alta</h2></div>
+              <ul class="mv-list" id="rt-up"></ul>
+            </div>
+            <div class="card rule" style="--rule:#fca5a5">
+              <div class="card-h"><svg class="ic down" aria-hidden="true"><use href="#i-down"/></svg><h2>Em queda</h2></div>
+              <ul class="mv-list" id="rt-down"></ul>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <details class="card meth" id="meth">
+        <summary>Metodologia e saúde das fontes</summary>
+        <div class="card-b"><div class="meth-grid">
+          <div>
+            <h3>Como ler os números</h3>
+            <ul>
+              <li><b>Histórico (Hacker News):</b> posts de nível superior das threads mensais "Ask HN: Who is hiring?". A participação é a fração de posts do mês que citam a skill (não de vagas). Um post pode misturar cargos. Amostra de empresas de tecnologia e startups, com viés para os EUA. É a base da comparação entre anos, separada das vagas coletadas.</li>
+              <li><b>p.p.:</b> pontos percentuais, a diferença entre duas participações. A variação exibida é a diferença dos valores já arredondados a uma casa.</li>
+              <li><b>Anos:</b> comparados pela média das participações mensais, nunca pela soma. <span id="hist-partial"></span></li>
+              <li><b>Amostra pequena:</b> meses com menos de <span id="hmin">30</span> posts não entram na linha (ficam como lacuna). Listas de altas e quedas exigem pelo menos <span id="hmin2">30</span> posts em um dos dois anos; "base pequena" marca menos de <span id="hsmall">50</span> posts no ano anterior.</li>
+              <li><b>JavaScript e TypeScript:</b> contados juntos nas listas (cada post conta uma vez), porque o vocabulário migrou de um para o outro. No explorador, cada um aparece separado, com a variação em cor neutra.</li>
+              <li><b>Vagas coletadas:</b> a participação usa só vagas com descrição. Variações mês a mês usam apenas fontes com coleta completa nos dois meses; coletas PARTIAL nunca entram. Alta ou queda exige pelo menos 0,5 p.p. e |z| ≥ 1,96 (duas proporções); é uma aproximação, as vagas de uma empresa não são independentes.</li>
+              <li><b>Empregos:</b> salários vêm só de vagas que informam a remuneração, em dólares por ano. A barra é a mediana e a linha vai do 1º ao 3º quartil (p25 a p75). Cargos sem salário suficiente ficam fora do gráfico de salário.</li>
+              <li><b>Skills:</b> dicionário versionado com limites de palavra; termos ambíguos (R, Go, Scala, Spark) exigem contexto. Há falsos negativos por desenho.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Saúde das fontes</h3>
+            <p class="muted" style="margin:.1rem 0 .5rem;font-size:12.5px">Estado das fontes de vagas coletadas.</p>
+            <div class="hsum" id="chips-h"></div>
+            <label class="muted" style="font-size:12px">Filtrar <select id="hfilter"></select></label>
+            <div class="htbl" id="health" style="margin-top:.5rem"></div>
+          </div>
+        </div></div>
+      </details>
+
+      <footer class="foot"><span>Relatórios mensais:</span><span id="links">__REPORT_LINKS__</span></footer>
+    </main>
+  </div>
+</div>
+<div class="rtip" id="rtip" role="tooltip" hidden></div>
+<div class="ktip" id="ktip" role="tooltip" hidden></div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function () {
+  "use strict";
+  var D = JSON.parse(document.getElementById("data").textContent);
+  var DEFAULT_MONTH = "__DEFAULT_MONTH__";
+  var H = D.hist || null;
+  var ROLES = (D.roles && D.roles.length) ? D.roles : null;
+  var SKSAL = (D.skill_salary && D.skill_salary.length) ? D.skill_salary : null;
+  var MAXSEL = 6;
+  var RT = (D.role_trend && D.role_trend.length) ? D.role_trend : null;
+  var EMP = !!(ROLES || RT);
+  var START_EMP = /^#empregos/.test(location.hash || "");
+  var SLOTS = ["var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)", "var(--c6)"];
+  var SOFTS = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--s5)", "var(--s6)"];
+  var MONTHS_PT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  var HEALTH_LABEL = {ok: "ok", sem_run_completa: "sem run completa", ultima_run_parcial: "última run parcial", vazia: "vazia", erros_normalizacao: "erros de normalização"};
+  var HEALTH_DOT = {ok: "ok", sem_run_completa: "bad", ultima_run_parcial: "warn", vazia: "warn", erros_normalizacao: "bad"};
+  var JSTS = ["JavaScript", "TypeScript"];
+  var JSTS_HELP = "JavaScript e TypeScript são contados juntos: o vocabulário migrou de um para o outro, então cada um sozinho engana. No explorador os dois aparecem separados.";
+  var $ = function (id) { return document.getElementById(id); };
+  var nf = function (d) { return {minimumFractionDigits: d, maximumFractionDigits: d}; };
+  var fmt = function (n) { return n == null ? "-" : Number(n).toLocaleString("pt-BR"); };
+  var icon = function (id) { return '<svg class="ic" aria-hidden="true"><use href="#' + id + '"/></svg>'; };
+  /* Regra unica de arredondamento (espelha tenths/pp_delta em dashboard.py): tudo em decimos, inteiro. */
+  var tenths = function (v) { return Math.floor((Math.round(Number(v || 0) * 100) + 5) / 10); };
+  var dec1 = function (t) { return (t / 10).toLocaleString("pt-BR", nf(1)); };
+  var pct = function (v) { return v == null ? "-" : dec1(tenths(v)) + "%"; };
+  var ppd = function (a, b) { return (tenths(b) - tenths(a)) / 10; };
+  var pp = function (d) { return (d > 0 ? "+" : d < 0 ? "−" : "") + Math.abs(Number(d)).toLocaleString("pt-BR", nf(1)); };
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]; }); }
+  function fmtMonth(m) { return MONTHS_PT[Number(m.slice(5)) - 1] + " de " + m.slice(0, 4); }
+
+  $("gen").textContent = D.generated_at;
+
+  /* ======================= historico (Hacker News) ======================= */
+  var hIdx = {}, yIdx = {}, mCount = {}, mFirst = {}, mLast = {}, hasData = {}, refPair = null, refYear = null, yPosts = {}, hTotal = 0;
+  var sel = [];            // [{k, slot}] ordem de entrada; a cor segue a skill (slot fixo)
+  var q = "", tab = "";
+
+  function histInit() {
+    H.sm.forEach(function (r) { (hIdx[r.k] = hIdx[r.k] || {})[r.m] = r; hasData[r.k] = true; });
+    H.yr.forEach(function (r) { (yIdx[r.y] = yIdx[r.y] || {})[r.k] = r; });
+    H.months.forEach(function (m) {
+      var y = Number(m.slice(0, 4)), c = H.coverage[m], np = c ? Number(c.n_posts) || 0 : 0;
+      mCount[y] = (mCount[y] || 0) + 1;
+      yPosts[y] = (yPosts[y] || 0) + np; hTotal += np;
+      if (!mFirst[y] || m < mFirst[y]) mFirst[y] = m;
+      if (!mLast[y] || m > mLast[y]) mLast[y] = m;
+    });
+    refPair = H.movers && H.movers.pairs.length ? H.movers.pairs[0] : null;
+    refYear = refPair ? refPair.b : H.years[H.years.length - 1];
+    $("hmin").textContent = $("hmin2").textContent = H.min_sample;
+    if (H.movers) $("hsmall").textContent = H.movers.small_base;
+    var parts = H.years.filter(function (y) { return mCount[y] < 12; }).map(function (y) { return y + " (" + mCount[y] + " meses, de " + mFirst[y] + " a " + mLast[y] + ")"; });
+    $("hist-partial").textContent = parts.length ? "Anos parciais: " + parts.join("; ") + "." : "";
+  }
+
+  /* ---- listas Em alta / Em queda ---- */
+  function spark(item, pair) {
+    var t = item.t, years = H.years, max = Math.max.apply(null, t.concat([0.1]));
+    var W = 120, Hh = 28, n = t.length;
+    var X = function (i) { return n < 2 ? 0 : 3 + (W - 6) * i / (n - 1); };
+    var Y = function (v) { return Hh - 3 - (Hh - 6) * v / max; };
+    var d = t.map(function (v, i) { return (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1); }).join(" ");
+    var ia = years.indexOf(pair.a), ib = years.indexOf(pair.b);
+    var cls = item.dx > 0 ? "up" : "down";
+    return '<svg class="sp" viewBox="0 0 ' + W + " " + Hh + '" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="' + d + '"/>' +
+      (ia >= 0 ? '<circle class="a" cx="' + X(ia).toFixed(1) + '" cy="' + Y(t[ia]).toFixed(1) + '" r="3"/>' : "") +
+      (ib >= 0 ? '<circle class="b ' + cls + '" cx="' + X(ib).toFixed(1) + '" cy="' + Y(t[ib]).toFixed(1) + '" r="3.4"/>' : "") + "</svg>";
+  }
+  function moverTitle(r, pair) { return r.k + ": " + pct(r.psh) + " em " + pair.a + " para " + pct(r.sh) + " em " + pair.b + " (" + fmt(r.pn) + " e " + fmt(r.n) + " posts)"; }
+  function moverList(id, items, pair, kind, maxdp) {
+    $(id).innerHTML = items.map(function (r) {
+      var flags = (r.small ? '<span class="tag" title="Menos de ' + H.movers.small_base + ' posts em ' + pair.a + '">base pequena</span>' : "") + (r.new ? '<span class="tag">novo</span>' : "");
+      var title = moverTitle(r, pair);
+      var combo = r.skills.length > 1, hid = id + "-help-" + r.k.length;
+      var w = maxdp > 0 ? Math.max(2, 100 * Math.abs(r.dp) / maxdp) : 0;
+      return '<li><button type="button" class="mv" data-skills="' + esc(r.skills.join("|")) + '" title="' + esc(title) + ". Clique para ver no gráfico." + '" aria-label="' + esc(title + ". Adicionar ao gráfico.") + '">' +
+        '<span class="nm' + (combo ? " c" : "") + '">' + esc(r.k) + flags + '</span><span class="dbar ' + kind + '"><i style="width:' + w.toFixed(1) + '%"></i></span>' + spark(r, pair) +
+        '<span class="vals num">' + pct(r.psh) + " → <b>" + pct(r.sh) + '</b></span><span class="dl num ' + kind + '">' + pp(r.dp) + " p.p.</span></button>" +
+        (combo ? '<button type="button" class="help" aria-label="Por que JavaScript e TypeScript aparecem juntos" aria-expanded="false" aria-describedby="' + hid + '">' + icon("i-help") + '</button><span class="htip" role="tooltip" id="' + hid + '">' + esc(JSTS_HELP) + "</span>" : "") + "</li>";
+    }).join("") || '<li class="empty">Nenhuma skill com amostra suficiente.</li>';
+    placeHelps();
+  }
+  function placeHelps() {
+    document.querySelectorAll(".mv-list li").forEach(function (li) {
+      var h = li.querySelector(".help"), n = li.querySelector(".nm");
+      if (!h || !n || !li.offsetParent) return;
+      var l = li.getBoundingClientRect(), r = n.getBoundingClientRect(), range = document.createRange();
+      range.selectNodeContents(n);
+      var t = range.getBoundingClientRect();
+      h.style.left = Math.round(Math.min(t.right + 4, r.right - 16) - l.left) + "px";
+      h.style.top = Math.round(r.top - l.top + (r.height - h.offsetHeight) / 2) + "px";
+    });
+  }
+  window.addEventListener("resize", placeHelps);
+  function renderLead() {
+    var M = H.movers;
+    if (!M || !refPair) return;
+    var p = M.pairs[Number($("pair").value) || 0];
+    var maxdp = Math.max.apply(null, p.ups.concat(p.downs).map(function (r) { return Math.abs(r.dp); }).concat([0]));
+    moverList("up", p.ups, p, "up", maxdp);
+    moverList("down", p.downs, p, "down", maxdp);
+    $("lead-sub").textContent = "Anúncios do Hacker News: " + fmt(yPosts[p.b]) + " em " + p.b + " e " + fmt(yPosts[p.a]) + " em " + p.a + ". Participação = % que cita a skill.";
+    $("up-p").textContent = $("down-p").textContent = p.b + " vs. " + p.a + ", em p.p.";
+    $("v-hn-title").textContent = "Anúncios do Hacker News em " + p.b;
+    $("v-hn-n").textContent = fmt(yPosts[p.b]);
+    $("v-hn-t").textContent = "base da comparação com " + p.a + " (" + fmt(yPosts[p.a]) + "). Série " + H.months[0].slice(0, 4) + " a " + H.months[H.months.length - 1].slice(0, 4) + ": " + fmt(hTotal) + " anúncios.";
+    $("v-hn").hidden = false;
+  }
+  function initLead() {
+    var M = H.movers;
+    if (!M || !M.pairs.length) return;
+    $("mv-up").hidden = $("mv-down").hidden = false;
+    $("pair").innerHTML = M.pairs.map(function (p, i) {
+      return '<option value="' + i + '">' + p.b + " vs. " + p.a + (mCount[p.b] < 12 ? " (" + mCount[p.b] + " meses)" : "") + (p.span ? ", prazo longo" : "") + "</option>";
+    }).join("");
+    renderLead();
+  }
+
+  /* ---- selecao (cores fixas por skill, ate 6) ---- */
+  function slotOf(k) { for (var i = 0; i < sel.length; i++) if (sel[i].k === k) return sel[i].slot; return -1; }
+  function freeSlot() { for (var s = 0; s < MAXSEL; s++) { if (!sel.some(function (x) { return x.slot === s; })) return s; } return -1; }
+  function setNotice(t) { $("notice").textContent = t || ""; }
+  function addSkills(list) {
+    var skipped = [];
+    list.forEach(function (k) {
+      if (!hasData[k] || slotOf(k) >= 0) return;
+      var s = freeSlot();
+      if (s < 0) skipped.push(k); else sel.push({k: k, slot: s});
+    });
+    setNotice(skipped.length ? "O gráfico mostra até " + MAXSEL + " skills para manter as cores legíveis. Remova uma para incluir " + skipped.join(" e ") + "." : "");
+    afterSelection();
+  }
+  function removeSkill(k) { sel = sel.filter(function (x) { return x.k !== k; }); setNotice(""); afterSelection(); }
+  function afterSelection() { syncList(); renderChips(); renderChart(); renderYearTable(); writeHash(); }
+  function hashSkills() { return sel.length ? "#skills=" + sel.map(function (x) { return encodeURIComponent(x.k); }).join(",") : ""; }
+  function writeHash() {
+    if (view !== "skills") return;
+    try { history.replaceState(null, "", location.pathname + location.search + hashSkills()); } catch (err) { /* arquivo local sem history */ }
+  }
+  function readHash() {
+    var m = /[#&]skills=([^&]*)/.exec(location.hash || "");
+    if (!m) return null;
+    return m[1].split(",").map(function (s) { try { return decodeURIComponent(s); } catch (e) { return ""; } }).filter(function (k) { return hasData[k]; }).slice(0, MAXSEL);
+  }
+  function defaultPicks() {
+    var out = [], p = refPair;
+    if (p) [p.ups[0], p.downs[0], p.ups[1], p.downs[1]].forEach(function (it) { if (it) it.skills.forEach(function (k) { if (out.indexOf(k) < 0 && out.length < MAXSEL) out.push(k); }); });
+    if (!out.length) out = Object.keys(yIdx[refYear] || {}).sort(function (a, b) { return yIdx[refYear][b].sh - yIdx[refYear][a].sh; }).slice(0, 4);
+    return out;
+  }
+
+  /* ---- seletor: abas por area + skills como botoes ---- */
+  function stat(k) { var r = (yIdx[refYear] || {})[k], p = refPair ? (yIdx[refPair.a] || {})[k] : null; return {cur: r ? r.sh : null, prev: p ? p.sh : 0, has: !!r}; }
+  var ordered = [], byK = {}, rankOf = {}, tabs = [];
+  function buildOrder() {
+    ordered = D.skills.map(function (s) { var st = stat(s.skill); return {k: s.skill, cat: s.category, st: st, has: !!hasData[s.skill]}; });
+    ordered.sort(function (a, b) { return (b.has - a.has) || ((b.st.cur || 0) - (a.st.cur || 0)) || a.k.localeCompare(b.k); });
+    ordered.forEach(function (o, i) { byK[o.k] = o; rankOf[o.k] = i; });
+    tabs = [{id: "all", label: "Todas", groups: null, n: ordered.length}].concat(D.areas.map(function (a) { return {id: a.id, label: a.label, groups: a.groups, n: a.groups.reduce(function (s, g) { return s + g.skills.length; }, 0)}; }));
+  }
+  function chipHtml(o) {
+    var d = refPair && o.st.has ? ppd(o.st.prev, o.st.cur) : null;
+    var combo = JSTS.indexOf(o.k) >= 0;
+    var cls = combo ? "muted" : (d > 0 ? "up" : d < 0 ? "down" : "muted");
+    var title = o.k + (o.has ? ": " + pct(o.st.cur) + " em " + refYear + (d == null ? "" : ", " + pp(d) + " p.p. vs. " + refPair.a) : " - sem dados no histórico") + (combo ? ". " + JSTS_HELP : "");
+    return '<button type="button" class="sk' + (o.has ? "" : " dis") + '" data-k="' + esc(o.k) + '" aria-pressed="false" title="' + esc(title) + '"' + (o.has ? "" : " disabled") + '><span class="nm">' + esc(o.k) + "</span>" +
+      (d == null ? "" : '<span class="dd ' + cls + '">' + pp(d) + "</span>") + "</button>";
+  }
+  function renderTabs() {
+    $("tabs").innerHTML = tabs.map(function (t) {
+      return '<button type="button" class="tab" role="tab" id="tab-' + t.id + '" data-tab="' + t.id + '" aria-selected="' + (t.id === tab) + '" aria-controls="pick" tabindex="' + (t.id === tab ? 0 : -1) + '">' + esc(t.label) + "</button>";
+    }).join("");
+    $("tabs").classList.toggle("dim", !!q.trim());
+    $("pick").setAttribute("aria-labelledby", "tab-" + tab);
+  }
+  function renderList() {
+    var ql = q.trim().toLowerCase(), html = "", n, t = tabs.filter(function (x) { return x.id === tab; })[0];
+    var grid = function (ks) { return '<div class="grid">' + ks.map(function (k) { return chipHtml(byK[k]); }).join("") + "</div>"; };
+    if (ql) {
+      var rows = ordered.filter(function (o) { return o.k.toLowerCase().indexOf(ql) >= 0; });
+      n = rows.length; html = n ? grid(rows.map(function (o) { return o.k; })) : "";
+      $("pick-count").textContent = n + (n === 1 ? " resultado" : " resultados") + " em todas as áreas";
+    } else if (t.groups) {
+      n = t.n;
+      html = t.groups.map(function (g) {
+        var ks = g.skills.slice().sort(function (a, b) { return rankOf[a] - rankOf[b]; });
+        return (t.groups.length > 1 ? '<h3 class="grp">' + esc(g.label) + "</h3>" : "") + grid(ks);
+      }).join("");
+      $("pick-count").textContent = t.label + ": " + n + (n === 1 ? " skill" : " skills");
+    } else {
+      n = ordered.length; html = grid(ordered.map(function (o) { return o.k; }));
+      $("pick-count").textContent = n + " skills";
+    }
+    $("pick-cols").textContent = refPair ? "Variação em p.p., " + refYear + " vs. " + refPair.a : "";
+    $("pick").innerHTML = html || '<div class="empty">Nenhuma skill encontrada.</div>';
+    renderTabs();
+    syncList();
+  }
+  function syncList() {
+    document.querySelectorAll("#pick .sk").forEach(function (el) {
+      var s = slotOf(el.dataset.k);
+      el.classList.toggle("on", s >= 0);
+      el.setAttribute("aria-pressed", String(s >= 0));
+      el.style.setProperty("--slot", s >= 0 ? SLOTS[s] : "var(--border)");
+      el.style.setProperty("--soft", s >= 0 ? SOFTS[s] : "var(--surface)");
+    });
+  }
+  function setTab(id, focus) {
+    tab = id; q = ""; $("q").value = ""; renderList();
+    if (focus) { var b = $("tab-" + id); if (b) b.focus(); }
+  }
+  function renderChips() {
+    $("chips").innerHTML = sel.length ? sel.map(function (x) {
+      return '<button type="button" class="chip" data-rm="' + esc(x.k) + '" aria-label="Remover ' + esc(x.k) + ' do gráfico" style="background:' + SOFTS[x.slot] + '"><i class="sw" style="background:' + SLOTS[x.slot] + '"></i>' + esc(x.k) + icon("i-x") + "</button>";
+    }).join("") : '<span class="muted">Nenhuma skill escolhida.</span>';
+    $("clear").hidden = !sel.length;
+  }
+
+  /* ---- grafico ---- */
+  var hoverIdx = null, lastW = 0, geo = null;
+  function niceMax(v) {
+    var raw = Math.max(v, 1) / 4, mag = Math.pow(10, Math.floor(Math.log10(raw))), c = [1, 2, 2.5, 5, 10], i = 0;
+    while (c[i] * mag < raw) i++;
+    return {step: c[i] * mag, max: c[i] * mag * 4};
+  }
+  function seriesPts(k) {
+    return H.months.map(function (m) {
+      var c = H.coverage[m], r = (hIdx[k] || {})[m];
+      return {m: m, low: !!c.low_sample, v: c.low_sample ? null : (r ? r.sh : 0), n: r ? r.n : 0, d: c.n_posts};
+    });
+  }
+  function renderChart() {
+    var el = $("hchart");
+    if (!sel.length) { el.innerHTML = '<div class="chart-empty">Escolha skills ao lado ou clique numa skill de "Em alta" ou "Em queda".</div>'; geo = null; return; }
+    var W = Math.max(260, Math.floor(el.clientWidth - 2)), mobile = W < 560;
+    lastW = W;
+    var Hh = mobile ? 260 : Math.round(Math.min(360, Math.max(280, W * 0.3)));
+    var L = mobile ? 34 : 44, R = mobile ? 74 : 120, T = 12, B = 26, n = H.months.length;
+    var series = sel.map(function (x) { return {k: x.k, color: SLOTS[x.slot], pts: seriesPts(x.k)}; });
+    var vmax = 0;
+    series.forEach(function (s) { s.pts.forEach(function (p) { if (p.v != null && p.v > vmax) vmax = p.v; }); });
+    var nm = niceMax(vmax);
+    var X = function (i) { return L + (W - L - R) * i / Math.max(n - 1, 1); };
+    var Y = function (v) { return T + (Hh - T - B) * (1 - v / nm.max); };
+    geo = {W: W, H: Hh, L: L, R: R, T: T, B: B, X: X, Y: Y, series: series, n: n};
+    var g = "";
+    for (var t = 0; t <= 4; t++) {
+      var v = nm.step * t;
+      g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" stroke="#e8eef6"/><text x="' + (L - 6) + '" y="' + (Y(v) + 4).toFixed(1) + '" text-anchor="end">' + v.toLocaleString("pt-BR", nf(nm.step < 1 ? 1 : 0)) + "%</text>";
+    }
+    var yearPx = (W - L - R) / Math.max(H.years.length - 1, 1), every = Math.max(1, Math.ceil(46 / yearPx));
+    H.months.forEach(function (m, i) { if (m.slice(5) === "01" && (Number(m.slice(0, 4)) - Number(H.months[0].slice(0, 4))) % every === 0) g += '<text x="' + X(i).toFixed(1) + '" y="' + (Hh - 7) + '" text-anchor="middle">' + m.slice(0, 4) + "</text>"; });
+    var ends = [];
+    series.forEach(function (s) {
+      var d = "", gap = true, last = -1;
+      s.pts.forEach(function (p, i) {
+        if (p.v == null) { gap = true; return; }
+        var next = s.pts[i + 1];
+        d += (gap ? "M" : "L") + X(i).toFixed(1) + " " + Y(p.v).toFixed(1) + " ";
+        if (gap && (!next || next.v == null)) d += "h.01"; // ponto isolado entre lacunas
+        gap = false; last = i;
+      });
+      g += '<path d="' + d + '" fill="none" stroke="' + s.color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+      if (last >= 0) ends.push({s: s, y: Y(s.pts[last].v), i: last});
+    });
+    ends.sort(function (a, b) { return a.y - b.y; });
+    for (var j = 1; j < ends.length; j++) if (ends[j].y - ends[j - 1].y < 14) ends[j].y = ends[j - 1].y + 14;
+    ends.forEach(function (e) {
+      var label = e.s.k.length > (mobile ? 9 : 16) ? e.s.k.slice(0, mobile ? 8 : 15) + "…" : e.s.k;
+      g += '<circle cx="' + X(e.i).toFixed(1) + '" cy="' + Y(e.s.pts[e.i].v).toFixed(1) + '" r="3.5" fill="' + e.s.color + '" stroke="#fff" stroke-width="2"/><text class="lbl" x="' + (W - R + 8) + '" y="' + (e.y + 4).toFixed(1) + '">' + esc(label) + "</text>";
+    });
+    g += '<g id="cross" visibility="hidden"><line y1="' + T + '" y2="' + (Hh - B) + '" stroke="#8792a2" stroke-dasharray="3 3"/></g>';
+    el.innerHTML = '<svg id="hsvg" width="' + W + '" height="' + Hh + '" viewBox="0 0 ' + W + " " + Hh + '" role="img" aria-label="Participação mensal de ' + esc(sel.map(function (x) { return x.k; }).join(", ")) + " no Hacker News, de " + H.months[0] + " a " + H.months[n - 1] + '">' + g + '</svg><div class="tip" id="tip" hidden></div>';
+    hoverIdx = null;
+  }
+  function showHover(i) {
+    if (!geo) return;
+    i = Math.max(0, Math.min(geo.n - 1, i)); hoverIdx = i;
+    var cross = $("hchart").querySelector("#cross"), tip = $("tip");
+    if (!cross) return;
+    var x = geo.X(i);
+    cross.setAttribute("visibility", "visible");
+    var ln = cross.querySelector("line"); ln.setAttribute("x1", x); ln.setAttribute("x2", x);
+    cross.querySelectorAll("circle").forEach(function (c) { c.remove(); });
+    var rows = "", m = H.months[i];
+    geo.series.forEach(function (s) {
+      var p = s.pts[i];
+      if (p.v != null) {
+        var c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        c.setAttribute("cx", x); c.setAttribute("cy", geo.Y(p.v)); c.setAttribute("r", 4); c.setAttribute("fill", s.color); c.setAttribute("stroke", "#fff"); c.setAttribute("stroke-width", 2);
+        cross.appendChild(c);
+      }
+      rows += '<div class="r"><span><i class="sw" style="background:' + s.color + '"></i>' + esc(s.k) + '</span><span class="num">' + (p.v == null ? "amostra pequena" : "<b>" + pct(p.v) + "</b> · " + fmt(p.n) + " posts") + "</span></div>";
+    });
+    var cov = H.coverage[m];
+    tip.innerHTML = "<b>" + fmtMonth(m) + '</b> <span class="muted">(' + fmt(cov.n_posts) + " posts no mês)</span>" + rows;
+    tip.hidden = false;
+    var w = tip.offsetWidth, px = x + 14;
+    if (px + w > geo.W) px = x - w - 14;
+    tip.style.left = Math.max(4, px) + "px";
+  }
+  function hideHover() { var c = $("hchart").querySelector("#cross"); if (c) c.setAttribute("visibility", "hidden"); var t = $("tip"); if (t) t.hidden = true; hoverIdx = null; }
+  function idxFromEvent(e) {
+    var r = $("hsvg").getBoundingClientRect(), x = (e.clientX - r.left) * (geo.W / r.width);
+    return Math.round((x - geo.L) / (geo.W - geo.L - geo.R) * (geo.n - 1));
+  }
+  function renderYearTable() {
+    if (!sel.length) { $("ytable").innerHTML = ""; return; }
+    $("ytable").innerHTML = "<table><thead><tr><th>Skill</th>" + H.years.map(function (y) { return '<th class="n">' + y + (mCount[y] < 12 ? "*" : "") + "</th>"; }).join("") + "</tr></thead><tbody>" +
+      sel.map(function (x) { return "<tr><td>" + esc(x.k) + "</td>" + H.years.map(function (y) { var r = (yIdx[y] || {})[x.k]; return '<td class="n">' + (r ? pct(r.sh) : "-") + "</td>"; }).join("") + "</tr>"; }).join("") +
+      '</tbody></table><p class="muted" style="margin:.3rem .5rem;font-size:12px">* ano parcial. Média das participações mensais.</p>';
+  }
+  function initExplorer() {
+    $("hist").hidden = false;
+    $("ex-sub").textContent = fmtMonth(H.months[0]) + " a " + fmtMonth(H.months[H.months.length - 1]);
+    buildOrder();
+    tab = tabs[1] ? tabs[1].id : tabs[0].id;
+    renderList();
+    var fromHash = readHash();
+    sel = []; addSkills(fromHash && fromHash.length ? fromHash : defaultPicks());
+  }
+  function focusChart(ks) {
+    addSkills(ks);
+    $("explorer").scrollIntoView({block: "start"});
+    try { $("hchart").focus({preventScroll: true}); } catch (e) { /* ok */ }
+  }
+
+  /* ======================= vagas coletadas ======================= */
+  var cs = {month: DEFAULT_MONTH}, hfilter = "problemas";
+  if (D.months.indexOf(cs.month) < 0) cs.month = D.months[D.months.length - 1];
+  function nextMonth(m) { var y = Number(m.slice(0, 4)), mo = Number(m.slice(5)); mo++; if (mo > 12) { mo = 1; y++; } return y + "-" + (mo < 10 ? "0" : "") + mo; }
+  function renderVolume() {
+    var c = D.coverage[cs.month];
+    $("v-month").textContent = fmtMonth(cs.month);
+    $("v-jobs").textContent = c ? fmt(c.n_jobs) : "-";
+    $("v-src").textContent = c ? fmt(c.n_sources_seen) : "-";
+    $("v-plat").textContent = c ? fmt(c.n_platforms) : "-";
+    $("v-desc").innerHTML = c ? fmt(c.n_jobs_with_description) + (c.n_jobs ? ' <small>(' + Math.round(100 * c.n_jobs_with_description / c.n_jobs) + "%)</small>" : "") : "-";
+  }
+  function renderNow() {
+    var den = D.den.all[cs.month], c = D.coverage[cs.month], note = "";
+    $("month").innerHTML = D.months.slice().reverse().map(function (m) { return '<option value="' + m + '"' + (m === cs.month ? " selected" : "") + ">" + fmtMonth(m) + "</option>"; }).join("");
+    if (den) note = fmt(den.denominator) + " vagas com descrição" + (den.low ? " (amostra pequena)" : "") + ".";
+    if (c && c.is_baseline) note += " Primeiro mês: comparação a partir de " + nextMonth(cs.month) + ".";
+    else if (c && !c.trend_available) note += " Sem mês anterior comparável.";
+    $("now-note").textContent = note;
+    var rows = D.sm.filter(function (r) { return r.m === cs.month; }).sort(function (a, b) { return b.n - a.n || a.k.localeCompare(b.k); }).slice(0, 16);
+    var max = Math.max.apply(null, rows.map(function (r) { return r.sh; }).concat([1]));
+    $("rank").innerHTML = rows.map(function (r, i) {
+      return '<div class="row"><span class="rk">' + (r.rk || i + 1) + '</span><span class="nm" title="' + esc(r.k) + '">' + esc(r.k) + '</span><span class="bar"><i style="width:' + (100 * r.sh / max).toFixed(1) + '%"></i></span><span class="val"><b>' + pct(r.sh) + "</b> " + fmt(r.n) + "/" + fmt(r.d) + "</span></div>";
+    }).join("") || '<div class="empty">Sem skills detectadas neste mês.</div>';
+    var box = $("now-trend");
+    if (c && !c.is_baseline && c.trend_available) {
+      var tr = D.tr.filter(function (r) { return r.m === cs.month; });
+      var one = function (st, title, kind) {
+        var s = tr.filter(function (r) { return r.st === st; }).sort(function (a, b) { return kind === "up" ? b.dp - a.dp : a.dp - b.dp; }).slice(0, 8);
+        return "<div><h3>" + title + "</h3>" + (s.map(function (r) { return '<div class="tr"><span>' + esc(r.k) + '<span class="tag">' + fmt(r.n) + "/" + fmt(r.d) + " vs " + fmt(r.pn) + "/" + fmt(r.pd) + '</span></span><span class="num ' + kind + '"><b>' + pp(r.dp) + " p.p.</b></span></div>"; }).join("") || '<div class="empty">Nenhuma skill com variação relevante.</div>') + "</div>";
+      };
+      box.innerHTML = one("rising", "Em alta vs. mês anterior", "up") + one("falling", "Em queda vs. mês anterior", "down");
+      box.hidden = false;
+    } else { box.innerHTML = ""; box.hidden = true; }
+  }
+
+  function renderHealth() {
+    var h = D.health;
+    $("chips-h").innerHTML = Object.keys(h.summary).sort().map(function (k) { return '<span><i class="dot ' + (HEALTH_DOT[k] || "info") + '"></i>' + esc(HEALTH_LABEL[k] || k) + ": <b>" + fmt(h.summary[k]) + "</b></span>"; }).join("") + "<span>total: <b>" + fmt(h.total) + "</b></span>";
+    var opts = ["problemas", "todas"].concat(Object.keys(h.summary).filter(function (k) { return k !== "ok"; }));
+    $("hfilter").innerHTML = opts.map(function (o) { return '<option value="' + o + '"' + (o === hfilter ? " selected" : "") + ">" + esc(o === "problemas" ? "só problemas" : o === "todas" ? "amostra geral" : HEALTH_LABEL[o] || o) + "</option>"; }).join("");
+    var rows = h.rows.filter(function (r) { return hfilter === "todas" ? true : hfilter === "problemas" ? r.health !== "ok" : r.health === hfilter; });
+    $("health").innerHTML = rows.length ? "<table><thead><tr><th>Fonte</th><th>Plataforma</th><th class=\"n\">Runs (compl./parc.)</th><th>Última coleta</th><th class=\"n\">Vagas</th><th class=\"n\">% c/ descrição</th><th>Estado</th></tr></thead><tbody>" +
+      rows.map(function (r) { return "<tr><td>" + esc(r.source_key) + "</td><td>" + esc(r.platform) + '</td><td class="n">' + r.nc + "/" + r.np + "</td><td>" + esc(r.last) + '</td><td class="n">' + fmt(r.jobs) + '</td><td class="n">' + pct(r.pd) + '</td><td><i class="dot ' + (HEALTH_DOT[r.health] || "info") + '"></i>' + esc(HEALTH_LABEL[r.health] || r.health) + "</td></tr>"; }).join("") +
+      "</tbody></table>" + (h.truncated ? '<p class="muted" style="margin:.3rem .5rem;font-size:12px">Mostrando as primeiras ' + h.rows.length + " de " + fmt(h.total) + " fontes.</p>" : "") : '<div class="empty" style="padding:.6rem">Nenhuma fonte neste filtro.</div>';
+  }
+
+  function fallbackHead() {
+    var rows = D.sm.filter(function (r) { return r.m === cs.month; }).sort(function (a, b) { return b.n - a.n; }).slice(0, 3).map(function (r) { return r.k; });
+    $("lead-sub").textContent = (rows.length ? "Skills mais citadas em " + cs.month + ": " + rows.join(", ") + ". " : "") + "O histórico de anos anteriores ainda não foi carregado.";
+  }
+
+  /* ======================= empregos ======================= */
+  var usd = function (n) { return n == null ? "-" : "US$ " + (n >= 1000 ? Math.round(n / 1000).toLocaleString("pt-BR") + " mil" : Math.round(n).toLocaleString("pt-BR")); };
+  var roleBy = {};
+  function axisHtml(max, step) {
+    var s = "";
+    for (var v = 0; v <= max + 1e-6; v += step) s += '<i style="left:' + (100 * v / max).toFixed(2) + '%"></i><span style="left:' + (100 * v / max).toFixed(2) + '%">' + (v === 0 ? "0" : usd(v).replace("US$ ", "")) + "</span>";
+    return '<div class="axis" aria-hidden="true">' + s + "</div>";
+  }
+  function niceStep(max) { var raw = max / 4, mag = Math.pow(10, Math.floor(Math.log10(raw))), c = [1, 2, 2.5, 5, 10], i = 0; while (c[i] * mag < raw) i++; return c[i] * mag; }
+  function rrow(r, track, vv, label) {
+    return '<button type="button" class="rrow" data-role="' + esc(r.role) + '" aria-label="' + esc(label) + '"><span class="nm" title="' + esc(r.role) + '">' + esc(r.role) + '</span><span class="trk">' + track + '</span><span class="vv">' + vv + "</span></button>";
+  }
+  function renderEmpregos() {
+    ROLES.forEach(function (r) { roleBy[r.role] = r; });
+    var byJobs = ROLES.slice().sort(function (a, b) { return b.n_jobs - a.n_jobs; }).slice(0, 20);
+    var mj = Math.max.apply(null, byJobs.map(function (r) { return r.n_jobs; }).concat([1]));
+    $("cap-jobs").textContent = "Vagas e % do total.";
+    $("rl-jobs").innerHTML = byJobs.map(function (r) {
+      return rrow(r, '<span class="bar" style="width:' + (100 * r.n_jobs / mj).toFixed(1) + '%"></span>', "<b>" + fmt(r.n_jobs) + "</b>" + pct(r.share_pct), r.role + ": " + fmt(r.n_jobs) + " vagas, " + pct(r.share_pct));
+    }).join("");
+    var withSal = ROLES.filter(function (r) { return r.median_salary != null; }).sort(function (a, b) { return b.median_salary - a.median_salary; }).slice(0, 20);
+    var omitted = ROLES.length - ROLES.filter(function (r) { return r.median_salary != null; }).length;
+    $("cap-sal").textContent = "Mediana anual." + (omitted > 0 ? " " + omitted + (omitted === 1 ? " cargo fora" : " cargos fora") + " (sem salário informado)." : "");
+    var ms = Math.max.apply(null, withSal.map(function (r) { return r.median_salary; }).concat([1]));
+    var step = niceStep(ms), axmax = Math.ceil(ms / step) * step;
+    $("rl-sal").innerHTML = axisHtml(axmax, step) + (withSal.map(function (r) {
+      return rrow(r, '<span class="bar violet" style="width:' + (100 * r.median_salary / axmax).toFixed(2) + '%"></span>', "<b>" + usd(r.median_salary) + "</b>", r.role + ": mediana " + usd(r.median_salary) + ", " + fmt(r.n_salary) + " vagas com salário");
+    }).join("") || '<div class="empty">Nenhum cargo com salário informado.</div>');
+    if (SKSAL) {
+      var ss = SKSAL.slice().sort(function (a, b) { return b.median_salary - a.median_salary; }).slice(0, 15);
+      var mx = Math.max.apply(null, ss.map(function (r) { return r.median_salary; }).concat([1]));
+      $("col-ss").hidden = false;
+      $("emp").classList.add("three");
+      $("cap-ss").textContent = "Mediana anual das vagas que citam a skill.";
+      $("rl-ss").innerHTML = ss.map(function (r) {
+        return '<div class="rrow" style="cursor:default"><span class="nm" title="' + esc(r.skill) + '">' + esc(r.skill) + '</span><span class="trk"><span class="bar pink" style="width:' + (100 * r.median_salary / mx).toFixed(1) + '%"></span></span><span class="vv"><b>' + usd(r.median_salary) + "</b>n = " + fmt(r.n_salary) + "</span></div>";
+      }).join("");
+    }
+  }
+  function renderRoleTrend() {
+    var pr = H && H.movers && H.movers.pairs.length ? H.movers.pairs[0].a : "2024";
+    var cu = H && H.movers && H.movers.pairs.length ? H.movers.pairs[0].b : "2025";
+    var ups = RT.filter(function (r) { return r.signal === "up"; }).sort(function (a, b) { return b.delta_pp - a.delta_pp; }).slice(0, 8);
+    var downs = RT.filter(function (r) { return r.signal === "down"; }).sort(function (a, b) { return a.delta_pp - b.delta_pp; }).slice(0, 8);
+    var mx = Math.max.apply(null, ups.concat(downs).map(function (r) { return Math.abs(r.delta_pp); }).concat([0]));
+    var row = function (r, kind) {
+      var w = mx > 0 ? Math.max(2, 100 * Math.abs(r.delta_pp) / mx) : 0;
+      var title = r.role + ": " + pct(r.share_prev) + " em " + pr + " para " + pct(r.share_cur) + " em " + cu + " (" + fmt(r.n_prev) + " e " + fmt(r.n_cur) + " anúncios do Hacker News)";
+      return '<li><div class="mv r" title="' + esc(title) + '"><span class="nm">' + esc(r.role) + (r.small_base ? '<span class="tag" title="Poucos anúncios em ' + pr + '">base pequena</span>' : "") + '</span><span class="dbar ' + kind + '"><i style="width:' + w.toFixed(1) + '%"></i></span><span class="vals num">' + pct(r.share_prev) + " → <b>" + pct(r.share_cur) + '</b></span><span class="dl num ' + kind + '">' + pp(r.delta_pp) + " p.p.</span></div></li>";
+    };
+    $("rt-up").innerHTML = ups.map(function (r) { return row(r, "up"); }).join("") || '<li class="empty">Nenhum cargo em alta.</li>';
+    $("rt-down").innerHTML = downs.map(function (r) { return row(r, "down"); }).join("") || '<li class="empty">Nenhum cargo em queda.</li>';
+    $("rt-sub").textContent = "Anúncios do Hacker News, " + cu + " vs. " + pr + ", em p.p.";
+    $("card-rt").hidden = false;
+  }
+  function langSet() {
+    var set = {};
+    D.areas.forEach(function (a) { if (/^linguagens?$/i.test(a.label)) a.groups.forEach(function (g) { g.skills.forEach(function (k) { set[k] = 1; }); }); });
+    return set;
+  }
+  function renderBrief() {
+    var cards = [], L = D.areas ? langSet() : {};
+    if (ROLES) {
+      var ws = ROLES.filter(function (r) { return r.median_salary != null; }).sort(function (a, b) { return b.median_salary - a.median_salary; })[0];
+      if (ws) cards.push({go: "card-sal", rule: "var(--violet-l)", label: "Cargo que mais paga", name: ws.role, val: usd(ws.median_salary) + " por ano", cls: ""});
+    }
+    if (RT) {
+      var up = RT.filter(function (r) { return r.signal === "up"; }).sort(function (a, b) { return b.delta_pp - a.delta_pp; })[0];
+      if (up) cards.push({go: "card-rt", rule: "var(--green-l)", label: "Cargo que mais cresce", name: up.role, val: pp(up.delta_pp) + " p.p. no Hacker News", cls: "up"});
+    }
+    if (SKSAL) {
+      var ls = SKSAL.filter(function (r) { return L[r.skill]; }).sort(function (a, b) { return b.median_salary - a.median_salary; })[0];
+      if (ls) cards.push({go: "col-ss", rule: "var(--pink-l)", label: "Linguagem que mais paga", name: ls.skill, val: usd(ls.median_salary) + " por ano", cls: ""});
+    }
+    if (H && H.movers && H.movers.pairs.length) {
+      var dn = H.movers.pairs[0].downs.filter(function (r) { return r.skills.every(function (k) { return L[k]; }); }).sort(function (a, b) { return a.dp - b.dp; })[0];
+      if (dn) cards.push({go: "mv-down", rule: "#fca5a5", label: "Linguagem em maior queda", name: dn.k, val: pp(dn.dp) + " p.p. no Hacker News", cls: "down"});
+    }
+    $("brief").hidden = !cards.length;
+    $("brief").innerHTML = cards.map(function (c) {
+      return '<button type="button" class="card rule ans" data-go="' + c.go + '" style="--rule:' + c.rule + '"><span class="al">' + c.label + '</span><span class="an">' + esc(c.name) + '</span><span class="av ' + c.cls + '">' + c.val + "</span></button>";
+    }).join("");
+  }
+  function goTo(id) {
+    var el = $(id);
+    if (!el) return;
+    var v = el.closest("#view-empregos") ? "empregos" : "skills";
+    if (v !== view) setView(v, false);
+    el.scrollIntoView({block: "start", behavior: "smooth"});
+  }
+  /* tooltip: mouse (hover), teclado (foco) e toque (toque fixa; toque fora fecha) */
+  var rtip = $("rtip"), pinned = null;
+  function roleTip(r) {
+    var ts = (r.top_skills || []).slice(0, 8), mx = Math.max.apply(null, ts.map(function (s) { return s.pct; }).concat([1]));
+    var meta = fmt(r.n_jobs) + " vagas (" + pct(r.share_pct) + ")" + (r.median_salary != null ? "<br>Mediana " + usd(r.median_salary) + (r.p25 != null && r.p75 != null ? ", faixa " + usd(r.p25).replace("US$ ", "") + " a " + usd(r.p75).replace("US$ ", "") : "") + " · n = " + fmt(r.n_salary) : "<br>Sem salário informado em volume suficiente");
+    return "<h4>" + esc(r.role) + '</h4><div class="meta">' + meta + "</div>" +
+      (ts.length ? ts.map(function (s) { return '<div class="ts"><span>' + esc(s.skill) + '</span><span class="b"><i style="width:' + (100 * s.pct / mx).toFixed(1) + '%"></i></span><span class="p">' + pct(s.pct) + "</span></div>"; }).join("") : '<div class="none">Sem skills detectadas.</div>');
+  }
+  function hlRole(name) { document.querySelectorAll(".rrow[data-role]").forEach(function (b) { b.classList.toggle("hl", !!name && b.dataset.role === name); }); }
+  function placeTip(x, y, rect) {
+    var w = rtip.offsetWidth, h = rtip.offsetHeight, vw = window.innerWidth, vh = window.innerHeight;
+    var px = x != null ? x + 16 : rect.right - 8, py = y != null ? y + 12 : rect.bottom + 4;
+    if (px + w > vw - 8) px = (x != null ? x - w - 16 : vw - w - 8);
+    if (py + h > vh - 8) py = Math.max(8, (y != null ? y - h - 12 : rect.top - h - 4));
+    rtip.style.left = Math.max(8, px) + "px"; rtip.style.top = py + "px";
+  }
+  function showRole(btn, x, y) {
+    var r = roleBy[btn.dataset.role];
+    if (!r) return;
+    rtip.innerHTML = roleTip(r); rtip.hidden = false; hlRole(r.role);
+    placeTip(x, y, btn.getBoundingClientRect());
+  }
+  function hideRole() { rtip.hidden = true; hlRole(null); pinned = null; }
+  function wireEmp() {
+    var emp = $("emp");
+    emp.addEventListener("pointerover", function (e) { if (pinned || e.pointerType === "touch") return; var b = e.target.closest(".rrow[data-role]"); if (b) showRole(b, e.clientX, e.clientY); });
+    emp.addEventListener("pointermove", function (e) { if (pinned || e.pointerType === "touch" || rtip.hidden) return; var b = e.target.closest(".rrow[data-role]"); if (b) placeTip(e.clientX, e.clientY, b.getBoundingClientRect()); });
+    emp.addEventListener("pointerout", function (e) { if (pinned || e.pointerType === "touch") return; if (!e.relatedTarget || !e.relatedTarget.closest || !e.relatedTarget.closest(".rrow[data-role]")) hideRole(); });
+    emp.addEventListener("focusin", function (e) { var b = e.target.closest ? e.target.closest(".rrow[data-role]") : null; if (b && !pinned) showRole(b, null, null); });
+    emp.addEventListener("focusout", function () { if (!pinned) hideRole(); });
+    emp.addEventListener("click", function (e) {
+      var b = e.target.closest(".rrow[data-role]");
+      if (!b) return;
+      if (pinned === b.dataset.role) { hideRole(); return; }
+      pinned = null; showRole(b, e.clientX || null, e.clientY || null); pinned = b.dataset.role;
+      e.stopPropagation();
+    });
+    document.addEventListener("click", function (e) { if (pinned && !(e.target.closest && e.target.closest(".rrow[data-role]"))) hideRole(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !rtip.hidden) hideRole(); });
+    window.addEventListener("scroll", function () { if (!rtip.hidden && pinned) hideRole(); }, {passive: true});
+  }
+
+  /* ======================= tooltip dos KPIs (ao lado do titulo) ======================= */
+  var ktip = $("ktip"), ktOwner = null;
+  function showKt(btn) {
+    ktOwner = btn; ktip.textContent = btn.dataset.tip; ktip.hidden = false;
+    btn.setAttribute("aria-describedby", "ktip");
+    var r = btn.getBoundingClientRect(), w = ktip.offsetWidth, h = ktip.offsetHeight, vw = window.innerWidth, left, top;
+    if (vw < 600) { left = Math.min(Math.max(8, r.left), vw - w - 8); top = r.top - h - 8; if (top < 8) top = r.bottom + 8; }
+    else { left = r.right + 10; if (left + w > vw - 8) left = r.left - w - 10; if (left < 8) { left = Math.max(8, Math.min(r.left, vw - w - 8)); } top = Math.max(8, r.top - 6); }
+    ktip.style.left = left + "px"; ktip.style.top = top + "px";
+  }
+  function hideKt() { ktip.hidden = true; if (ktOwner) ktOwner.removeAttribute("aria-describedby"); ktOwner = null; }
+
+  /* ======================= navegacao entre secoes ======================= */
+  var view = EMP && START_EMP ? "empregos" : "skills";
+  var VIEWS = {
+    skills: {title: "Skills", sub: "O que as vagas de tecnologia pedem e como isso mudou", ic: "i-chart"},
+    empregos: {title: "Empregos", sub: "Cargos que mais empregam e que mais pagam", ic: "i-brief"}
+  };
+  function setView(v, fromHash) {
+    if (v === "empregos" && !EMP) v = "skills";
+    view = v;
+    $("view-skills").hidden = v !== "skills";
+    $("view-empregos").hidden = v !== "empregos";
+    document.documentElement.setAttribute("data-route", v);
+    $("h1").textContent = VIEWS[v].title; $("h1-sub").textContent = VIEWS[v].sub;
+    $("ident-ic").innerHTML = '<use href="#' + VIEWS[v].ic + '"/>';
+    $("cmp-ctl").hidden = !(v === "skills" && H && H.movers && H.movers.pairs.length);
+    document.querySelectorAll("#nav .ni[data-view]").forEach(function (b) { if (b.dataset.view === v) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+    if (!fromHash) {
+      try { history.replaceState(null, "", location.pathname + location.search + (v === "empregos" ? "#empregos" : hashSkills())); } catch (err) { /* local */ }
+    }
+    hideRole(); hideKt();
+    if (v === "skills") { placeHelps(); if (H && geo) renderChart(); }
+  }
+  /* gaveta no celular: foco no primeiro item, Escape e fundo fecham, foco volta ao botao */
+  function drawer(open) {
+    document.body.classList.toggle("drawer", open);
+    $("menu-btn").setAttribute("aria-expanded", String(open));
+    if (open) { var f = $("nav").querySelector(".ni:not([hidden])"); if (f) f.focus(); } else $("menu-btn").focus();
+  }
+
+  /* ======================= eventos ======================= */
+  function closeHelps(except) {
+    document.querySelectorAll(".help[aria-expanded=true]").forEach(function (b) { if (b !== except) b.setAttribute("aria-expanded", "false"); });
+  }
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest ? e.target.closest("button, a") : null;
+    if (!t || !t.classList.contains("help")) closeHelps(null);
+    if (!t || !t.classList.contains("kt")) { if (ktOwner) hideKt(); }
+    if (e.target.id === "scrim") { drawer(false); return; }
+    if (!t) return;
+    if (t.classList.contains("kt")) { if (ktOwner === t) hideKt(); else showKt(t); }
+    else if (t.classList.contains("mv")) focusChart(t.dataset.skills.split("|"));
+    else if (t.classList.contains("help")) { var o = t.getAttribute("aria-expanded") === "true"; closeHelps(t); t.setAttribute("aria-expanded", String(!o)); }
+    else if (t.classList.contains("sk")) { var k = t.dataset.k; if (slotOf(k) >= 0) removeSkill(k); else addSkills([k]); }
+    else if (t.dataset.go) goTo(t.dataset.go);
+    else if (t.dataset.view) { setView(t.dataset.view, false); if (document.body.classList.contains("drawer")) drawer(false); }
+    else if (t.dataset.tab) setTab(t.dataset.tab, false);
+    else if (t.dataset.rm) removeSkill(t.dataset.rm);
+    else if (t.id === "clear") { sel = []; setNotice(""); afterSelection(); }
+    else if (t.id === "menu-btn") drawer(!document.body.classList.contains("drawer"));
+    else if (t.id === "meth-link") {
+      $("meth").open = true;
+      if (document.body.classList.contains("drawer")) drawer(false);
+      $("meth").scrollIntoView({block: "start"});
+    }
+  });
+  document.addEventListener("change", function (e) {
+    var t = e.target;
+    if (t.id === "month") { cs.month = t.value; renderNow(); renderVolume(); }
+    else if (t.id === "hfilter") { hfilter = t.value; renderHealth(); }
+    else if (t.id === "pair") renderLead();
+  });
+  document.addEventListener("mouseover", function (e) { var b = e.target.closest ? e.target.closest(".kt") : null; if (b && b !== ktOwner) showKt(b); });
+  document.addEventListener("mouseout", function (e) { var b = e.target.closest ? e.target.closest(".kt") : null; if (b && b === ktOwner && !(e.relatedTarget && b.contains(e.relatedTarget))) hideKt(); });
+  document.addEventListener("focusin", function (e) { var b = e.target.closest ? e.target.closest(".kt") : null; if (b) showKt(b); });
+  document.addEventListener("focusout", function (e) { if (e.target.classList && e.target.classList.contains("kt")) hideKt(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    closeHelps(null); hideKt();
+    if (document.body.classList.contains("drawer")) drawer(false);
+  });
+  function wire() {
+    $("q").addEventListener("input", function () { q = this.value; renderList(); });
+    $("tabs").addEventListener("keydown", function (e) {
+      var i = tabs.map(function (t) { return t.id; }).indexOf(tab), n = tabs.length, j = -1;
+      if (e.key === "ArrowRight") j = (i + 1) % n; else if (e.key === "ArrowLeft") j = (i + n - 1) % n;
+      else if (e.key === "Home") j = 0; else if (e.key === "End") j = n - 1;
+      if (j >= 0) { e.preventDefault(); setTab(tabs[j].id, true); }
+    });
+    var box = $("hchart");
+    box.addEventListener("pointermove", function (e) { if (geo) showHover(idxFromEvent(e)); });
+    box.addEventListener("pointerleave", hideHover);
+    box.addEventListener("keydown", function (e) {
+      if (!geo) return;
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); showHover((hoverIdx == null ? geo.n - 1 : hoverIdx) + (e.key === "ArrowRight" ? 1 : -1)); }
+      else if (e.key === "Home") { e.preventDefault(); showHover(0); }
+      else if (e.key === "End") { e.preventDefault(); showHover(geo.n - 1); }
+      else if (e.key === "Escape") hideHover();
+    });
+    box.addEventListener("blur", hideHover);
+    var rt = null;
+    window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { if (H && view === "skills" && Math.abs($("hchart").clientWidth - 2 - lastW) > 4) renderChart(); }, 120); });
+    window.addEventListener("hashchange", function () {
+      if (/^#empregos/.test(location.hash)) { setView("empregos", true); return; }
+      var h = H ? readHash() : null;
+      setView("skills", true);
+      if (h) { sel = []; addSkills(h); }
+    });
+  }
+
+  renderNow(); renderHealth(); renderVolume();
+  if (H) { histInit(); initLead(); initExplorer(); wire(); }
+  if (!H || !H.movers || !H.movers.pairs.length) fallbackHead();
+  if (!H) { $("lead").hidden = true; }
+  if (EMP) {
+    $("nav-emp").hidden = false;
+    if (ROLES) { renderEmpregos(); wireEmp(); } else $("emp").hidden = true;
+    if (RT) renderRoleTrend();
+  }
+  renderBrief();
+  setView(EMP && START_EMP ? "empregos" : "skills", true);
+})();
+</script>
+</body>
+</html>

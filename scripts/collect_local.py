@@ -40,15 +40,15 @@ def collect(
         "PYTHONIOENCODING": "utf-8",
     }
 
-    def vaya(*cmd: str, check: bool = True) -> int:
-        full = [sys.executable, "-m", "vaya_indexer", *cmd]
+    def skilometer(*cmd: str, check: bool = True) -> int:
+        full = [sys.executable, "-m", "skilometer", *cmd]
         return subprocess.run(full, cwd=ROOT, env=env, check=check).returncode
 
     subprocess.run(
         [sys.executable, "-m", "alembic", "upgrade", "head"], cwd=ROOT, env=env, check=True
     )
-    vaya("seed-platforms")
-    vaya("load-catalog")
+    skilometer("seed-platforms")
+    skilometer("load-catalog")
     with tempfile.TemporaryDirectory() as tmp:
         summary_path = Path(tmp) / "fetch_summary.json"
         fetch = [
@@ -64,7 +64,7 @@ def collect(
             fetch += ["--platform", platform]
         if concurrency:
             fetch += ["--concurrency", str(concurrency)]
-        code = vaya(*fetch, check=False)
+        code = skilometer(*fetch, check=False)
         summary = (
             json.loads(summary_path.read_text(encoding="utf-8")) if summary_path.exists() else None
         )

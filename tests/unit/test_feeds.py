@@ -1,7 +1,7 @@
 import pytest
 
-from vaya_indexer.connectors.feeds import parse_feed
-from vaya_indexer.core.exceptions import ParseError
+from skilometer.connectors.feeds import parse_feed
+from skilometer.core.exceptions import ParseError
 
 # Feeds SINTETICOS.
 RSS = """<?xml version="1.0"?>

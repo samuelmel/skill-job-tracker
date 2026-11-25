@@ -24,13 +24,13 @@ from sqlalchemy import create_engine as create_sync_engine
 from sqlalchemy import func, select, text
 from sqlalchemy.engine import make_url
 
-from vaya_indexer.core.config import ProcessingPolicy
-from vaya_indexer.database.models import DedupMatch, Job, JobHistory, JobSource
-from vaya_indexer.database.repositories.platforms import PlatformRepository
-from vaya_indexer.database.session import create_engine, create_session_factory
-from vaya_indexer.extraction.http import HttpClient
-from vaya_indexer.ingestion.service import FetchRunSummary, IngestionService, register_source
-from vaya_indexer.platforms_catalog import build_catalog
+from skilometer.core.config import ProcessingPolicy
+from skilometer.database.models import DedupMatch, Job, JobHistory, JobSource
+from skilometer.database.repositories.platforms import PlatformRepository
+from skilometer.database.session import create_engine, create_session_factory
+from skilometer.extraction.http import HttpClient
+from skilometer.ingestion.service import FetchRunSummary, IngestionService, register_source
+from skilometer.platforms_catalog import build_catalog
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPANY = "Acme Demo"
@@ -108,7 +108,7 @@ async def scenario(url: str, port: int) -> None:
     ]
     STATE[BOARD_1] = copy.deepcopy(base_jobs)
     policy = ProcessingPolicy(reconcile_grace_hours=0)  # demo: sem janela de graca
-    async with HttpClient(user_agent="vaya-demo", max_retries=1) as http:
+    async with HttpClient(user_agent="skilometer-demo", max_retries=1) as http:
         service = IngestionService(factory, http, policy)
         run = service.run_source
         metrics("coleta 1 (inicial)", await run(ids[BOARD_1]))

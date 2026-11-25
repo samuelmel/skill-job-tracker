@@ -1,5 +1,5 @@
 [project]
-name = "vaya-indexer"
+name = "skilometer"
 version = "0.1.0"
 description = "Job Board Indexer - Fase 1: fundacao, conector Greenhouse e ingestao"
 readme = "README.md"
@@ -37,14 +37,14 @@ dev = [
 ]
 
 [project.scripts]
-vaya = "vaya_indexer.cli:main"
+skilometer = "skilometer.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/vaya_indexer"]
+packages = ["src/skilometer"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

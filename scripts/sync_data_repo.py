@@ -2,7 +2,7 @@
 
 Uso: uv run python scripts/sync_data_repo.py {export,restore} --repo-dir DIR [--lake-dir data]
 
-- `export`: lake -> DIR. Carga inicial (ou gravacao mensal) do repositorio `skill-job-tracker-data`.
+- `export`: lake -> DIR. Carga inicial (ou gravacao mensal) do repositorio `skilometer-data`.
 - `restore`: DIR -> lake. Devolve o raw ao runner descartavel do CI.
 
 So viajam `failed-months.json` (meses reprovados no gate), `raw/` (coleta mensal) e

@@ -20,11 +20,11 @@ from typing import Any
 import httpx
 from prepare_site import scan
 
-from vaya_indexer.lake.dashboard import build_areas, render_html
+from skilometer.lake.dashboard import build_areas, render_html
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_URL = "https://samuelmel.github.io/skill-job-tracker/"
-USER_AGENT = "VayaJobIndexer/0.1 (+https://github.com/samuelmel/skill-job-tracker)"
+DEFAULT_URL = "https://samuelmel.github.io/skilometer/"
+USER_AGENT = "Skilometer/0.1 (+https://github.com/samuelmel/skilometer)"
 MONTH = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 # Campos que o template le de `D` (hist e opcional; areas e recalculado aqui).
 REQUIRED = ("generated_at", "months", "coverage", "skills", "den", "sm", "tr", "health")

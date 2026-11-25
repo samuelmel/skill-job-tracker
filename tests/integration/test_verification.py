@@ -10,15 +10,15 @@ import respx
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from skilometer.coverage.metadata import ExampleInstance, PlatformMetadata
+from skilometer.coverage.report import build_report, render_markdown, write_report
+from skilometer.coverage.verification import VerificationService
+from skilometer.database.models import ImplementationStatus, Platform, PlatformVerification
+from skilometer.database.repositories.platforms import PlatformRepository
+from skilometer.extraction.http import HttpClient
+from skilometer.ingestion.service import IngestionService
+from skilometer.platforms_catalog import build_catalog
 from tests.fixtures.greenhouse import BOARD_TOKEN, JOBS_URL, board_payload
-from vaya_indexer.coverage.metadata import ExampleInstance, PlatformMetadata
-from vaya_indexer.coverage.report import build_report, render_markdown, write_report
-from vaya_indexer.coverage.verification import VerificationService
-from vaya_indexer.database.models import ImplementationStatus, Platform, PlatformVerification
-from vaya_indexer.database.repositories.platforms import PlatformRepository
-from vaya_indexer.extraction.http import HttpClient
-from vaya_indexer.ingestion.service import IngestionService
-from vaya_indexer.platforms_catalog import build_catalog
 
 pytestmark = pytest.mark.usefixtures("seeded")
 
@@ -41,7 +41,7 @@ async def _noop_sleep(_: float) -> None:
 
 @pytest.fixture
 async def service(session_factory: Factory) -> AsyncIterator[VerificationService]:
-    async with HttpClient(user_agent="vaya-test", max_retries=1, sleep=_noop_sleep) as http:
+    async with HttpClient(user_agent="skilometer-test", max_retries=1, sleep=_noop_sleep) as http:
         yield VerificationService(
             session_factory, IngestionService(session_factory, http), METADATA
         )

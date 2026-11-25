@@ -2,7 +2,7 @@ from collections.abc import Awaitable, Callable
 
 import pytest
 
-from vaya_indexer.connectors.pagination import paginate, paginate_offset, paginate_pages
+from skilometer.connectors.pagination import paginate, paginate_offset, paginate_pages
 
 
 def _source(total: int, page_size: int) -> tuple[Callable[[int], Awaitable[list[int]]], list[int]]:

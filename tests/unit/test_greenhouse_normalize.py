@@ -3,10 +3,10 @@ from collections.abc import AsyncIterator
 import pytest
 from pydantic import ValidationError
 
+from skilometer.connectors.base import RawJob
+from skilometer.connectors.greenhouse import GreenhouseConnector
+from skilometer.extraction.http import HttpClient
 from tests.fixtures.greenhouse import board_payload
-from vaya_indexer.connectors.base import RawJob
-from vaya_indexer.connectors.greenhouse import GreenhouseConnector
-from vaya_indexer.extraction.http import HttpClient
 
 
 @pytest.fixture

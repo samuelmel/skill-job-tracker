@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📈 Skill Job Tracker
+# 📈 Skilometer
 
 ### *Quais skills de tecnologia sobem e descem nos anúncios de vagas, medido todo mês*
 
@@ -13,7 +13,7 @@
 
 **Pipeline medalhão que coleta vagas de 106 fontes públicas, guarda o raw em JSONL, refina em Bronze, Silver e Gold (Parquet, DuckDB, dbt) e publica um dashboard estático no GitHub Pages. Roda sozinho todo mês no GitHub Actions.**
 
-[**Ver o dashboard**](https://samuelmel.github.io/skill-job-tracker/)
+[**Ver o dashboard**](https://samuelmel.github.io/skilometer/)
 
 </div>
 
@@ -89,7 +89,7 @@ O fluxo principal pode ser resumido como:
 
 <div align="center">
 
-<img src="docs/assets/dashboard.jpg" alt="Dashboard Skill Job Tracker com as listas de skills em alta e em queda e o explorador de skills por área" width="850">
+<img src="docs/assets/dashboard.jpg" alt="Dashboard Skilometer com as listas de skills em alta e em queda e o explorador de skills por área" width="850">
 
 <p><em>Topo do dashboard: altas e quedas em pontos percentuais entre 2025 e 2024, com sparkline por skill, e o seletor de skills por área.</em></p>
 

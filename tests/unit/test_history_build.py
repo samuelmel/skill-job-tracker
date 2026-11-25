@@ -10,9 +10,9 @@ from typing import Any
 import duckdb
 import pytest
 
-from vaya_indexer.lake import history_build as hb
-from vaya_indexer.lake import monthly
-from vaya_indexer.lake.dashboard import (
+from skilometer.lake import history_build as hb
+from skilometer.lake import monthly
+from skilometer.lake.dashboard import (
     build_movers,
     collect_history,
     pp_delta,

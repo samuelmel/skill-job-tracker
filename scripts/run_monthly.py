@@ -15,7 +15,7 @@ from pathlib import Path
 
 from collect_local import ROOT, collect
 
-from vaya_indexer.lake.monthly import run_monthly, validate_month
+from skilometer.lake.monthly import run_monthly, validate_month
 
 MIN_OK_RATIO = 0.5
 

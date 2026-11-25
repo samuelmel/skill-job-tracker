@@ -11,7 +11,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from vaya_indexer.lake.failed_months import clear_failed, mark_failed
+from skilometer.lake.failed_months import clear_failed, mark_failed
 
 ROOT = Path(__file__).resolve().parents[1]
 

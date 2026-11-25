@@ -2,9 +2,9 @@
 
 import pytest
 
-from vaya_indexer.connectors.greenhouse import GreenhouseConnector
-from vaya_indexer.core.exceptions import FetchError
-from vaya_indexer.extraction.http import HttpClient
+from skilometer.connectors.greenhouse import GreenhouseConnector
+from skilometer.core.exceptions import FetchError
+from skilometer.extraction.http import HttpClient
 
 pytestmark = pytest.mark.live
 
@@ -13,7 +13,7 @@ CANDIDATE_BOARDS = ("gitlab", "airbnb", "discord", "stripe")
 
 async def test_greenhouse_real_board_normalizes_jobs() -> None:
     errors: list[str] = []
-    async with HttpClient(user_agent="VayaJobIndexer/0.1 (live-test)", timeout=30) as http:
+    async with HttpClient(user_agent="Skilometer/0.1 (live-test)", timeout=30) as http:
         for board in CANDIDATE_BOARDS:
             connector = GreenhouseConnector(http, board_token=board)
             try:

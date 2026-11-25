@@ -1,11 +1,11 @@
-# Sem segredos. Caminhos vem de variaveis de ambiente definidas por `vaya lake`;
+# Sem segredos. Caminhos vem de variaveis de ambiente definidas por `skilometer lake`;
 # o padrao relativo vale para rodar `dbt build` manualmente de dentro de analytics/.
-vaya:
+skilometer:
   target: dev
   outputs:
     dev:
       type: duckdb
-      path: "{{ env_var('VAYA_WAREHOUSE', '../data/warehouse.duckdb') }}"
+      path: "{{ env_var('SKILOMETER_WAREHOUSE', '../data/warehouse.duckdb') }}"
       threads: 4
 config:
   send_anonymous_usage_stats: false

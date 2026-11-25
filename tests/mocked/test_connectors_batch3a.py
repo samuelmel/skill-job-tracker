@@ -7,14 +7,14 @@ import httpx
 import pytest
 import respx
 
-import vaya_indexer.connectors.niceboard as niceboard_mod
-import vaya_indexer.connectors.wp_job_manager as wpjm_mod
-from vaya_indexer.connectors.jobboard_io import JobBoardIoConnector
-from vaya_indexer.connectors.niceboard import NiceboardConnector
-from vaya_indexer.connectors.smartjobboard import SmartJobBoardConnector
-from vaya_indexer.connectors.wp_job_manager import WpJobManagerConnector
-from vaya_indexer.core.exceptions import ConnectorConfigError, ParseError
-from vaya_indexer.extraction.http import HttpClient
+import skilometer.connectors.niceboard as niceboard_mod
+import skilometer.connectors.wp_job_manager as wpjm_mod
+from skilometer.connectors.jobboard_io import JobBoardIoConnector
+from skilometer.connectors.niceboard import NiceboardConnector
+from skilometer.connectors.smartjobboard import SmartJobBoardConnector
+from skilometer.connectors.wp_job_manager import WpJobManagerConnector
+from skilometer.core.exceptions import ConnectorConfigError, ParseError
+from skilometer.extraction.http import HttpClient
 
 SM_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 

@@ -57,7 +57,7 @@ def test_actions_pinned_by_full_sha_with_version_comment() -> None:
 def test_data_repo_and_no_personal_paths_or_email() -> None:
     text = WORKFLOW.read_text("utf-8")
     assert "secrets.DATA_REPO_SSH_KEY" in text
-    assert "${{ github.repository_owner }}/skill-job-tracker-data" in text
+    assert "${{ github.repository_owner }}/skilometer-data" in text
     assert not re.search(r"(?<![A-Za-z0-9])[A-Za-z]:[\\/]|/Users/", text)
     no_ssh_user = text.replace("git@github.com", "")  # usuario SSH do GitHub, nao e e-mail
     assert not re.search(r"[\w.+-]+@(?!users\.noreply\.github\.com)[\w-]+\.[a-z]{2,}", no_ssh_user)
@@ -173,7 +173,7 @@ def test_stage_step_succeeds_on_first_good_run_without_registry(
         _raw(work / "data", "raw/p/manifest.json", b"{}")
     _raw(work / "data", "bronze/jobs/x.parquet")  # nunca deve ser staged
     # O passo "Registrar resultado do mes" quando o gate passa:
-    from vaya_indexer.lake.failed_months import clear_failed
+    from skilometer.lake.failed_months import clear_failed
 
     clear_failed(work / "data", "2026-11")
     out = work / "out.txt"
@@ -271,7 +271,7 @@ def test_site_has_only_dashboard_html(tmp_path: Path, monkeypatch: pytest.Monkey
 @pytest.mark.parametrize(
     "leak",
     [
-        r"C:\Users\fulano\Vaya\data",
+        r"C:\Users\fulano\Skilometer\data",
         "D:/Downloads/x",
         r"E:\\Dados\\x",  # barra invertida escapada em JSON
         "/github/workspace/data",

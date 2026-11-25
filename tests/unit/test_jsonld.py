@@ -2,8 +2,8 @@ from decimal import Decimal
 
 import pytest
 
-from vaya_indexer.connectors.jsonld import extract_job_postings, job_posting_to_normalized
-from vaya_indexer.core.exceptions import ParseError
+from skilometer.connectors.jsonld import extract_job_postings, job_posting_to_normalized
+from skilometer.core.exceptions import ParseError
 
 # HTML SINTETICO (nao e evidencia de cobertura de nenhuma plataforma).
 HTML = """

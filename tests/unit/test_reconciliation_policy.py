@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
-from vaya_indexer.core.config import ProcessingPolicy
-from vaya_indexer.ingestion.reconciliation import (
+from skilometer.core.config import ProcessingPolicy
+from skilometer.ingestion.reconciliation import (
     EMPTY_LISTING_MESSAGE,
     ReconcileAction,
     decide_reconciliation,

@@ -7,13 +7,13 @@ import httpx
 import pytest
 import respx
 
-from vaya_indexer.connectors import jboard_io, jobboardhq, jobiqo
-from vaya_indexer.connectors.jboard_io import JBoardIoConnector
-from vaya_indexer.connectors.jobboardhq import JobBoardHQConnector
-from vaya_indexer.connectors.jobboardly import JobboardlyConnector
-from vaya_indexer.connectors.jobiqo import JobiqoConnector
-from vaya_indexer.core.exceptions import ConnectorConfigError, ParseError
-from vaya_indexer.extraction.http import HttpClient
+from skilometer.connectors import jboard_io, jobboardhq, jobiqo
+from skilometer.connectors.jboard_io import JBoardIoConnector
+from skilometer.connectors.jobboardhq import JobBoardHQConnector
+from skilometer.connectors.jobboardly import JobboardlyConnector
+from skilometer.connectors.jobiqo import JobiqoConnector
+from skilometer.core.exceptions import ConnectorConfigError, ParseError
+from skilometer.extraction.http import HttpClient
 
 SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
