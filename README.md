@@ -101,7 +101,7 @@ O fluxo principal pode ser resumido como:
 |---|---|
 | Fontes tentadas | 106 |
 | SUCCEEDED / PARTIAL / FAILED | 90 / 14 / 2 |
-| Vagas coletadas | 13.453 |
+| Vagas únicas (fontes com coleta completa) | 11.410 |
 
 Skills com base pequena aparecem com o selo "base pequena" no dashboard, e não há ranking de skill sem o denominador de vagas com descrição.
 

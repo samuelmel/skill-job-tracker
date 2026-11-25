@@ -10,6 +10,15 @@ seeds:
       - name: pattern
         data_tests: [not_null]
 
+  - name: role_families
+    columns:
+      - name: ord
+        data_tests: [unique, not_null]
+      - name: role
+        data_tests: [not_null]
+      - name: pattern
+        data_tests: [not_null]
+
 models:
   - name: silver_run
     columns:
@@ -41,6 +50,18 @@ models:
           - accepted_values:
               arguments:
                 values: [intern, director, manager, staff_principal, lead, senior, junior, unspecified]
+  - name: silver_job_role
+    columns:
+      - name: job_month_key
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('silver_job_month')
+                field: job_month_key
+      - name: role
+        data_tests: [not_null]
   - name: silver_source_month
     columns:
       - name: source_key
@@ -87,6 +108,18 @@ models:
       - name: month
         data_tests: [not_null]
       - name: text
+        data_tests: [not_null]
+  - name: silver_hn_post_role
+    columns:
+      - name: post_id
+        data_tests: [unique, not_null]
+      - name: role
+        data_tests: [not_null]
+  - name: silver_hn_post_pay
+    columns:
+      - name: post_id
+        data_tests: [unique, not_null]
+      - name: role
         data_tests: [not_null]
   - name: silver_hn_post_skill
     columns:

@@ -1,0 +1,19 @@
+ord,role,pattern
+10,Outro,\b(sales|solutions?|customer|field|support|pre-?sales|technical account|application sales|partner) engineer\w*\b
+15,Outro,\b(account (executive|manager|director)|sales (manager|representative|executive|specialist|associate|director)|recruiter|business developer|bdr|sdr)\b
+20,Outro,\b(mechanical|civil|electrical|chemical|structural|industrial|biomedical|manufacturing|hardware|electronics?|process|quality control|validation|facilities|construction|petroleum|mining|geotechnical|environmental) engineer\w*\b
+30,Outro,\b(director|vp|vice president|svp|evp|head of|chief|president|cto|cio|cdo|ciso)\b
+35,Product Manager,\b(product (manager|owner)\w*|gerente de produto)\b
+40,Outro,"\b(engineering|software|data|development|devops|security|qa|it|infrastructure|platform|machine learning|ml|ai) (manager|management)\b|\bmanager,? (of )?(engineering|software|data|development|devops|security|qa|it|infrastructure|platform|machine learning|ml|ai)\b"
+60,QA/Test,\b(qa|sdet|quality assurance|test engineer\w*|test automation|automation (test|qa)\w*|(software|development) engineer in test|tester|testing engineer)\b
+70,Security,\b(security (engineer|analyst|architect|researcher|developer|operations|software|administrator)\w*|cyber ?security|information security|infosec|appsec|devsecops|pentest\w*|penetration test\w*|soc analyst|threat (hunter|analyst|intelligence|detection)|vulnerability (analyst|engineer|researcher))\b
+80,Data Engineer,\b(data engineer\w*|data platform|data infrastructure|data pipelines?|analytics engineer\w*|big data|etl|elt|dataops|engenheir[oa] de dados|data (software )?(developer|programmer)|database engineer|(software|backend|back end|python) (engineer|developer)\W+data\W*$)
+90,AI/ML Engineer,"\b(machine learning|ml|mlops|ai|artificial intelligence|llm|genai|gen ai|generative ai|deep learning|nlp|computer vision|aiops)\b[^,;()|]*\b(engineer|developer|scientist|researcher|architect|specialist|programmer)\w*\b|\b(engineer|developer|programmer)\w*\b[^|]*\b(machine learning|ml|mlops|ai|llm|genai|generative ai|deep learning|nlp|computer vision)\b|\bengenheir[oa] de (machine learning|ml|ia)\b"
+100,Data Scientist,\b(data scientist\w*|cientista de dados|applied scientist\w*|decision scientist\w*|data science)\b
+110,Data Analyst,"\b(data analyst\w*|analista de dados|business intelligence|bi (analyst|developer|engineer|specialist|consultant)|analytics (analyst|specialist|consultant|developer)|reporting analyst|insights? analyst|data (visuali[sz]ation|reporting) \w+|analyst,? data)\b"
+120,DevOps/SRE/Cloud,\b(devops|sre|site reliability|platform engineer\w*|cloud (engineer|architect|developer|infrastructure|operations|ops)\w*|infrastructure (software )?engineer\w*|systems? administrator|sysadmin|release engineer\w*|build engineer\w*|reliability engineer\w*|production engineer\w*|cloudops|finops|kubernetes (engineer|administrator))\b
+130,Mobile,"\b(ios|android|mobile|react native|flutter|swift|kotlin)\b[^,;()|]*\b(engineer|developer|programmer|dev)\w*\b|\b(engineer|developer)\w*\W+(ios|android|mobile)\b|\bdesenvolvedor\w* (ios|android|mobile)\b"
+140,Fullstack,\b(full[ -]?stack|fullstack|desenvolvedor\w* full)\b
+150,Frontend,\b(front[ -]?end|frontend|ui (engineer|developer)\w*|(react|angular|vue)(\.?js)? (developer|engineer)\w*|desenvolvedor\w* front)\b
+160,Backend,\b(back[ -]?end|backend|server[ -]?side|api (engineer|developer)\w*|desenvolvedor\w* back)\b
+170,Software Engineer,"\b(software|application|web|platform|game|embedded|firmware|java|python|golang|ruby|rust|scala|php|node(\.?js)?|javascript|typescript|c\+\+|c#|\.net|go) (development )?(engineer|developer|programmer|architect)\w*|\b(swe|sde|mts)\b|\bmember of technical staff\b|\bsoftware (engineering|development)\b|\bengineer,? software\b|\bdesenvolvedor\w*|\bengenheir[oa] de software\b|\bprogrammer\b"

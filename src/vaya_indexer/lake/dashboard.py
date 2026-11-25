@@ -12,6 +12,8 @@ from typing import Any
 
 import duckdb
 
+from vaya_indexer.lake.roles import collect_role_trend, collect_roles
+
 TEMPLATE = Path(__file__).with_name("dashboard_template.html")
 HEALTH_ROWS_LIMIT = 400
 MIN_SAMPLE = 30
@@ -494,6 +496,8 @@ def collect_data(warehouse: Path) -> dict[str, Any]:
             )
         ]
         hist = collect_history(con)
+        roles = collect_roles(con, months[-1])
+        role_trend = collect_role_trend(con)
         summary = {
             r["health"]: r["n"]
             for r in _rows(con, "select health, count(*) as n from gold_source_health group by 1")
@@ -520,7 +524,7 @@ def collect_data(warehouse: Path) -> dict[str, Any]:
     finally:
         con.close()
     cats = sorted({s["category"] for s in skills})
-    return {
+    data: dict[str, Any] = {
         "generated_at": datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
         "min_sample": MIN_SAMPLE,
         "months": months,
@@ -540,6 +544,15 @@ def collect_data(warehouse: Path) -> dict[str, Any]:
             "rows": health_rows,
         },
     }
+    if roles is not None:  # chaves opcionais: o front antigo e o rerender_site ignoram
+        data["roles_month"] = roles["month"]
+        data["roles"] = roles["roles"]
+        data["skill_salary"] = roles["skill_salary"]
+        data["salary_meta"] = roles["salary_meta"]
+    if role_trend is not None:
+        data["role_trend"] = role_trend["rows"]
+        data["role_trend_meta"] = role_trend["meta"]
+    return data
 
 
 def _json_for_script(data: dict[str, Any]) -> str:

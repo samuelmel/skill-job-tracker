@@ -210,7 +210,14 @@ def build_history_bronze(lake_dir: Path | str) -> HistoryBronzeResult:
 
 
 # cautious: so roda testes cujos pais estao todos selecionados (nao os de silver_job_skill).
-HISTORY_DBT_ARGS = ["--select", "skills", "tag:history", "--indirect-selection", "cautious"]
+HISTORY_DBT_ARGS = [
+    "--select",
+    "skills",
+    "role_families",
+    "tag:history",
+    "--indirect-selection",
+    "cautious",
+]
 
 
 def run_history_build(lake_dir: Path | str, project_dir: Path | str | None = None) -> Path:

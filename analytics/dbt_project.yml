@@ -39,3 +39,8 @@ seeds:
         pattern: varchar
         case_sensitive: boolean
         exclude_pattern: varchar
+    role_families:
+      +column_types:
+        ord: integer
+        role: varchar
+        pattern: varchar
